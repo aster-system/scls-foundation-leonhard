@@ -2,7 +2,7 @@
 
 int main()
 {
-	basix::hello_world();
+	basix::print("Debug", "Developer", basix::replace("Hello world !", "o", "a"));
 
 	return 0;
 }
