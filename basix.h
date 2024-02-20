@@ -245,14 +245,74 @@ namespace basix
 		}
 	}
 
+	// Struct representing datas about a PNG chunk
+	struct PNG_Chunk {
+		// Positionf of the chunk in the file
+		unsigned int position = 0;
+		// Name of the chunk
+		std::string name = "";
+		// Size of the chunk
+		unsigned int size = 0;
+	};
+
 	class PNG_Image
 	{
 		// Class representing a PNG image handler
 	public:
 		// PNG_Image constructor
 		PNG_Image() {};
-		// Load the image from a path
-		inline bool load_from_path(std::string path)
+		// Get every chunks into a PNG image
+		std::vector<PNG_Chunk> get_all_chunks_from_path(std::string path)
+		{
+			std::vector<PNG_Chunk> to_return = std::vector<PNG_Chunk>();
+			if (file_exists(path) && !path_is_directory(path))
+			{
+				// Create the necessary things to read the PNG file
+				std::vector<char*> header = std::vector<char*>();
+				std::string name = "";
+				std::vector<unsigned int> size = std::vector<unsigned int>();
+				unsigned int size_offset = 0;
+
+				// Check each chunks in the file
+				while (name != "IEND")
+				{
+					header.clear();
+					size.clear();
+					name = "";
+					header.push_back((char*)(new unsigned int(0)));
+					size.push_back(sizeof(unsigned int));
+					for (int i = 0; i < 4; i++)
+					{
+						header.push_back((new char(0)));
+						size.push_back(sizeof(char));
+					}
+					read_file_binary(path, header, size, 8 + size_offset);
+					unsigned int chunk_size = *((int*)header[0]);
+					chunk_size = _byteswap_ulong(chunk_size);
+					for (int i = 0; i < 4; i++)
+					{
+						name += *header[i + 1];
+					}
+					delete_binary(header);
+					PNG_Chunk chunk;
+					chunk.position = size_offset + 16;
+					chunk.name = name;
+					chunk.size = chunk_size;
+					size_offset += chunk_size + 12;
+					to_return.push_back(chunk);
+
+					// Load some chunks
+					if (name == "pHYs")
+					{
+						load_pHYS_from_path(path, chunk);
+					}
+					std::cout << "Name " << name << " size " << chunk_size << " " << chunk.position << std::endl;
+				}
+			}
+			return to_return;
+		};
+		// Load the base data of an image from a path
+		inline bool load_base_from_path(std::string path)
 		{
 			if (file_exists(path) && !path_is_directory(path))
 			{
@@ -286,10 +346,75 @@ namespace basix
 				// Get the size of the chunk
 				size.clear();
 				header.push_back((char*)(new unsigned int(0)));
-				size.push_back(sizeof(4));
+				size.push_back(sizeof(unsigned int));
 				read_file_binary(path, header, size, 8);
 				unsigned int chunk_size = *((int*)header[0]);
 				chunk_size = _byteswap_ulong(chunk_size);
+				delete_binary(header);
+				if (chunk_size != 13) return false;
+				// Get the datas of the chunk
+				size.clear();
+				for (int i = 0; i < 2; i++)
+				{
+					header.push_back((char*)(new unsigned int(0)));
+					size.push_back(sizeof(unsigned int));
+				}
+				for (int i = 0; i < 5; i++)
+				{
+					header.push_back((char*)(new unsigned char(0)));
+					size.push_back(sizeof(unsigned char));
+				}
+				read_file_binary(path, header, size, 16);
+				unsigned int chunk_height = *((int*)header[1]);
+				a_height = _byteswap_ulong(chunk_height);
+				unsigned int chunk_width = *((int*)header[0]);
+				a_width = _byteswap_ulong(chunk_width);
+				a_bit_depth = *(header[2]);
+				a_color_type = *(header[3]);
+				delete_binary(header);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		// Load the image from a path
+		inline bool load_from_path(std::string path)
+		{
+			if (load_base_from_path(path))
+			{
+				get_all_chunks_from_path(path);
+				std::cout << ":) " << get_width() << " " << get_height() << " " << get_bit_depht() << " " << get_color_type() << std::endl;
+				std::cout << "-> " << get_physical_unit() << " " << get_physical_width_ratio() << " " << get_physical_height_ratio() << std::endl;
+			}
+			else
+			{
+				return false;
+			}
+		};
+		// Load the pHYS chunk from a path
+		inline bool load_pHYS_from_path(std::string path, PNG_Chunk chunk)
+		{
+			if (file_exists(path) && !path_is_directory(path) && chunk.name == "pHYs" && chunk.size == 9)
+			{
+				// Create the necessary things to read the PNG file
+				std::vector<char*> header = std::vector<char*>();
+				std::vector<unsigned int> size = std::vector<unsigned int>();
+
+				// Read into the chunk
+				for (int i = 0; i < 2; i++)
+				{
+					header.push_back((char*)(new unsigned int(0)));
+					size.push_back(sizeof(unsigned int));
+				}
+				header.push_back((new char(0)));
+				size.push_back(sizeof(char));
+				read_file_binary(path, header, size, chunk.position);
+				unsigned int physical_height = *((unsigned int*)header[1]);
+				a_physical_height_ratio = _byteswap_ulong(physical_height);
+				unsigned int physical_width = *((unsigned int*)header[0]);
+				a_physical_width_ratio = _byteswap_ulong(physical_width);
+				a_physical_unit = *header[2];
 				delete_binary(header);
 			}
 			else
@@ -301,9 +426,30 @@ namespace basix
 		~PNG_Image() {};
 
 		// Getters and setters
+		inline unsigned int get_bit_depht() { return a_bit_depth; };
+		inline unsigned int get_color_type() { return a_color_type; };
+		inline unsigned int get_height() { return a_height; };
 		inline std::string get_path() { return a_path; };
+		inline unsigned int get_physical_height_ratio() { return a_physical_height_ratio; };
+		inline unsigned int get_physical_unit() { return a_physical_unit; };
+		inline unsigned int get_physical_width_ratio() { return a_physical_width_ratio; };
+		inline unsigned int get_width() { return a_width; };
 	private:
+		// Bit depth of the image
+		unsigned int a_bit_depth = 0;
+		// Color type of the image
+		unsigned int a_color_type = 0;
+		// Height of the image
+		unsigned int a_height = 0;
 		// Path of the image
 		std::string a_path = "";
+		// Physical height of the image
+		unsigned int a_physical_height_ratio = 0;
+		// Physical unit of the image (0 = unknow, 1 = meter)
+		unsigned int a_physical_unit = 0;
+		// Physical width of the image
+		unsigned int a_physical_width_ratio = 0;
+		// Width of the image
+		unsigned int a_width = 0;
 	};
 }
