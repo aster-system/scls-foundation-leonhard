@@ -22,6 +22,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <zlib/zlib.h>
 
 // The namespace "basix" is used to simplify the all.
 namespace basix
@@ -306,6 +307,10 @@ namespace basix
 					{
 						load_pHYS_from_path(path, chunk);
 					}
+					else if (name == "IDAT")
+					{
+						load_IDAT_from_path(path, chunk);
+					}
 					std::cout << "Name " << name << " size " << chunk_size << " " << chunk.position << std::endl;
 				}
 			}
@@ -371,6 +376,9 @@ namespace basix
 				a_width = _byteswap_ulong(chunk_width);
 				a_bit_depth = *(header[2]);
 				a_color_type = *(header[3]);
+				a_compression_method = *(header[4]);
+				a_filter_method = *(header[5]);
+				a_interlace_method = *(header[6]);
 				delete_binary(header);
 			}
 			else
@@ -386,6 +394,39 @@ namespace basix
 				get_all_chunks_from_path(path);
 				std::cout << ":) " << get_width() << " " << get_height() << " " << get_bit_depht() << " " << get_color_type() << std::endl;
 				std::cout << "-> " << get_physical_unit() << " " << get_physical_width_ratio() << " " << get_physical_height_ratio() << std::endl;
+				std::cout << "-> " << get_compression_method() << " " << get_filter_method() << " " << get_interlace_method() << std::endl;
+			}
+			else
+			{
+				return false;
+			}
+		};
+		// Load a IDAT chunk grom a path
+		inline bool load_IDAT_from_path(std::string path, PNG_Chunk chunk)
+		{
+			if (file_exists(path) && !path_is_directory(path) && chunk.name == "IDAT")
+			{
+				// Create the necessary things to read the PNG file
+				std::vector<char*> header = std::vector<char*>();
+				std::vector<unsigned int> size = std::vector<unsigned int>();
+
+				// Read into the chunk
+				for (int i = 0; i < chunk.size; i++)
+				{
+					header.push_back((char*)(new unsigned char(0)));
+					size.push_back(sizeof(unsigned char));
+				}
+				read_file_binary(path, header, size, chunk.position);
+				int MAXINSAMPLE = pow(2, 8) - 1;
+				int MAXOUTSAMPLE = pow(2, 8) - 1;
+				for (int i = 0; i < 9; i++)
+				{
+					char result = (*header[i]) >> 3;
+					std::cout << "IDAT " << i << " : " << (int)result << std::endl;
+				}
+				delete_binary(header);
+
+				std::cout << "A " << zlibVersion() << std::endl;
 			}
 			else
 			{
@@ -428,7 +469,10 @@ namespace basix
 		// Getters and setters
 		inline unsigned int get_bit_depht() { return a_bit_depth; };
 		inline unsigned int get_color_type() { return a_color_type; };
+		inline unsigned int get_compression_method() { return a_compression_method; };
+		inline unsigned int get_filter_method() { return a_filter_method; };
 		inline unsigned int get_height() { return a_height; };
+		inline unsigned int get_interlace_method() { return a_interlace_method; };
 		inline std::string get_path() { return a_path; };
 		inline unsigned int get_physical_height_ratio() { return a_physical_height_ratio; };
 		inline unsigned int get_physical_unit() { return a_physical_unit; };
@@ -439,8 +483,14 @@ namespace basix
 		unsigned int a_bit_depth = 0;
 		// Color type of the image
 		unsigned int a_color_type = 0;
+		// Compression method of the image
+		unsigned int a_compression_method = 0;
+		// Filter method of the image
+		unsigned int a_filter_method = 0;
 		// Height of the image
 		unsigned int a_height = 0;
+		// Interlace method of the image
+		unsigned int a_interlace_method = 0;
 		// Path of the image
 		std::string a_path = "";
 		// Physical height of the image
