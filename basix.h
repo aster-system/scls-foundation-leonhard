@@ -97,9 +97,6 @@ namespace basix
 		datas.clear();
 	}
 
-	// Return the content of a directory in a vector of string.
-	inline std::vector<std::string> directory_content(std::string path) { std::vector<std::string> result; for (const auto& entry : std::filesystem::directory_iterator(path)) result.push_back(entry.path().string()); return result; };
-
 	// Return the datas about a file (assuming the file exists).
 	inline struct stat file_datas(std::string path) { struct stat sb; bool result = (stat(path.c_str(), &sb) == 0); return sb; };
 
@@ -294,6 +291,26 @@ namespace basix
 			print("Error", "System", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
 		}
 	}
+
+	// Return the content of a directory in a vector of string.
+	inline std::vector<std::string> directory_content(std::string path, bool sub_directory = false)
+	{
+		std::vector<std::string> result;
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+		{
+			std::string path = entry.path().string();
+			if (sub_directory && path_is_directory(path))
+			{
+				std::vector<std::string> sub = directory_content(path, true);
+				for (int i = 0; i < sub.size(); i++) result.push_back(sub[i]);
+			}
+			else
+			{
+				result.push_back(path);
+			}
+		}
+		return result;
+	};
 
 	// Struct representing datas about a PNG chunk
 	struct PNG_Chunk {

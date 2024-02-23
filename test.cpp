@@ -2,9 +2,10 @@
 
 int main()
 {
-	std::string base_path = "E:/Youtube/fichier ajout video/fichier image";
-	std::vector<std::string> path = basix::directory_content(base_path);
+	std::string base_path = "J:/Projets/Matix/matix/assets/textures";
+	std::vector<std::string> path = basix::directory_content(base_path, true);
 
+	unsigned short loaded = 0;
 	unsigned short loaded_successfully = 0;
 
 	for (int i = 0; i < path.size(); i++)
@@ -24,10 +25,11 @@ int main()
 			{
 				std::cout << "Path " << path[i] << " not loaded" << std::endl;
 			}
+			loaded++;
 		}
 	}
 
-	std::cout << loaded_successfully << "/" << path.size() << " images loaded successfully, so " << ((float)loaded_successfully / (float)path.size()) * 100.0 << "%" << std::endl;
+	std::cout << loaded_successfully << "/" << loaded << " images loaded successfully, so " << ((float)loaded_successfully / (float)loaded) * 100.0 << "%" << std::endl;
 
 	return 0;
 }
