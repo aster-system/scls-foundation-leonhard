@@ -179,7 +179,7 @@ namespace basix
 		return file_content;
 	}
 
-	// Return the content of a file in binary
+	// Return the content of a file in binary with vector of char
 	inline void read_file_binary(std::string path, std::vector<char*>& datas, std::vector<unsigned int> size, unsigned int start_pos = 0)
 	{
 		std::string file_content;
@@ -194,7 +194,26 @@ namespace basix
 			{
 				file.read(datas[i], size[i]);
 			}
-			file.seekg(0, file.beg);
+			file.close();
+		}
+		catch (std::ifstream::failure e) { print("Error", "System", "The file \"" + path + "\" can't be opened, error -> " + e.what() + "."); }
+	};
+
+	// Return the content of a file in binary with a char array
+	inline void read_file_binary(std::string path, char* datas, std::vector<unsigned int> size, unsigned int start_pos = 0)
+	{
+		std::string file_content;
+		std::ifstream file;
+		// ensure ifstream objects can throw exceptions:
+		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		try
+		{
+			file.open(path, std::ios::binary);
+			file.seekg(start_pos, file.beg);
+			for (int i = 0; i < size.size(); i++)
+			{
+				file.read(datas, size[i]);
+			}
 			file.close();
 		}
 		catch (std::ifstream::failure e) { print("Error", "System", "The file \"" + path + "\" can't be opened, error -> " + e.what() + "."); }
@@ -304,6 +323,22 @@ namespace basix
 	public:
 		// PNG_Image constructor
 		PNG_Image() {};
+		// PNG_Image copy constructor
+		PNG_Image(PNG_Image& copy) : PNG_Image()
+		{
+			a_bit_depth = copy.a_bit_depth;
+			a_color_type = copy.a_color_type;
+			a_compression_method = copy.a_compression_method;
+			a_filter_method = copy.a_filter_method;
+			a_height = copy.a_height;
+			a_interlace_method = copy.a_interlace_method;
+			a_path = copy.a_path;
+			a_physical_height_ratio = copy.a_physical_height_ratio;
+			a_physical_unit = copy.a_physical_unit;
+			a_physical_width_ratio = copy.a_physical_width_ratio;
+			a_pixels = copy.a_pixels;
+			a_width = copy.a_width;
+		};
 		// Get every chunks into a PNG image
 		std::vector<PNG_Chunk> get_all_chunks_from_path(std::string path)
 		{
@@ -344,14 +379,21 @@ namespace basix
 					size_offset += chunk_size + 12;
 					to_return.push_back(chunk);
 
-					// Load some chunks
 					if (name == "pHYs")
 					{
 						load_pHYS_from_path(path, chunk);
 					}
-					else if (name == "IDAT")
+					else if (name == "IDAT" && is_loadable())
 					{
 						load_IDAT_from_path(path, chunk);
+					}
+					else if (name == "sRGB")
+					{
+						load_sRGB_from_path(path, chunk);
+					}
+					else if (name == "PLTE" || name == "bKGD")
+					{
+						a_loadable = false;
 					}
 				}
 			}
@@ -445,11 +487,11 @@ namespace basix
 			if (file_exists(path) && !path_is_directory(path) && chunk.name == "IDAT")
 			{
 				// Create the necessary things to read the PNG file
-				std::vector<char*> header = std::vector<char*>();
+				const unsigned int CHUNK = chunk.size;
+				char* header = new char[CHUNK];
 				std::vector<unsigned int> size = std::vector<unsigned int>();
 
 				// Read into the chunk
-				header.push_back((char*)(new char(0)));
 				size.push_back(chunk.size);
 				read_file_binary(path, header, size, chunk.position);
 
@@ -458,7 +500,6 @@ namespace basix
 				(void)SET_BINARY_MODE(stdout);
 
 				// Define compression variables
-				const unsigned int CHUNK = 16384;
 				int level = get_compression_method();
 				int ret = 0;
 				unsigned have = 0;
@@ -474,7 +515,7 @@ namespace basix
 				ret = inflateInit(&strm);
 				if (ret != Z_OK) return ret;
 				strm.avail_in = chunk.size;
-				strm.next_in = (Bytef*)(header.data()[0]);
+				strm.next_in = (Bytef*)(header);
 				bool stream_end = false;
 
 				// Uncompress data
@@ -557,7 +598,7 @@ namespace basix
 									filtered_line[i] = final_pixel;
 								}
 							}
-							else if (line_number == 2) // Apply up filtering
+							else if (line_number == 2 && filtered_pixels.size() > 0) // Apply up filtering
 							{
 								for (int i = 0; i < filtered_line.size(); i++)
 								{
@@ -570,7 +611,11 @@ namespace basix
 									filtered_line[i] = final_pixel;
 								}
 							}
-							else if (line_number == 4) // Apply paeth filtering
+							else if (line_number == 3) // Not implemented yet
+							{
+								return false;
+							}
+							else if (line_number == 4 && filtered_pixels.size() > 0) // Apply paeth filtering
 							{
 								for (int i = 0; i < pixel_line.size(); i++)
 								{
@@ -631,6 +676,10 @@ namespace basix
 							final_pixel.alpha = normalize_value(pixel.alpha - filtered_line[i].alpha, 0, 255);
 							filtered_line[i] = final_pixel;
 						}
+					}
+					else if (line_number == 3) // Not implemented yet
+					{
+						return false;
 					}
 					else if (line_number == 4)
 					{
@@ -709,6 +758,28 @@ namespace basix
 				return false;
 			}
 		};
+		// Load the sRGB chunk from a path
+		inline bool load_sRGB_from_path(std::string path, PNG_Chunk chunk)
+		{
+			if (file_exists(path) && !path_is_directory(path) && chunk.name == "sRGB" && chunk.size == 1)
+			{
+				// Create the necessary things to read the PNG file
+				std::vector<char*> header = std::vector<char*>();
+				std::vector<unsigned int> size = std::vector<unsigned int>();
+
+				// Read into the chunk
+				header.push_back((new char(0)));
+				size.push_back(sizeof(char));
+				read_file_binary(path, header, size, chunk.position);
+				a_srgb_value = (*header[0]);
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
 		// PNG_Image destructor
 		~PNG_Image() {};
 
@@ -724,6 +795,7 @@ namespace basix
 		inline unsigned int get_physical_unit() { return a_physical_unit; };
 		inline unsigned int get_physical_width_ratio() { return a_physical_width_ratio; };
 		inline unsigned int get_width() { return a_width; };
+		inline unsigned bool is_loadable() { return a_loadable; };
 	private:
 		// Bit depth of the image
 		unsigned int a_bit_depth = 0;
@@ -737,6 +809,8 @@ namespace basix
 		unsigned int a_height = 0;
 		// Interlace method of the image
 		unsigned int a_interlace_method = 0;
+		// If the image can be loaded or not
+		bool a_loadable = true;
 		// Path of the image
 		std::string a_path = "";
 		// Physical height of the image
@@ -747,6 +821,8 @@ namespace basix
 		unsigned int a_physical_width_ratio = 0;
 		// Pixel of the image
 		std::vector<std::vector<PNG_Pixel>> a_pixels = std::vector<std::vector<PNG_Pixel>>();
+		// Value of the sRGB chunk
+		unsigned char a_srgb_value = 0;
 		// Width of the image
 		unsigned int a_width = 0;
 	};
