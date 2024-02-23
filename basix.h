@@ -353,7 +353,6 @@ namespace basix
 					{
 						load_IDAT_from_path(path, chunk);
 					}
-					std::cout << "Name " << name << " size " << chunk_size << " " << chunk.position << std::endl;
 				}
 			}
 			return to_return;
@@ -434,9 +433,6 @@ namespace basix
 			if (load_base_from_path(path))
 			{
 				get_all_chunks_from_path(path);
-				std::cout << ":) " << get_width() << " " << get_height() << " " << get_bit_depht() << " " << get_color_type() << std::endl;
-				std::cout << "-> " << get_physical_unit() << " " << get_physical_width_ratio() << " " << get_physical_height_ratio() << std::endl;
-				std::cout << "-> " << get_compression_method() << " " << get_filter_method() << " " << get_interlace_method() << std::endl;
 			}
 			else
 			{
