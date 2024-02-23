@@ -24,6 +24,15 @@
 #include <vector>
 #include <zlib/zlib.h>
 
+// ZLib mandatory stuff
+#if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
+#  include <fcntl.h>
+#  include <io.h>
+#  define SET_BINARY_MODE(file) _setmode(_fileno(file), O_BINARY)
+#else
+#  define SET_BINARY_MODE(file)
+#endif
+
 // The namespace "basix" is used to simplify the all.
 namespace basix
 {
@@ -113,8 +122,29 @@ namespace basix
 		return result;
 	}
 
+	// Normalize a value between "min" and "max" included
+	inline double normalize_value(double number, double min, double max)
+	{
+		double to_add = (max - min) + 1;
+		while (number < min) number += to_add;
+		while (number > max) number -= to_add;
+		return number;
+	}
+
+	// Apply the Paeth function to a left, above and upper left values
+	inline float paeth_function(float left, float above, float upper_left)
+	{
+		float p = left + above - upper_left;
+		float pa = abs(p - left);
+		float pb = abs(p - above);
+		float pc = abs(p - upper_left);
+		if (pa <= pb && pa <= pc) return left;
+		else if (pb <= pc) return above;
+		else return upper_left;
+	}
+
 	// Returns if a path is a directory or not
-	bool path_is_directory(std::string path)
+	inline bool path_is_directory(std::string path)
 	{
 		return ((file_datas(path).st_mode & S_IFDIR) == S_IFDIR);
 	};
@@ -254,6 +284,18 @@ namespace basix
 		std::string name = "";
 		// Size of the chunk
 		unsigned int size = 0;
+	};
+
+	// Struct representing a pixel in a PNG image
+	struct PNG_Pixel {
+		// Alpha value of the pixel
+		unsigned char alpha = 0;
+		// Blue value of the pixel
+		unsigned char blue = 0;
+		// Green value of the pixel
+		unsigned char green = 0;
+		// Red value of the pixel
+		unsigned char red = 0;
 	};
 
 	class PNG_Image
@@ -411,22 +453,230 @@ namespace basix
 				std::vector<unsigned int> size = std::vector<unsigned int>();
 
 				// Read into the chunk
-				for (int i = 0; i < chunk.size; i++)
-				{
-					header.push_back((char*)(new unsigned char(0)));
-					size.push_back(sizeof(unsigned char));
-				}
+				header.push_back((char*)(new char(0)));
+				size.push_back(chunk.size);
 				read_file_binary(path, header, size, chunk.position);
-				int MAXINSAMPLE = pow(2, 8) - 1;
-				int MAXOUTSAMPLE = pow(2, 8) - 1;
-				for (int i = 0; i < 9; i++)
-				{
-					char result = (*header[i]) >> 3;
-					std::cout << "IDAT " << i << " : " << (int)result << std::endl;
-				}
-				delete_binary(header);
 
-				std::cout << "A " << zlibVersion() << std::endl;
+				// Set binary mode
+				(void)SET_BINARY_MODE(stdin);
+				(void)SET_BINARY_MODE(stdout);
+
+				// Define compression variables
+				const unsigned int CHUNK = 16384;
+				int level = get_compression_method();
+				int ret = 0;
+				unsigned have = 0;
+				z_stream strm;
+				unsigned char* out = new unsigned char[CHUNK];
+
+				// Create compression ENV
+				strm.zalloc = Z_NULL;
+				strm.zfree = Z_NULL;
+				strm.opaque = Z_NULL;
+				strm.avail_in = 0;
+				strm.next_in = Z_NULL;
+				ret = inflateInit(&strm);
+				if (ret != Z_OK) return ret;
+				strm.avail_in = chunk.size;
+				strm.next_in = (Bytef*)(header.data()[0]);
+				bool stream_end = false;
+
+				// Uncompress data
+				do
+				{
+					// Set output
+					strm.avail_out = CHUNK;
+					strm.next_out = out;
+
+					// Do the decompression
+					ret = inflate(&strm, Z_NO_FLUSH);
+					if (ret == Z_STREAM_ERROR) return false;
+					switch (ret)
+					{
+						case Z_NEED_DICT:
+							ret = Z_DATA_ERROR;
+							break;
+						case Z_MEM_ERROR:
+							(void)inflateEnd(&strm);
+							return false;
+						case Z_STREAM_END:
+							stream_end = true;
+							break;
+					}
+				} while (strm.avail_out == 0 && !stream_end);
+				have = CHUNK - strm.avail_out;
+				(void)inflateEnd(&strm);
+
+				// Process data
+				unsigned char component_size = 4;
+				unsigned short data_number = have - get_height();
+				std::vector<PNG_Pixel> filtered_line = std::vector<PNG_Pixel>();
+				PNG_Pixel last_pixel;
+				unsigned char line_number = 0;
+				unsigned int part = -1;
+				a_pixels.clear();
+				std::vector<PNG_Pixel> pixel_line = std::vector<PNG_Pixel>();
+				std::vector<std::vector<PNG_Pixel>> filtered_pixels = std::vector<std::vector<PNG_Pixel>>();
+				for (int i = 0; i < have; i++)
+				{
+					if (part >= 0 && part < get_width() * component_size)
+					{
+						unsigned char component = part % component_size;
+						if (component == 0) // Apply red component
+						{
+							PNG_Pixel pixel = PNG_Pixel();
+							pixel.red = (unsigned char)(out[i]);
+							if (pixel_line.size() > 0) last_pixel = pixel_line[pixel_line.size() - 1];
+							pixel_line.push_back(pixel);
+						}
+						else if (component == 1) // Apply green component
+						{
+							pixel_line[pixel_line.size() - 1].green = (unsigned char)(out[i]);
+						}
+						else if (component == 2) // Apply blue component
+						{
+							pixel_line[pixel_line.size() - 1].blue = (unsigned char)(out[i]);
+						}
+						else if (component == 3) // Apply alpha component
+						{
+							pixel_line[pixel_line.size() - 1].alpha = (unsigned char)(out[i]);
+						}
+						part++;
+					}
+					else
+					{
+						filtered_line = pixel_line;
+						if (filtered_line.size() > 0)
+						{
+							if (line_number == 1) // Apply sub filtering
+							{
+								for (int i = 1; i < filtered_line.size(); i++)
+								{
+									PNG_Pixel final_pixel;
+									PNG_Pixel pixel = filtered_line[i - 1];
+									final_pixel.red = normalize_value(pixel.red - filtered_line[i].red, 0, 255);
+									final_pixel.green = normalize_value(pixel.green - filtered_line[i].green, 0, 255);
+									final_pixel.blue = normalize_value(pixel.blue - filtered_line[i].blue, 0, 255);
+									final_pixel.alpha = normalize_value(pixel.alpha - filtered_line[i].alpha, 0, 255);
+									filtered_line[i] = final_pixel;
+								}
+							}
+							else if (line_number == 2) // Apply up filtering
+							{
+								for (int i = 0; i < filtered_line.size(); i++)
+								{
+									PNG_Pixel final_pixel;
+									PNG_Pixel pixel = filtered_pixels[filtered_pixels.size() - 1][i];
+									final_pixel.red = normalize_value(pixel.red - filtered_line[i].red, 0, 255);
+									final_pixel.green = normalize_value(pixel.green - filtered_line[i].green, 0, 255);
+									final_pixel.blue = normalize_value(pixel.blue - filtered_line[i].blue, 0, 255);
+									final_pixel.alpha = normalize_value(pixel.alpha - filtered_line[i].alpha, 0, 255);
+									filtered_line[i] = final_pixel;
+								}
+							}
+							else if (line_number == 4) // Apply paeth filtering
+							{
+								for (int i = 0; i < pixel_line.size(); i++)
+								{
+									PNG_Pixel final_pixel;
+									if (i == 0)
+									{
+										PNG_Pixel pixel = filtered_pixels[filtered_pixels.size() - 1][i];
+										unsigned char final_red = pixel.red; // Calculate final colors
+										unsigned char final_green = pixel.green;
+										unsigned char final_blue = pixel.blue;
+										unsigned char final_alpha = pixel.alpha;
+										final_pixel.red = normalize_value(pixel_line[i].red + final_red, 0, 255);
+										final_pixel.green = normalize_value(pixel_line[i].green + final_green, 0, 255);
+										final_pixel.blue = normalize_value(pixel_line[i].blue + final_blue, 0, 255);
+										final_pixel.alpha = normalize_value(pixel_line[i].alpha + final_alpha, 0, 255);
+									}
+									else
+									{
+										PNG_Pixel pixel2 = filtered_pixels[filtered_pixels.size() - 1][i];
+										PNG_Pixel pixel3 = filtered_pixels[filtered_pixels.size() - 1][i - 1];
+										PNG_Pixel pixel1 = filtered_line[i - 1];
+										final_pixel.red = normalize_value(pixel_line[i].red + paeth_function(pixel1.red, pixel2.red, pixel3.red), 0, 255);
+										final_pixel.green = normalize_value(pixel_line[i].green + paeth_function(pixel1.green, pixel2.green, pixel3.green), 0, 255);
+										final_pixel.blue = normalize_value(pixel_line[i].blue + paeth_function(pixel1.blue, pixel2.blue, pixel3.blue), 0, 255);
+										final_pixel.alpha = normalize_value(pixel_line[i].alpha + paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha), 0, 255);
+									}
+									filtered_line[i] = final_pixel;
+								}
+							}
+						}
+
+						line_number = out[i];
+						part = 0;
+						if (pixel_line.size() > 0)
+						{
+							last_pixel = pixel_line[pixel_line.size() - 1];
+
+							filtered_pixels.push_back(filtered_line);
+							a_pixels.push_back(pixel_line); // Apply pixels modification
+						}
+						filtered_line.clear();
+						pixel_line.clear();
+					}
+				}
+
+				filtered_line = pixel_line;
+				if (filtered_line.size() > 0) // Apply last filtering
+				{
+					if (line_number == 2) // Apply up filtering
+					{
+						for (int i = 0; i < filtered_line.size(); i++)
+						{
+							PNG_Pixel final_pixel;
+							PNG_Pixel pixel = filtered_pixels[filtered_pixels.size() - 1][i];
+							final_pixel.red = normalize_value(pixel.red - filtered_line[i].red, 0, 255);
+							final_pixel.green = normalize_value(pixel.green - filtered_line[i].green, 0, 255);
+							final_pixel.blue = normalize_value(pixel.blue - filtered_line[i].blue, 0, 255);
+							final_pixel.alpha = normalize_value(pixel.alpha - filtered_line[i].alpha, 0, 255);
+							filtered_line[i] = final_pixel;
+						}
+					}
+					else if (line_number == 4)
+					{
+						for (int i = 0; i < filtered_line.size(); i++)
+						{
+							PNG_Pixel final_pixel;
+							if (i == 0)
+							{
+								PNG_Pixel pixel = filtered_pixels[filtered_pixels.size() - 1][i];
+								unsigned char final_red = pixel.red; // Calculate final colors
+								unsigned char final_green = pixel.green;
+								unsigned char final_blue = pixel.blue;
+								unsigned char final_alpha = pixel.alpha;
+								final_pixel.red = normalize_value(filtered_line[i].red + final_red, 0, 255);
+								final_pixel.green = normalize_value(filtered_line[i].green + final_green, 0, 255);
+								final_pixel.blue = normalize_value(filtered_line[i].blue + final_blue, 0, 255);
+								final_pixel.alpha = normalize_value(filtered_line[i].alpha + final_alpha, 0, 255);
+							}
+							else
+							{
+								PNG_Pixel pixel2 = filtered_pixels[filtered_pixels.size() - 1][i];
+								PNG_Pixel pixel3 = filtered_pixels[filtered_pixels.size() - 1][i - 1];
+								PNG_Pixel pixel1 = filtered_line[i - 1];
+								final_pixel.red = normalize_value(filtered_line[i].red + paeth_function(pixel1.red, pixel2.red, pixel3.red), 0, 255);
+								final_pixel.green = normalize_value(filtered_line[i].green + paeth_function(pixel1.green, pixel2.green, pixel3.green), 0, 255);
+								final_pixel.blue = normalize_value(filtered_line[i].blue + paeth_function(pixel1.blue, pixel2.blue, pixel3.blue), 0, 255);
+								final_pixel.alpha = normalize_value(filtered_line[i].alpha + paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha), 0, 255);
+							}
+							filtered_line[i] = final_pixel;
+						}
+					}
+				}
+				if (pixel_line.size() > 0)
+				{
+					a_pixels.push_back(pixel_line); // Apply last pixels modification
+					filtered_pixels.push_back(filtered_line);
+				}
+				filtered_line.clear();
+				pixel_line.clear();
+
+				a_pixels = filtered_pixels;
+				filtered_pixels.clear();
 			}
 			else
 			{
@@ -499,6 +749,8 @@ namespace basix
 		unsigned int a_physical_unit = 0;
 		// Physical width of the image
 		unsigned int a_physical_width_ratio = 0;
+		// Pixel of the image
+		std::vector<std::vector<PNG_Pixel>> a_pixels = std::vector<std::vector<PNG_Pixel>>();
 		// Width of the image
 		unsigned int a_width = 0;
 	};
