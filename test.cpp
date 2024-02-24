@@ -34,7 +34,6 @@ int main()
 			std::string test = "";
 			basix::PNG_Image image;
 			image.load_from_path(path[i]);
-			image.fill(255, 0, 0);
 			unsigned char* datas = image.data();
 			delete[] datas;
 			if (image.is_loadable())

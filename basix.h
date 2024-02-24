@@ -368,16 +368,16 @@ namespace basix
 				for (int j = 0; j < get_width(); j++) // Create the datas
 				{
 					unsigned int position = (i * get_width() + j) * components;
-					datas[position] = ((unsigned char)get_pixel(i, j).red);
+					datas[position] = ((unsigned char)get_pixel(j, i).red);
 					if (components > 1)
 					{
-						datas[position + 1] = ((unsigned char)get_pixel(i, j).green);
+						datas[position + 1] = ((unsigned char)get_pixel(j, i).green);
 						if (components > 2)
 						{
-							datas[position + 2] = ((unsigned char)get_pixel(i, j).blue);
+							datas[position + 2] = ((unsigned char)get_pixel(j, i).blue);
 							if (components > 3)
 							{
-								datas[position + 3] = ((unsigned char)get_pixel(i, j).alpha);
+								datas[position + 3] = ((unsigned char)get_pixel(j, i).alpha);
 							}
 						}
 					}
@@ -419,10 +419,10 @@ namespace basix
 			a_last_processed_line_pixel = new std::vector<PNG_Pixel>();
 			a_pixels = new std::vector<std::vector<PNG_Pixel>*>();
 			a_processed_pixel = new std::vector<PNG_Pixel*>();
-			for (int i = 0; i < get_height(); i++)
+			for (int i = 0; i < get_width(); i++)
 			{
 				std::vector<PNG_Pixel>* line = new std::vector<PNG_Pixel>();
-				for (int j = 0; j < get_width(); j++)
+				for (int j = 0; j < get_height(); j++)
 				{
 					PNG_Pixel pixel;
 					pixel.red = red;
@@ -434,6 +434,10 @@ namespace basix
 				a_pixels->push_back(line);
 			}
 		};
+		// Flip the image on the X axis
+		inline void flip_x() { a_flipped_x = !a_flipped_x; };
+		// Flip the image on the Y axis
+		inline void flip_y() { a_flipped_y = !a_flipped_y; };
 		// Get every chunks into a PNG image
 		std::vector<PNG_Chunk> get_all_chunks_from_path(std::string path)
 		{
@@ -508,7 +512,7 @@ namespace basix
 			PNG_Pixel to_return;
 			if (x >= 0 && x < get_width() && y >= 0 && y < get_height())
 			{
-				to_return = (*(*a_pixels)[x])[y];
+				to_return = (*(*a_pixels)[normalized_x(x)])[normalized_y(y)];
 			}
 			return to_return;
 		}
@@ -958,13 +962,50 @@ namespace basix
 				return false;
 			}
 		}
+		// Return the x parameter normalized according to the image
+		inline unsigned short normalized_x(unsigned short x)
+		{
+			if (is_flipped_y()) x = get_width() - (x + 1);
+			return x;
+		}
+		// Return the y parameter normalized according to the image
+		inline unsigned short normalized_y(unsigned short y)
+		{
+			if (is_flipped_x()) y = get_height() - (y + 1);
+			return y;
+		}
+		// Set the color of a pixel
+		void set_pixel(unsigned short x, unsigned short y, PNG_Pixel pixel)
+		{
+			(*(*a_pixels)[normalized_x(x)])[normalized_y(y)] = pixel;
+		}
+		// Set the alpha value of a pixel
+		void set_pixel_alpha(unsigned short x, unsigned short y, unsigned char alpha)
+		{
+			(*(*a_pixels)[normalized_x(x)])[normalized_y(y)].alpha = alpha;
+		}
+		// Set the blue value of a pixel
+		void set_pixel_blue(unsigned short x, unsigned short y, unsigned char blue)
+		{
+			(*(*a_pixels)[normalized_x(x)])[normalized_y(y)].blue = blue;
+		}
+		// Set the green value of a pixel
+		void set_pixel_green(unsigned short x, unsigned short y, unsigned char green)
+		{
+			(*(*a_pixels)[normalized_x(x)])[normalized_y(y)].green = green;
+		}
+		// Set the red value of a pixel
+		void set_pixel_red(unsigned short x, unsigned short y, unsigned char red)
+		{
+			(*(*a_pixels)[normalized_y(x)])[normalized_y(y)].red = red;
+		}
 		// PNG_Image destructor
 		~PNG_Image() { free_memory(); };
 
 		// Getters and setters
 		inline unsigned int get_bit_depht() { return a_bit_depth; };
 		inline unsigned int get_color_type() { return a_color_type; };
-		inline PNG_Pixel* _get_current_pixel_processed(unsigned int offset = 0) { return &(*(*a_pixels)[_get_current_y_processing(offset)])[_get_current_x_processing(offset)]; };
+		inline PNG_Pixel* _get_current_pixel_processed(unsigned int offset = 0) { return &(*(*a_pixels)[_get_current_x_processing(offset)])[_get_current_y_processing(offset)]; };
 		inline unsigned int _get_current_x_processing(unsigned int offset = 0) { return (a_processed_data - offset) % get_width(); };
 		inline unsigned int _get_current_y_processing(unsigned int offset = 0) { return floor(((float)a_processed_data - (float)offset) / (float)get_width()); };
 		inline unsigned int get_compression_method() { return a_compression_method; };
@@ -977,6 +1018,8 @@ namespace basix
 		inline unsigned int get_physical_unit() { return a_physical_unit; };
 		inline unsigned int get_physical_width_ratio() { return a_physical_width_ratio; };
 		inline unsigned int get_width() { return a_width; };
+		inline bool is_flipped_x() { return a_flipped_x; };
+		inline bool is_flipped_y() { return a_flipped_y; };
 		inline unsigned bool is_loadable() { return a_loadable; };
 	private:
 		// Bit depth of the image
@@ -993,6 +1036,10 @@ namespace basix
 		unsigned int a_filter_method = 0;
 		// Filter type of the image
 		unsigned char a_filter_type = 0;
+		// If the image is flipped by the X axis
+		bool a_flipped_x = false;
+		// If the image is flipped by the Y axis
+		bool a_flipped_y = false;
 		// Height of the image
 		unsigned int a_height = 0;
 		// Interlace method of the image
