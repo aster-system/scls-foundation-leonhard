@@ -411,6 +411,17 @@ namespace basix
 		{
 			return a_pixels;
 		}
+		// Draw a rectangle on the image
+		void draw_rect(unsigned short x, unsigned short y, unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha)
+		{
+			for (int i = 0; i < width; i++)
+			{
+				for (int j = 0; j < height; j++)
+				{
+					set_pixel(x + i, y + j, red, green, blue, alpha);
+				}
+			}
+		};
 		// Delete the pixels in the memory
 		void free_memory()
 		{
@@ -467,7 +478,33 @@ namespace basix
 		// Flip the image on the Y axis
 		inline void flip_y()
 		{
+			unsigned char* line1 = new unsigned char[get_height()];
+			unsigned int max = get_width();
 
+			for (int i = 0; i < floor((float)max / 2.0); i++)
+			{
+				// Red
+				for (int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components()];
+				for (int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components()] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components()];
+				for (int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components()] = line1[j];
+
+				// Green
+				for (int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components() + 1];
+				for (int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components() + 1] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 1];
+				for (int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 1] = line1[j];
+
+				// Blue
+				for (int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components() + 2];
+				for (int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components() + 2] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 2];
+				for (int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 2] = line1[j];
+
+				// Alpha
+				for (int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components() + 3];
+				for (int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components() + 3] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 3];
+				for (int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 3] = line1[j];
+			}
+
+			delete[] line1;
 		};
 		// Get every chunks into a PNG image
 		std::vector<PNG_Chunk> get_all_chunks_from_path(std::string path)
@@ -995,17 +1032,25 @@ namespace basix
 			a_pixels[position + 2] = pixel.blue;
 			a_pixels[position + 3] = pixel.alpha;
 		}
-		inline void set_pixel(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255)
+		inline void set_pixel(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned short width = 1)
 		{
-			unsigned int position = (y * get_width() + x) * get_components();
-			alpha = normalize_value(alpha, 0, 255);
-			blue = normalize_value(blue, 0, 255);
-			green = normalize_value(green, 0, 255);
-			red = normalize_value(red, 0, 255);
-			a_pixels[position] = red;
-			a_pixels[position + 1] = green;
-			a_pixels[position + 2] = blue;
-			a_pixels[position + 3] = alpha;
+			if (width == 0) return;
+			else if (width == 1)
+			{
+				unsigned int position = (y * get_width() + x) * get_components();
+				alpha = normalize_value(alpha, 0, 255);
+				blue = normalize_value(blue, 0, 255);
+				green = normalize_value(green, 0, 255);
+				red = normalize_value(red, 0, 255);
+				a_pixels[position] = red;
+				a_pixels[position + 1] = green;
+				a_pixels[position + 2] = blue;
+				a_pixels[position + 3] = alpha;
+			}
+			else
+			{
+				draw_rect(x - ((float)width / 2.0), y - ((float)width / 2.0), width, width, red, green, blue, alpha);
+			}
 		}
 		inline void set_pixel_alpha(unsigned short x, unsigned short y, unsigned char alpha)
 		{
@@ -1027,7 +1072,7 @@ namespace basix
 			red = normalize_value(red, 0, 255);
 			a_pixels[((y * get_width()) + x) * get_components()] = red;
 		}
-	private:
+private:
 		// Bit depth of the image
 		unsigned int a_bit_depth = 0;
 		// Size of a chunk to decode an image

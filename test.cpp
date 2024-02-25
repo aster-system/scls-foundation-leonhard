@@ -44,7 +44,7 @@ int main()
 			std::string test = "";
 			basix::PNG_Image image;
 			image.load_from_path(path[i]);
-			image.flip_x();
+			image.flip_y();
 			unsigned char* datas = image.data();
 			if (image.is_loadable())
 			{
