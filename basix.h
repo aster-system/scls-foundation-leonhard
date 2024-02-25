@@ -255,6 +255,56 @@ namespace basix
 		return v;
 	};
 
+	// Uncompress data from a char array
+	inline int uncompress_binary(char* to_uncompress, unsigned int to_uncompress_size, char* output, unsigned int output_size)
+	{
+		// Create compression ENV
+		int ret = 0;
+		z_stream strm;
+		strm.zalloc = Z_NULL;
+		strm.zfree = Z_NULL;
+		strm.opaque = Z_NULL;
+		strm.avail_in = 0;
+		strm.next_in = Z_NULL;
+		ret = inflateInit(&strm);
+		if (ret != Z_OK) return ret;
+		strm.avail_in = to_uncompress_size;
+		strm.next_in = (Bytef*)(to_uncompress);
+		bool stream_end = false;
+
+		// Uncompress data
+		do
+		{
+			// Set output
+			strm.avail_out = output_size;
+			strm.next_out = (Bytef*)output;
+
+			// Do the decompression
+			ret = inflate(&strm, Z_NO_FLUSH);
+			if (ret == Z_STREAM_ERROR)
+			{
+				(void)inflateEnd(&strm);
+				return -1;
+			}
+
+			switch (ret)
+			{
+			case Z_NEED_DICT:
+				ret = Z_DATA_ERROR;
+				break;
+			case Z_MEM_ERROR:
+				(void)inflateEnd(&strm);
+				return -2;
+			case Z_STREAM_END:
+				stream_end = true;
+				break;
+			}
+		} while (strm.avail_out == 0 && !stream_end);
+		(void)inflateEnd(&strm);
+
+		return 1;
+	};
+
 	// Write something in a file.
 	inline void write_in_file(std::string path, std::string to_write, std::ios::openmode opening_mode = std::ios::out)
 	{
@@ -339,7 +389,7 @@ namespace basix
 		// Class representing a PNG image handler
 	public:
 		// PNG_Image constructor
-		PNG_Image() { fill(0, 0, 0); };
+		PNG_Image() {};
 		// PNG_Image copy constructor
 		PNG_Image(PNG_Image& copy) : PNG_Image()
 		{
@@ -357,87 +407,68 @@ namespace basix
 			a_width = copy.a_width;
 		};
 		// Return the data of the image in a unsigned char*
-		unsigned char* data()
+		inline unsigned char* data()
 		{
-			// Create the base variables to create the datas
-			unsigned char components = 4;
-			unsigned char* datas = new unsigned char[components * get_width() * get_height()];
-
-			for (int i = 0; i < get_height(); i++)
-			{
-				for (int j = 0; j < get_width(); j++) // Create the datas
-				{
-					unsigned int position = (i * get_width() + j) * components;
-					datas[position] = ((unsigned char)get_pixel(j, i).red);
-					if (components > 1)
-					{
-						datas[position + 1] = ((unsigned char)get_pixel(j, i).green);
-						if (components > 2)
-						{
-							datas[position + 2] = ((unsigned char)get_pixel(j, i).blue);
-							if (components > 3)
-							{
-								datas[position + 3] = ((unsigned char)get_pixel(j, i).alpha);
-							}
-						}
-					}
-				}
-			}
-
-			return datas;
+			return a_pixels;
 		}
 		// Delete the pixels in the memory
 		void free_memory()
 		{
-			if (a_last_processed_line_pixel != 0)
-			{
-				delete a_last_processed_line_pixel;
-				a_last_processed_line_pixel = 0;
-			}
-
 			if (a_pixels != 0)
 			{
-				for (int i = 0; i < a_pixels->size(); i++)
-				{
-					delete (*a_pixels)[i];
-					(*a_pixels)[i] = 0;
-				}
-				delete a_pixels;
+				delete[] a_pixels;
 				a_pixels = 0;
-			}
-
-			if (a_processed_pixel != 0)
-			{
-				delete a_processed_pixel;
-				a_processed_pixel = 0;
 			}
 		};
 		// Fill the image with one color
 		void fill(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255)
 		{
 			free_memory();
-			a_last_processed_line_pixel = new std::vector<PNG_Pixel>();
-			a_pixels = new std::vector<std::vector<PNG_Pixel>*>();
-			a_processed_pixel = new std::vector<PNG_Pixel*>();
-			for (int i = 0; i < get_width(); i++)
+			a_pixels = new unsigned char[get_width() * get_height() * get_components() + 1];
+			for (int i = 0; i < get_height(); i++)
 			{
-				std::vector<PNG_Pixel>* line = new std::vector<PNG_Pixel>();
-				for (int j = 0; j < get_height(); j++)
+				for (int j = 0; j < get_width(); j++)
 				{
-					PNG_Pixel pixel;
-					pixel.red = red;
-					pixel.green = green;
-					pixel.blue = blue;
-					pixel.alpha = alpha;
-					line->push_back(pixel);
+					set_pixel(j, i, red, green, blue, alpha);
 				}
-				a_pixels->push_back(line);
 			}
 		};
 		// Flip the image on the X axis
-		inline void flip_x() { a_flipped_x = !a_flipped_x; };
+		inline void flip_x()
+		{
+			unsigned char* line1 = new unsigned char[get_width()];
+			unsigned int max = get_height();
+
+			for (int i = 0; i < floor((float)max / 2.0);i++)
+			{
+				// Red
+				for (int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components()];
+				for (int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components()] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components()];
+				for (int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components()] = line1[j];
+
+				// Green
+				for (int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components() + 1];
+				for (int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components() + 1] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 1];
+				for (int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 1] = line1[j];
+				
+				// Blue
+				for (int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components() + 2];
+				for (int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components() + 2] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 2];
+				for (int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 2] = line1[j];
+				
+				// Alpha
+				for (int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components() + 3];
+				for (int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components() + 3] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 3];
+				for (int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 3] = line1[j];
+			}
+
+			delete[] line1;
+		};
 		// Flip the image on the Y axis
-		inline void flip_y() { a_flipped_y = !a_flipped_y; };
+		inline void flip_y()
+		{
+
+		};
 		// Get every chunks into a PNG image
 		std::vector<PNG_Chunk> get_all_chunks_from_path(std::string path)
 		{
@@ -446,7 +477,7 @@ namespace basix
 			{
 				// Create the necessary things to read the PNG file
 				std::vector<char*> header = std::vector<char*>();
-				std::vector<PNG_Chunk> idat_chunk = std::vector<PNG_Chunk>();
+				a_idat_chunk.clear();
 				std::string name = "";
 				std::vector<unsigned int> size = std::vector<unsigned int>();
 				unsigned int size_offset = 0;
@@ -485,7 +516,7 @@ namespace basix
 					}
 					else if (name == "IDAT" && is_loadable())
 					{
-						idat_chunk.push_back(chunk);
+						a_idat_chunk.push_back(chunk);
 					}
 					else if (name == "sRGB")
 					{
@@ -497,10 +528,12 @@ namespace basix
 					}
 				}
 
+				fill(0, 0, 0);
+
 				// Load IDAT chunks
-				if (idat_chunk.size() > 0 && is_loadable())
+				if (a_idat_chunk.size() > 0 && is_loadable())
 				{
-					a_error_load = load_IDAT_from_path(path, idat_chunk);
+					a_error_load = load_IDAT_from_path(path);
 					if (a_error_load != 1) a_loadable = false;
 				}
 			}
@@ -512,7 +545,11 @@ namespace basix
 			PNG_Pixel to_return;
 			if (x >= 0 && x < get_width() && y >= 0 && y < get_height())
 			{
-				to_return = (*(*a_pixels)[normalized_x(x)])[normalized_y(y)];
+				unsigned int position = (y * get_width() + x) * get_components();
+				to_return.red = a_pixels[position];
+				to_return.green = a_pixels[position + 1];
+				to_return.blue = a_pixels[position + 2];
+				to_return.alpha = a_pixels[position + 3];
 			}
 			return to_return;
 		}
@@ -580,8 +617,6 @@ namespace basix
 				a_filter_method = *(header[5]);
 				a_interlace_method = *(header[6]);
 				delete_binary(header);
-
-				fill(0, 0, 0);
 			}
 			else
 			{
@@ -601,10 +636,13 @@ namespace basix
 			}
 		};
 		// Load a IDAT chunk grom a path
-		char load_IDAT_from_path(std::string path, std::vector<PNG_Chunk> chunk)
+		char load_IDAT_from_path(std::string path)
 		{
+			std::vector<PNG_Chunk>& chunk = a_idat_chunk;
 			if (file_exists(path) && !path_is_directory(path))
 			{
+				if (a_pixels == 0) return -1;
+
 				// Get the size of the chunks
 				unsigned int current_size = 0;
 				for (int i = 0; i < chunk.size(); i++)
@@ -643,65 +681,26 @@ namespace basix
 				(void)SET_BINARY_MODE(stdout);
 
 				// Define compression variables
-				unsigned char components = 4;
+				unsigned char components = get_components();
 				int level = get_compression_method();
 				int ret = 0;
 				unsigned have = 0;
-				z_stream strm;
 				unsigned int out_size = (get_width() * get_height() * components) + get_height();
 				unsigned char* out = new unsigned char[out_size];
+				ret = uncompress_binary(header, current_size, (char*)out, out_size);
 
-				// Create compression ENV
-				strm.zalloc = Z_NULL;
-				strm.zfree = Z_NULL;
-				strm.opaque = Z_NULL;
-				strm.avail_in = 0;
-				strm.next_in = Z_NULL;
-				ret = inflateInit(&strm);
-				if (ret != Z_OK) return ret;
-				strm.avail_in = total_size;
-				strm.next_in = (Bytef*)(header);
-				bool stream_end = false;
-
-				// Uncompress data
-				do
+				if (ret != 1)
 				{
-					// Set output
-					strm.avail_out = a_chunk_size * chunk.size();
-					strm.next_out = out;
-
-					// Do the decompression
-					ret = inflate(&strm, Z_NO_FLUSH);
-					if (ret == Z_STREAM_ERROR)
-					{
-						(void)inflateEnd(&strm);
-						delete[] header;
-						delete[] out;
-						return -1;
-					}
-
-					switch (ret)
-					{
-						case Z_NEED_DICT:
-							ret = Z_DATA_ERROR;
-							break;
-						case Z_MEM_ERROR:
-							(void)inflateEnd(&strm);
-							delete[] header;
-							delete[] out;
-							return -2;
-						case Z_STREAM_END:
-							stream_end = true;
-							break;
-					}
-				} while (strm.avail_out == 0 && !stream_end);
-				have = strm.total_out;
-				(void)inflateEnd(&strm);
+					delete[] header;
+					delete[] out;
+					return ret;
+				}
 
 				// Process data
-				a_processed_pixel->clear();
 				a_processing_last_position = a_processed_data + 1;
-				unsigned char component_size = 4;
+				unsigned char component_size = get_components();
+				unsigned int current_collumn = -1;
+				unsigned int current_line = -1;
 				unsigned short data_number = have - get_height();
 				PNG_Pixel last_pixel;
 				unsigned int part = -1;
@@ -714,58 +713,54 @@ namespace basix
 						if (component == 0) // Apply red component
 						{
 							a_processed_data++;
-							a_processed_pixel->push_back(_get_current_pixel_processed());
-							_get_current_pixel_processed()->red = (unsigned char)(out[i]);
+							current_collumn++;
+							set_pixel_red(current_collumn, current_line, (unsigned char)(out[i]));
 						}
 						else if (component == 1) // Apply green component
 						{
-							_get_current_pixel_processed()->green = (unsigned char)(out[i]);
+							set_pixel_green(current_collumn, current_line, (unsigned char)(out[i]));
 						}
 						else if (component == 2) // Apply blue component
 						{
-							_get_current_pixel_processed()->blue = (unsigned char)(out[i]);
+							set_pixel_blue(current_collumn, current_line, (unsigned char)(out[i]));
 						}
 						else if (component == 3) // Apply alpha component
 						{
-							_get_current_pixel_processed()->alpha = (unsigned char)(out[i]);
+							set_pixel_alpha(current_collumn, current_line, (unsigned char)(out[i]));
 						}
 						part++;
 					}
 					else
 					{
-						if ((*a_processed_pixel).size() > 0)
+						if (a_processed_data > 0)
 						{
 							if (a_filter_type == 1) // Apply sub filtering
 							{
-								for (int i = 1; i < a_processed_pixel->size(); i++)
+								for (int i = 1; i < get_width(); i++)
 								{
-									PNG_Pixel final_pixel;
-									PNG_Pixel pixel = *(*a_processed_pixel)[i - 1];
-									final_pixel.red = normalize_value((*a_processed_pixel)[i]->red + pixel.red, 0, 255);
-									final_pixel.green = normalize_value((*a_processed_pixel)[i]->green + pixel.green, 0, 255);
-									final_pixel.blue = normalize_value((*a_processed_pixel)[i]->blue + pixel.blue, 0, 255);
-									final_pixel.alpha = normalize_value((*a_processed_pixel)[i]->alpha + pixel.alpha, 0, 255);
-									(*(*a_processed_pixel)[i]) = final_pixel;
+									PNG_Pixel pixel = get_pixel(i - 1, current_line);
+									set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
+									set_pixel_green(i, current_line, get_pixel(i, current_line).green + pixel.green);
+									set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + pixel.blue);
+									set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + pixel.alpha);
 								}
 							}
-							else if (a_filter_type == 2 && a_last_processed_line_pixel->size() > 0) // Apply up filtering
+							else if (a_filter_type == 2 && a_processed_data > get_width()) // Apply up filtering
 							{
-								for (int i = 0; i < a_processed_pixel->size(); i++)
+								for (int i = 0; i < get_width(); i++)
 								{
-									PNG_Pixel final_pixel;
-									PNG_Pixel pixel = (*a_last_processed_line_pixel)[i];
-									final_pixel.red = normalize_value((*a_processed_pixel)[i]->red + pixel.red, 0, 255);
-									final_pixel.green = normalize_value((*a_processed_pixel)[i]->green + pixel.green, 0, 255);
-									final_pixel.blue = normalize_value((*a_processed_pixel)[i]->blue + pixel.blue, 0, 255);
-									final_pixel.alpha = normalize_value((*a_processed_pixel)[i]->alpha + pixel.alpha, 0, 255);
-									(*(*a_processed_pixel)[i]) = final_pixel;
+									PNG_Pixel pixel = get_pixel(i, current_line - 1);
+									set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
+									set_pixel_green(i, current_line, get_pixel(i, current_line).green + pixel.green);
+									set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + pixel.blue);
+									set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + pixel.alpha);
 								}
 							}
 							else if (a_filter_type == 3) // Apply average filtering
 							{
-								if (a_last_processed_line_pixel->size() > 0)
+								if (a_processed_data > get_width())
 								{
-									for (int i = 0; i < a_processed_pixel->size(); i++)
+									for (int i = 0; i < get_width(); i++)
 									{
 										PNG_Pixel final_pixel;
 										PNG_Pixel pixel1;
@@ -778,124 +773,122 @@ namespace basix
 										}
 										else
 										{
-											pixel1 = *(*a_processed_pixel)[i - 1];
+											pixel1 = get_pixel(i - 1, current_line);
 										}
-										PNG_Pixel pixel2 = (*a_last_processed_line_pixel)[i];
-										final_pixel.red = normalize_value((*a_processed_pixel)[i]->red + floor(((float)pixel1.red + (float)pixel2.red) / 2.0), 0, 255);
-										final_pixel.green = normalize_value((*a_processed_pixel)[i]->green + floor(((float)pixel1.green + (float)pixel2.green) / 2.0), 0, 255);
-										final_pixel.blue = normalize_value((*a_processed_pixel)[i]->blue + floor(((float)pixel1.blue + (float)pixel2.blue) / 2.0), 0, 255);
-										final_pixel.alpha = normalize_value((*a_processed_pixel)[i]->alpha + floor(((float)pixel1.alpha + (float)pixel2.alpha) / 2.0), 0, 255);
-										(*(*a_processed_pixel)[i]) = final_pixel;
+										PNG_Pixel pixel2 = get_pixel(i, current_line - 1);
+										set_pixel_red(i, current_line, get_pixel(i, current_line).red + floor(((float)pixel1.red + (float)pixel2.red) / 2.0));
+										set_pixel_green(i, current_line, get_pixel(i, current_line).green + floor(((float)pixel1.green + (float)pixel2.green) / 2.0));
+										set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + floor(((float)pixel1.blue + (float)pixel2.blue) / 2.0));
+										set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + floor(((float)pixel1.alpha + (float)pixel2.alpha) / 2.0));
 									}
 								}
 							}
-							else if (a_filter_type == 4 && a_pixels->size() > 0) // Apply paeth filtering
+							else if (a_filter_type == 4 && current_line > 0) // Apply paeth filtering
 							{
-								for (int i = 0; i < a_processed_pixel->size(); i++)
+								for (int i = 0; i < get_width(); i++)
 								{
-									PNG_Pixel final_pixel;
 									if (i == 0)
 									{
-										PNG_Pixel pixel = (*a_last_processed_line_pixel)[i];
-										unsigned char final_red = pixel.red; // Calculate final colors
-										unsigned char final_green = pixel.green;
-										unsigned char final_blue = pixel.blue;
-										unsigned char final_alpha = pixel.alpha;
-										final_pixel.red = normalize_value((*(*a_processed_pixel)[i]).red + final_red, 0, 255);
-										final_pixel.green = normalize_value((*(*a_processed_pixel)[i]).green + final_green, 0, 255);
-										final_pixel.blue = normalize_value((*(*a_processed_pixel)[i]).blue + final_blue, 0, 255);
-										final_pixel.alpha = normalize_value((*(*a_processed_pixel)[i]).alpha + final_alpha, 0, 255);
+										PNG_Pixel pixel = get_pixel(i, current_line - 1);
+										set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
+										set_pixel_green(i, current_line, get_pixel(i, current_line).green + pixel.green);
+										set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + pixel.blue);
+										set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + pixel.alpha);
 									}
 									else
 									{
-										PNG_Pixel pixel2 = (*a_last_processed_line_pixel)[i];
-										PNG_Pixel pixel3 = (*a_last_processed_line_pixel)[i - 1];
-										PNG_Pixel pixel1 = *(*a_processed_pixel)[i - 1];
-										final_pixel.red = normalize_value((*(*a_processed_pixel)[i]).red + paeth_function(pixel1.red, pixel2.red, pixel3.red), 0, 255);
-										final_pixel.green = normalize_value((*(*a_processed_pixel)[i]).green + paeth_function(pixel1.green, pixel2.green, pixel3.green), 0, 255);
-										final_pixel.blue = normalize_value((*(*a_processed_pixel)[i]).blue + paeth_function(pixel1.blue, pixel2.blue, pixel3.blue), 0, 255);
-										final_pixel.alpha = normalize_value((*(*a_processed_pixel)[i]).alpha + paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha), 0, 255);
+										PNG_Pixel pixel2 = get_pixel(i - 1, current_line);
+										PNG_Pixel pixel3 = get_pixel(i - 1, current_line - 1);
+										PNG_Pixel pixel1 = get_pixel(i, current_line - 1);
+										set_pixel_red(i, current_line, get_pixel(i, current_line).red + paeth_function(pixel1.red, pixel2.red, pixel3.red));
+										set_pixel_green(i, current_line, get_pixel(i, current_line).green + paeth_function(pixel1.green, pixel2.green, pixel3.green));
+										set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + paeth_function(pixel1.blue, pixel2.blue, pixel3.blue));
+										set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha));
 									}
-									(*(*a_processed_pixel)[i]) = final_pixel;
 								}
 							}
 						}
 
 						a_filter_type = out[i];
+						current_collumn = -1;
+						current_line++;
 						part = 0;
-
-						a_last_processed_line_pixel->clear();
-						for (int i = 0; i < a_processed_pixel->size(); i++)
-						{
-							a_last_processed_line_pixel->push_back(*(*a_processed_pixel)[i]);
-						}
-
-						a_processed_pixel->clear();
 					}
 				}
 
-				if (a_processed_pixel != 0 && a_processed_pixel->size() > 0)
+				if (a_processed_data > 0)
 				{
 					if (a_filter_type == 1) // Apply sub filtering
 					{
-						for (int i = 1; i < a_processed_pixel->size(); i++)
+						for (int i = 1; i < get_width(); i++)
 						{
-							PNG_Pixel final_pixel;
-							PNG_Pixel pixel = *(*a_processed_pixel)[i - 1];
-							final_pixel.red = normalize_value(pixel.red - (*(*a_processed_pixel)[i]).red, 0, 255);
-							final_pixel.green = normalize_value(pixel.green - (*(*a_processed_pixel)[i]).green, 0, 255);
-							final_pixel.blue = normalize_value(pixel.blue - (*(*a_processed_pixel)[i]).blue, 0, 255);
-							final_pixel.alpha = normalize_value(pixel.alpha - (*(*a_processed_pixel)[i]).alpha, 0, 255);
-							(*(*a_processed_pixel)[i]) = final_pixel;
+							PNG_Pixel pixel = get_pixel(i - 1, current_line);
+							set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
+							set_pixel_green(i, current_line, get_pixel(i, current_line).green + pixel.green);
+							set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + pixel.blue);
+							set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + pixel.alpha);
 						}
 					}
-					else if (a_filter_type == 2 && a_last_processed_line_pixel->size() > 0) // Apply up filtering
+					else if (a_filter_type == 2 && a_processed_data > get_width()) // Apply up filtering
 					{
-						for (int i = 0; i < a_processed_pixel->size(); i++)
+						for (int i = 0; i < get_width(); i++)
 						{
-							PNG_Pixel final_pixel;
-							PNG_Pixel pixel = (*a_last_processed_line_pixel)[i];
-							final_pixel.red = normalize_value(pixel.red - (*(*a_processed_pixel)[i]).red, 0, 255);
-							final_pixel.green = normalize_value(pixel.green - (*(*a_processed_pixel)[i]).green, 0, 255);
-							final_pixel.blue = normalize_value(pixel.blue - (*(*a_processed_pixel)[i]).blue, 0, 255);
-							final_pixel.alpha = normalize_value(pixel.alpha - (*(*a_processed_pixel)[i]).alpha, 0, 255);
-							(*(*a_processed_pixel)[i]) = final_pixel;
+							PNG_Pixel pixel = get_pixel(i, current_line - 1);
+							set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
+							set_pixel_green(i, current_line, get_pixel(i, current_line).green + pixel.green);
+							set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + pixel.blue);
+							set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + pixel.alpha);
 						}
 					}
-					else if (a_filter_type == 3) // Not implemented yet
+					else if (a_filter_type == 3) // Apply average filtering
 					{
-						delete[] header;
-						delete[] out;
-						return -3;
-					}
-					else if (a_filter_type == 4 && a_pixels->size() > 0) // Apply paeth filtering
-					{
-						for (int i = 0; i < a_processed_pixel->size(); i++)
+						if (a_processed_data > get_width())
 						{
-							PNG_Pixel final_pixel;
+							for (int i = 0; i < get_width(); i++)
+							{
+								PNG_Pixel final_pixel;
+								PNG_Pixel pixel1;
+								if (i == 0)
+								{
+									pixel1.red = 0;
+									pixel1.green = 0;
+									pixel1.blue = 0;
+									pixel1.alpha = 0;
+								}
+								else
+								{
+									pixel1 = get_pixel(i - 1, current_line);
+								}
+								PNG_Pixel pixel2 = get_pixel(i, current_line - 1);
+								set_pixel_red(i, current_line, get_pixel(i, current_line).red + floor(((float)pixel1.red + (float)pixel2.red) / 2.0));
+								set_pixel_green(i, current_line, get_pixel(i, current_line).green + floor(((float)pixel1.green + (float)pixel2.green) / 2.0));
+								set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + floor(((float)pixel1.blue + (float)pixel2.blue) / 2.0));
+								set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + floor(((float)pixel1.alpha + (float)pixel2.alpha) / 2.0));
+							}
+						}
+					}
+					else if (a_filter_type == 4 && a_processed_data > get_width()) // Apply paeth filtering
+					{
+						for (int i = 0; i < get_width(); i++)
+						{
 							if (i == 0)
 							{
-								PNG_Pixel pixel = (*a_last_processed_line_pixel)[i];
-								unsigned char final_red = pixel.red; // Calculate final colors
-								unsigned char final_green = pixel.green;
-								unsigned char final_blue = pixel.blue;
-								unsigned char final_alpha = pixel.alpha;
-								final_pixel.red = normalize_value((*(*a_processed_pixel)[i]).red + final_red, 0, 255);
-								final_pixel.green = normalize_value((*(*a_processed_pixel)[i]).green + final_green, 0, 255);
-								final_pixel.blue = normalize_value((*(*a_processed_pixel)[i]).blue + final_blue, 0, 255);
-								final_pixel.alpha = normalize_value((*(*a_processed_pixel)[i]).alpha + final_alpha, 0, 255);
+								PNG_Pixel pixel = get_pixel(i, current_line - 1);
+								set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
+								set_pixel_green(i, current_line, get_pixel(i, current_line).green + pixel.green);
+								set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + pixel.blue);
+								set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + pixel.alpha);
 							}
 							else
 							{
-								PNG_Pixel pixel2 = (*a_last_processed_line_pixel)[i];
-								PNG_Pixel pixel3 = (*a_last_processed_line_pixel)[i - 1];
-								PNG_Pixel pixel1 = *(*a_processed_pixel)[i - 1];
-								final_pixel.red = normalize_value((*(*a_processed_pixel)[i]).red + paeth_function(pixel1.red, pixel2.red, pixel3.red), 0, 255);
-								final_pixel.green = normalize_value((*(*a_processed_pixel)[i]).green + paeth_function(pixel1.green, pixel2.green, pixel3.green), 0, 255);
-								final_pixel.blue = normalize_value((*(*a_processed_pixel)[i]).blue + paeth_function(pixel1.blue, pixel2.blue, pixel3.blue), 0, 255);
-								final_pixel.alpha = normalize_value((*(*a_processed_pixel)[i]).alpha + paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha), 0, 255);
+								PNG_Pixel pixel2 = get_pixel(i - 1, current_line);
+								PNG_Pixel pixel3 = get_pixel(i - 1, current_line - 1);
+								PNG_Pixel pixel1 = get_pixel(i, current_line - 1);
+								set_pixel_red(i, current_line, get_pixel(i, current_line).red + paeth_function(pixel1.red, pixel2.red, pixel3.red));
+								set_pixel_green(i, current_line, get_pixel(i, current_line).green + paeth_function(pixel1.green, pixel2.green, pixel3.green));
+								set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + paeth_function(pixel1.blue, pixel2.blue, pixel3.blue));
+								set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha));
 							}
-							(*(*a_processed_pixel)[i]) = final_pixel;
 						}
 					}
 				}
@@ -965,39 +958,12 @@ namespace basix
 		// Return the x parameter normalized according to the image
 		inline unsigned short normalized_x(unsigned short x)
 		{
-			if (is_flipped_y()) x = get_width() - (x + 1);
 			return x;
 		}
 		// Return the y parameter normalized according to the image
 		inline unsigned short normalized_y(unsigned short y)
 		{
-			if (is_flipped_x()) y = get_height() - (y + 1);
 			return y;
-		}
-		// Set the color of a pixel
-		void set_pixel(unsigned short x, unsigned short y, PNG_Pixel pixel)
-		{
-			(*(*a_pixels)[normalized_x(x)])[normalized_y(y)] = pixel;
-		}
-		// Set the alpha value of a pixel
-		void set_pixel_alpha(unsigned short x, unsigned short y, unsigned char alpha)
-		{
-			(*(*a_pixels)[normalized_x(x)])[normalized_y(y)].alpha = alpha;
-		}
-		// Set the blue value of a pixel
-		void set_pixel_blue(unsigned short x, unsigned short y, unsigned char blue)
-		{
-			(*(*a_pixels)[normalized_x(x)])[normalized_y(y)].blue = blue;
-		}
-		// Set the green value of a pixel
-		void set_pixel_green(unsigned short x, unsigned short y, unsigned char green)
-		{
-			(*(*a_pixels)[normalized_x(x)])[normalized_y(y)].green = green;
-		}
-		// Set the red value of a pixel
-		void set_pixel_red(unsigned short x, unsigned short y, unsigned char red)
-		{
-			(*(*a_pixels)[normalized_y(x)])[normalized_y(y)].red = red;
 		}
 		// PNG_Image destructor
 		~PNG_Image() { free_memory(); };
@@ -1005,9 +971,9 @@ namespace basix
 		// Getters and setters
 		inline unsigned int get_bit_depht() { return a_bit_depth; };
 		inline unsigned int get_color_type() { return a_color_type; };
-		inline PNG_Pixel* _get_current_pixel_processed(unsigned int offset = 0) { return &(*(*a_pixels)[_get_current_x_processing(offset)])[_get_current_y_processing(offset)]; };
-		inline unsigned int _get_current_x_processing(unsigned int offset = 0) { return (a_processed_data - offset) % get_width(); };
-		inline unsigned int _get_current_y_processing(unsigned int offset = 0) { return floor(((float)a_processed_data - (float)offset) / (float)get_width()); };
+		inline unsigned char get_components() { if (get_color_type() == 6) return 4; return 3; };
+		inline unsigned int _get_current_x_processing(unsigned int offset = 0) { return ((a_processed_data - 1) - offset) % get_width(); };
+		inline unsigned int _get_current_y_processing(unsigned int offset = 0) { return floor(((float)(a_processed_data - 1) - (float)offset) / (float)get_width()); };
 		inline unsigned int get_compression_method() { return a_compression_method; };
 		inline char get_error_load() { return a_error_load; };
 		inline unsigned int get_filter_method() { return a_filter_method; };
@@ -1020,7 +986,47 @@ namespace basix
 		inline unsigned int get_width() { return a_width; };
 		inline bool is_flipped_x() { return a_flipped_x; };
 		inline bool is_flipped_y() { return a_flipped_y; };
-		inline unsigned bool is_loadable() { return a_loadable; };
+		inline bool is_loadable() { return a_loadable; };
+		inline void set_pixel(unsigned short x, unsigned short y, PNG_Pixel pixel)
+		{
+			unsigned int position = (y * get_width() + x) * get_components();
+			a_pixels[position] = pixel.red;
+			a_pixels[position + 1] = pixel.green;
+			a_pixels[position + 2] = pixel.blue;
+			a_pixels[position + 3] = pixel.alpha;
+		}
+		inline void set_pixel(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255)
+		{
+			unsigned int position = (y * get_width() + x) * get_components();
+			alpha = normalize_value(alpha, 0, 255);
+			blue = normalize_value(blue, 0, 255);
+			green = normalize_value(green, 0, 255);
+			red = normalize_value(red, 0, 255);
+			a_pixels[position] = red;
+			a_pixels[position + 1] = green;
+			a_pixels[position + 2] = blue;
+			a_pixels[position + 3] = alpha;
+		}
+		inline void set_pixel_alpha(unsigned short x, unsigned short y, unsigned char alpha)
+		{
+			alpha = normalize_value(alpha, 0, 255);
+			a_pixels[(y * get_width() + x) * get_components() + 3] = alpha;
+		}
+		inline void set_pixel_blue(unsigned short x, unsigned short y, unsigned char blue)
+		{
+			blue = normalize_value(blue, 0, 255);
+			a_pixels[(y * get_width() + x) * get_components() + 2] = blue;
+		}
+		inline void set_pixel_green(unsigned short x, unsigned short y, unsigned char green)
+		{
+			green = normalize_value(green, 0, 255);
+			a_pixels[(y * get_width() + x) * get_components() + 1] = green;
+		}
+		inline void set_pixel_red(unsigned short x, unsigned short y, unsigned char red)
+		{
+			red = normalize_value(red, 0, 255);
+			a_pixels[((y * get_width()) + x) * get_components()] = red;
+		}
 	private:
 		// Bit depth of the image
 		unsigned int a_bit_depth = 0;
@@ -1042,10 +1048,10 @@ namespace basix
 		bool a_flipped_y = false;
 		// Height of the image
 		unsigned int a_height = 0;
+		// Vector of all the IDAT chunks in the image
+		std::vector<PNG_Chunk> a_idat_chunk = std::vector<PNG_Chunk>();
 		// Interlace method of the image
 		unsigned int a_interlace_method = 0;
-		// Last processed pixels during the process
-		std::vector<PNG_Pixel>* a_last_processed_line_pixel = 0;
 		// If the image can be loaded or not
 		bool a_loadable = true;
 		// Path of the image
@@ -1057,11 +1063,9 @@ namespace basix
 		// Physical width of the image
 		unsigned int a_physical_width_ratio = 0;
 		// Pixel of the image
-		std::vector<std::vector<PNG_Pixel>*>* a_pixels = 0;
+		unsigned char* a_pixels = 0;
 		// Number of data processed
-		unsigned int a_processed_data = -1;
-		// Processed pixels during the process
-		std::vector<PNG_Pixel*>* a_processed_pixel = 0;
+		unsigned int a_processed_data = 0;
 		// Starting position of the last processing
 		unsigned int a_processing_last_position = 0;
 		// Value of the sRGB chunk

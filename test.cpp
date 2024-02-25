@@ -5,12 +5,22 @@ int main()
 	std::string base_path = "J:/Projets/Matix/matix/assets/textures";
 	std::vector<std::string> path = basix::directory_content(base_path, true);
 
-	// base_path = base_path + "/pastﬁque melon.png";
+	/*std::string base_path = "J:/Projets/Matix/matix/assets/textures/welcome_hud/background.png";
 
-	/*for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		basix::PNG_Image image;
 		image.load_from_path(base_path);
+
+		unsigned char* datas = image.data();
+
+		for (int i = 0;i<image.get_height();i++)
+		{
+			for (int j = 0; j < image.get_width(); j++)
+			{
+				std::cout << "Pixel " << j << "-" << i << " : " << (int)image.get_pixel(j, i).red << " " << (int)image.get_pixel(j, i).green << " " << (int)image.get_pixel(j, i).blue << " " << (int)image.get_pixel(j, i).alpha << std::endl;
+			}
+		}
 
 		if (image.is_loadable())
 		{
@@ -34,8 +44,8 @@ int main()
 			std::string test = "";
 			basix::PNG_Image image;
 			image.load_from_path(path[i]);
+			image.flip_x();
 			unsigned char* datas = image.data();
-			delete[] datas;
 			if (image.is_loadable())
 			{
 				std::cout << "Path " << path[i] << " successfully loaded" << std::endl;
