@@ -32,7 +32,7 @@ int main()
 		}
 	}//*/
 
-	unsigned short loaded = 0;
+	/*unsigned short loaded = 0;
 	unsigned short loaded_successfully = 0;
 
 	for (int i = 0; i < path.size(); i++)
@@ -63,6 +63,8 @@ int main()
 
 	std::cout << loaded_successfully << "/" << loaded << " images loaded successfully, so " << ((float)loaded_successfully / (float)loaded) * 100.0 << "%" << std::endl;
 	//*/
+
+	basix::PNG_Image image = basix::PNG_Image(5000, 5000, 255, 0, 0);
 
 	return 0;
 }

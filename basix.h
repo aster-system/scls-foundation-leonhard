@@ -390,6 +390,15 @@ namespace basix
 	public:
 		// PNG_Image constructor
 		PNG_Image() {};
+		// PNG_Image constructor
+		PNG_Image(unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned int color_type = 6)
+		{
+			a_color_type = color_type;
+			a_height = height;
+			a_width = width;
+
+			fill(red, green, blue, alpha);
+		};
 		// PNG_Image copy constructor
 		PNG_Image(PNG_Image& copy) : PNG_Image()
 		{
