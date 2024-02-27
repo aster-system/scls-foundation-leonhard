@@ -66,5 +66,7 @@ int main()
 
 	basix::PNG_Image image = basix::PNG_Image(5000, 5000, 255, 0, 0);
 
+	image.fill_triangle(50, 50, 60, 150, 250, 40, 0, 0, 0, 255);
+
 	return 0;
 }

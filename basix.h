@@ -513,6 +513,73 @@ namespace basix
 				}
 			}
 		};
+		// Fill a rectangle on the image
+		void fill_triangle(unsigned short x_1, unsigned short y_1, unsigned short x_2, unsigned short y_2, unsigned short x_3, unsigned short y_3, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255)
+		{
+			// 3 should be the point with the largest X value
+			if (x_1 > x_3)
+			{
+				unsigned short temp = x_1;
+				x_1 = x_3;
+				x_3 = temp;
+				temp = y_1;
+				y_1 = y_3;
+				y_3 = temp;
+			}
+
+			// 3 should be the point with the largest X value
+			if (x_2 > x_3)
+			{
+				unsigned short temp = x_2;
+				x_2 = x_3;
+				x_3 = temp;
+				temp = y_2;
+				y_2 = y_3;
+				y_3 = temp;
+			}
+
+			// 2 should be the point with the largest Y value of 1 and 2
+			if (y_1 > y_2)
+			{
+				unsigned short temp = x_2;
+				x_2 = x_1;
+				x_1 = temp;
+				temp = y_2;
+				y_2 = y_1;
+				y_1 = temp;
+			}
+
+			float distance_x_1_2 = x_2 - x_1;
+			float distance_y_1_2 = y_2 - y_1;
+
+			float actual_x = x_1;
+			float actual_y = y_1;
+			float ratio_x_y = distance_x_1_2 / distance_y_1_2;
+			float ratio_y_x = abs(distance_y_1_2 / distance_x_1_2);
+
+			unsigned short iter = 0;
+
+			while (actual_y < y_2 && iter < 1000)
+			{
+				if (abs(ratio_x_y) < 1)
+				{
+					actual_y++;
+					actual_x += ratio_x_y;
+				}
+				else
+				{
+					actual_y += ratio_y_x;
+					if(distance_x_1_2 > 0) actual_x++;
+					else actual_x--;
+				}
+
+				draw_line(floor(actual_x), floor(actual_y), x_3, y_3, red, green, blue, alpha, 2);
+				draw_line(floor(actual_x), ceil(actual_y), x_3, y_3, red, green, blue, alpha, 2);
+				draw_line(ceil(actual_x), floor(actual_y), x_3, y_3, red, green, blue, alpha, 2);
+				draw_line(ceil(actual_x), ceil(actual_y), x_3, y_3, red, green, blue, alpha, 2);
+				iter++;
+			}
+		};
 		// Flip the image on the X axis
 		inline void flip_x()
 		{
