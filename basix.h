@@ -420,8 +420,68 @@ namespace basix
 		{
 			return a_pixels;
 		}
+		// Draw a line on the image
+		void draw_line(unsigned short x_1, unsigned short y_1, unsigned short x_2, unsigned short y_2, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned short width = 1)
+		{
+			if (width == 1 || true)
+			{
+				float distance_x = x_2 - x_1;
+				float distance_y = y_2 - y_1;
+				float distance = ceil(sqrt(pow(distance_x, 2) + pow(distance_y, 2)));
+
+				float x_y_ratio = distance_x / distance_y;
+
+				if (abs(x_y_ratio) < 1)
+				{
+					// Normalize positions
+					if (y_1 > y_2)
+					{
+						unsigned short temp = y_1;
+						y_1 = y_2;
+						y_2 = temp;
+						temp = x_1;
+						x_1 = x_2;
+						x_2 = temp;
+					}
+
+					float actual_x = x_1;
+					float actual_y = y_1;
+
+					while (actual_y < y_2)
+					{
+						actual_y++;
+						actual_x += x_y_ratio;
+						set_pixel(actual_x, actual_y, red, green, blue, alpha, width);
+					}
+				}
+				else
+				{
+					// Normalize positions
+					if (x_1 > x_2)
+					{
+						unsigned short temp = x_1;
+						x_1 = x_2;
+						x_2 = temp;
+						temp = y_1;
+						y_1 = y_2;
+						y_2 = temp;
+					}
+
+					float actual_x = x_1;
+					float actual_y = y_1;
+
+					float y_x_ratio = distance_y / distance_x;
+					while(actual_x < x_2)
+					{
+						actual_y += y_x_ratio;
+						actual_x++;
+						set_pixel(actual_x, actual_y, red, green, blue, alpha, width);
+					}
+				}
+			}
+		};
 		// Draw a rectangle on the image
-		void draw_rect(unsigned short x, unsigned short y, unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha)
+		void draw_rect(unsigned short x, unsigned short y, unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255)
 		{
 			for (int i = 0; i < width; i++)
 			{
@@ -1043,6 +1103,8 @@ namespace basix
 		}
 		inline void set_pixel(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned short width = 1)
 		{
+			if (x < 0 || y < 0 || x >= get_width() || y >= get_height()) return;
+
 			if (width == 0) return;
 			else if (width == 1)
 			{
