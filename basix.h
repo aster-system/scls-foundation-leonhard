@@ -255,6 +255,74 @@ namespace basix
 		return v;
 	};
 
+	// Compress data from a char array without returning the result
+	inline int _compress_binary(char* to_compress, unsigned int to_compress_size, char* output, unsigned int output_size, unsigned int& total_output_size)
+	{
+		// Create compression ENV
+		int ret = 0;
+		z_stream strm;
+		strm.zalloc = Z_NULL;
+		strm.zfree = Z_NULL;
+		strm.opaque = Z_NULL;
+		strm.avail_in = 0;
+		strm.next_in = Z_NULL;
+		ret = deflateInit(&strm, 9);
+		if (ret != Z_OK) return ret;
+		strm.avail_in = to_compress_size;
+		strm.next_in = (Bytef*)(to_compress);
+		bool stream_end = false;
+
+		// Set output
+		strm.avail_out = output_size;
+		strm.next_out = (Bytef*)output;
+
+		// Compress data
+		do
+		{
+			// Do the decompression
+			ret = deflate(&strm, Z_FINISH);
+			if (ret == Z_STREAM_ERROR)
+			{
+				(void)deflateEnd(&strm);
+				return -1;
+			}
+
+			switch (ret)
+			{
+			case Z_NEED_DICT:
+				ret = Z_DATA_ERROR;
+				break;
+			case Z_MEM_ERROR:
+				(void)deflateEnd(&strm);
+				return -2;
+			case Z_STREAM_END:
+				stream_end = true;
+				break;
+			}
+		} while (strm.avail_out == 0 && !stream_end);
+		(void)deflateEnd(&strm);
+
+		total_output_size = strm.total_out;
+
+		return 1;
+	};
+
+	// Compress data from a char array and return the result
+	inline char* compress_binary(char* to_compress, unsigned int to_compress_size, unsigned int& output_size)
+	{
+		char* output = new char[to_compress_size + 150];
+
+		unsigned int ret = _compress_binary(to_compress, to_compress_size, output, to_compress_size + 150, output_size);
+		if (ret != 1) return 0;
+
+		char* final = new char[output_size];
+		for (int i = 0; i < output_size; i++) final[i] = output[i];
+
+		delete[] output;
+
+		return final;
+	}
+
 	// Uncompress data from a char array
 	inline int uncompress_binary(char* to_uncompress, unsigned int to_uncompress_size, char* output, unsigned int output_size)
 	{

@@ -2,9 +2,6 @@
 
 int main()
 {
-	std::string base_path = "J:/Projets/Matix/matix/assets/textures";
-	std::vector<std::string> path = basix::directory_content(base_path, true);
-
 	/*std::string base_path = "J:/Projets/Matix/matix/assets/textures/welcome_hud/background.png";
 
 	for (int i = 0; i < 1; i++)
@@ -66,7 +63,17 @@ int main()
 
 	basix::PNG_Image image = basix::PNG_Image(5000, 5000, 255, 0, 0);
 
-	image.fill_triangle(50, 50, 60, 150, 250, 40, 0, 0, 0, 255);
+	unsigned int size = 100000;
+	unsigned char* ca = new unsigned char[size];
+
+	for (int i = 0; i < size; i++)
+	{
+		ca[i] = (unsigned char)(255.0 * ((float)i / size));
+	}
+
+	unsigned char* result = (unsigned char*)basix::compress_binary((char*)ca, size, size);
+
+	std::cout << "Size : " << size << std::endl;
 
 	return 0;
 }
