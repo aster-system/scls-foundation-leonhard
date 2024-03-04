@@ -103,6 +103,15 @@ namespace basix
 	// Returns if a file exists.
 	inline bool file_exists(std::string path) { struct stat sb; bool result = (stat(path.c_str(), &sb) == 0); return result; };
 
+	// Returns the name of a file (assuming the file exists).
+	inline std::string file_name(std::string path)
+	{
+		std::vector<std::string> cutted = cut_string(path, "/");
+		cutted = cut_string(cutted[cutted.size() - 1], "\\");
+		cutted = cut_string(cutted[cutted.size() - 1], ".");
+		return cutted[0];
+	};
+
 	// Returns the size of a file (assuming the file exists).
 	inline unsigned int file_size(std::string path)
 	{
