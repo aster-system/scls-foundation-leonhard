@@ -61,10 +61,10 @@ int main()
 	std::cout << loaded_successfully << "/" << loaded << " images loaded successfully, so " << ((float)loaded_successfully / (float)loaded) * 100.0 << "%" << std::endl;
 	//*/
 
-	std::cout << basix::file_name("C://I/love/cpp\\and\\OpenGL.png.jpg.ru.exe") << std::endl;
-
+	// basix::Image image = basix::Image(500, 500, 255, 0, 0);
 	basix::Image image = basix::Image();
-	image.load_from_binary_PNG(basix::read_entire_file_binary("cool_square.png"), basix::file_size("cool_square.png"));
+	image.load_from_path("cool_square.png");
+	image.save_png("test.png");
 
 	return 0;
 }

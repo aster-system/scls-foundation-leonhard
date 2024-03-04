@@ -15,7 +15,6 @@
 #include <codecvt>
 #include <filesystem>
 #include <fstream>
-#include <intrin.h>
 #include <iostream>
 #include <locale>
 #include <math.h>
@@ -118,6 +117,27 @@ namespace basix
 		std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
 		return in.tellg();
 	}
+
+	// Convert an integer to a char array
+	void int_to_char_array(int n, char* result)
+	{
+
+		result[0] = (n & 0x000000ff);
+		result[1] = (n & 0x0000ff00) >> 8;
+		result[2] = (n & 0x00ff0000) >> 16;
+		result[3] = (n & 0xff000000) >> 24;
+	}
+
+	// Inverse a char array
+	inline void inverse_char_array(char* array, unsigned int size)
+	{
+		for (int i = 0; i < floor(size / 2.0); i++)
+		{
+			char temp = array[i];
+			array[i] = array[size - (i + 1)];
+			array[size - (i + 1)] = temp;
+		}
+	};
 
 	// Join a vector of string into one string.
 	inline std::string join_string(std::vector<std::string> strings, std::string separation)
@@ -284,7 +304,7 @@ namespace basix
 	};
 
 	// Compress data from a char array without returning the result
-	inline int _compress_binary(char* to_compress, unsigned int to_compress_size, char* output, unsigned int output_size, unsigned int& total_output_size)
+	inline int _compress_binary(char* to_compress, unsigned int to_compress_size, char* output, unsigned int output_size, unsigned int& total_output_size, unsigned int compression_level = 9)
 	{
 		// Create compression ENV
 		int ret = 0;
@@ -294,7 +314,7 @@ namespace basix
 		strm.opaque = Z_NULL;
 		strm.avail_in = 0;
 		strm.next_in = Z_NULL;
-		ret = deflateInit(&strm, 9);
+		ret = deflateInit(&strm, compression_level);
 		if (ret != Z_OK) return ret;
 		strm.avail_in = to_compress_size;
 		strm.next_in = (Bytef*)(to_compress);
@@ -323,6 +343,9 @@ namespace basix
 			case Z_MEM_ERROR:
 				(void)deflateEnd(&strm);
 				return -2;
+			case Z_BUF_ERROR:
+				(void)deflateEnd(&strm);
+				return -5;
 			case Z_STREAM_END:
 				stream_end = true;
 				break;
@@ -336,11 +359,11 @@ namespace basix
 	};
 
 	// Compress data from a char array and return the result
-	inline char* compress_binary(char* to_compress, unsigned int to_compress_size, unsigned int& output_size)
+	inline char* compress_binary(char* to_compress, unsigned int to_compress_size, unsigned int& output_size, unsigned int compression_level = 9)
 	{
-		char* output = new char[to_compress_size + 150];
+		char* output = new char[to_compress_size + 1000];
 
-		unsigned int ret = _compress_binary(to_compress, to_compress_size, output, to_compress_size + 150, output_size);
+		unsigned int ret = _compress_binary(to_compress, to_compress_size, output, to_compress_size + 1000, output_size, compression_level);
 		if (ret != 1) return 0;
 
 		char* final = new char[output_size];
@@ -532,6 +555,121 @@ namespace basix
 		inline unsigned char* data()
 		{
 			return a_pixels;
+		}
+		// Returns the data of the image filtered in a unsigned char*
+		inline unsigned char* data_filtered()
+		{
+			unsigned char* datas = new unsigned char[get_height() * get_width() * get_components() + get_height()];
+			for (int i = 0; i < get_height(); i++)
+			{
+				for (int j = 0; j < get_width() * get_components() + 1; j++)
+				{
+					if (j == 0)
+					{
+						datas[i * (get_width() * get_components() + 1)] = 0;
+					}
+					else
+					{
+						datas[i * (get_width() * get_components() + 1) + j] = data()[i * get_width() * get_components() + (j - 1)];
+					}
+				}
+			}
+			return datas;
+		};
+		// Returns the data of the image under the PNG format
+		inline char* data_png(unsigned int &total_size)
+		{
+			total_size = 8;
+
+			// Create the IDHR chunk
+			std::string name = "IHDR";
+			unsigned int idhr_size = 13;
+			unsigned int idhr_total_size = 25;
+			char* idhr = new char[idhr_total_size];
+			char* chunk_size = new char[4]; int_to_char_array(idhr_size, chunk_size); inverse_char_array(chunk_size, 4);
+			for (int i = 0; i < 4; i++) idhr[i] = chunk_size[i];
+			for (int i = 0; i < name.size(); i++) idhr[4 + i] = name[i];
+			int_to_char_array(get_width(), chunk_size); inverse_char_array(chunk_size, 4);
+			for (int i = 0; i < 4; i++) idhr[8 + i] = chunk_size[i];
+			int_to_char_array(get_height(), chunk_size); inverse_char_array(chunk_size, 4);
+			for (int i = 0; i < 4; i++) idhr[12 +  i] = chunk_size[i];
+			idhr[16] = (unsigned char)get_bit_depht();
+			idhr[17] = (unsigned char)get_color_type();
+			idhr[18] = (unsigned char)get_compression_method();
+			idhr[19] = 0;// (unsigned char)get_filter_method();
+			idhr[20] = 0;// (unsigned char)get_interlace_method();
+			for (int i = 0; i < 4; i++) idhr[21 + i] = 0;
+			total_size += idhr_total_size;
+
+			// Creathe the pHYS chunk
+			name = "pHYS";
+			unsigned int phys_size = 9;
+			unsigned int phys_total_size = 21;
+			char* phys = new char[phys_total_size];
+			int_to_char_array(phys_size, chunk_size); inverse_char_array(chunk_size, 4);
+			for (int i = 0; i < 4; i++) phys[i] = chunk_size[i];
+			for (int i = 0; i < name.size(); i++) phys[4 + i] = name[i];
+			int_to_char_array(get_physical_width_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
+			for (int i = 0; i < 4; i++) phys[8 + i] = chunk_size[i];
+			int_to_char_array(get_physical_height_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
+			for (int i = 0; i < 4; i++) phys[12 + i] = chunk_size[i];
+			phys[16] = get_physical_unit();
+			for (int i = 0; i < 4; i++) phys[17 + i] = 0;
+			total_size += phys_total_size;
+
+			// Create the IDAT chunk
+			name = "IDAT";
+			unsigned int idat_size = 0;
+			char* idat_uncompressed = (char*)data_filtered();
+			char* idat_compressed = compress_binary(idat_uncompressed, get_height() * get_width() * get_components() + get_height(), idat_size, 9);
+			delete[] idat_uncompressed;
+			unsigned int idat_total_size = idat_size + 12;
+			char* idat = new char[idat_total_size];
+			int_to_char_array(idat_size, chunk_size); inverse_char_array(chunk_size, 4);
+			for (int i = 0; i < 4; i++) idat[i] = chunk_size[i];
+			for (int i = 0; i < name.size(); i++) idat[4 + i] = name[i];
+			for (int i = 0; i < idat_size; i++) idat[8 + i] = idat_compressed[i];
+			for (int i = 0; i < 4; i++) idat[(idat_size - 4) + i] = 0;
+			delete[] idat_compressed;
+			total_size += idat_total_size;
+
+			// Create the IEND chunk
+			name = "IEND";
+			unsigned int iend_total_size = 12;
+			char* iend = new char[iend_total_size];
+			for (int i = 0; i < 4; i++) iend[i] = 0;
+			for (int i = 0; i < name.size(); i++) iend[4 + i] = name[i];
+			for (int i = 0; i < 4; i++) iend[8 + i] = 0;
+			total_size += iend_total_size;
+
+			// Create the datas
+			// Create the signature
+			unsigned int pos = 0;
+			char* datas = new char[total_size];
+			std::vector<float> signature = get_png_signature();
+			for (int i = 0; i < signature.size(); i++) datas[i] = (char)signature[i];
+			pos += signature.size();
+			// Create the IDHR chunk
+			for (int i = 0; i < idhr_total_size; i++) datas[pos + i] = idhr[i];
+			pos += idhr_total_size;
+			// Create the pHYS chunk
+			for (int i = 0; i < phys_total_size; i++) datas[pos + i] = phys[i];
+			pos += phys_total_size;
+			// Create the IDAT chunk
+			for (int i = 0; i < idat_total_size; i++) datas[pos + i] = idat[i];
+			pos += idat_total_size;
+			// Create the IEND chunk
+			for (int i = 0; i < iend_total_size; i++) datas[pos + i] = iend[i];
+			pos += iend_total_size;
+
+			// Free the memory
+			delete[] chunk_size;
+			delete[] idat;
+			delete[] idhr;
+			delete[] iend;
+			delete[] phys;
+
+			return datas;
 		}
 		// Draw a line on the image
 		void draw_line(unsigned short x_1, unsigned short y_1, unsigned short x_2, unsigned short y_2, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned short width = 1)
@@ -768,6 +906,8 @@ namespace basix
 				std::vector<unsigned int> size = std::vector<unsigned int>();
 				unsigned int size_offset = 0;
 
+				unsigned int iter = 0;
+
 				// Check each chunks in the file
 				while (name != "IEND")
 				{
@@ -812,6 +952,8 @@ namespace basix
 					{
 						a_loadable = false;
 					}
+
+					iter++;
 				}
 
 				fill(0, 0, 0);
@@ -855,16 +997,8 @@ namespace basix
 				read_file_binary(path, header, size);
 
 				// Check if the signature is correct (137 80 78 71 13 10 26 10 for png files)
-				float signature[8];
-				signature[0] = 137;
-				signature[1] = 80;
-				signature[2] = 78;
-				signature[3] = 71;
-				signature[4] = 13;
-				signature[5] = 10;
-				signature[6] = 26;
-				signature[7] = 10;
-				for (int i = 0; i < header.size(); i++)
+				std::vector<float> signature = get_png_signature();
+				for (int i = 0; i < signature.size(); i++)
 				{
 					if (signature[i] != *((unsigned char*)header[i])) return false;
 				}
@@ -1262,6 +1396,14 @@ namespace basix
 		{
 			return y;
 		}
+		// Save the image into the PNG format
+		inline void save_png(std::string path)
+		{
+			unsigned int size = 0;
+			char* datas = data_png(size);
+			write_in_file_binary(path, datas, size);
+			delete datas;
+		}
 		// PNG_Image destructor
 		~Image() { free_memory(); };
 
@@ -1272,6 +1414,20 @@ namespace basix
 		inline unsigned int _get_current_x_processing(unsigned int offset = 0) { return ((a_processed_data - 1) - offset) % get_width(); };
 		inline unsigned int _get_current_y_processing(unsigned int offset = 0) { return floor(((float)(a_processed_data - 1) - (float)offset) / (float)get_width()); };
 		inline unsigned int get_compression_method() { return a_compression_method; };
+		inline std::vector<float> get_png_signature()
+		{
+			std::vector<float> signature;
+			signature.push_back(137);
+			signature.push_back(80);
+			signature.push_back(78);
+			signature.push_back(71);
+			signature.push_back(13);
+			signature.push_back(10);
+			signature.push_back(26);
+			signature.push_back(10);
+
+			return signature;
+		};
 		inline char get_error_load() { return a_error_load; };
 		inline unsigned int get_filter_method() { return a_filter_method; };
 		inline unsigned int get_height() { return a_height; };
@@ -1336,11 +1492,11 @@ namespace basix
 		}
 private:
 		// Bit depth of the image
-		unsigned int a_bit_depth = 0;
+		unsigned int a_bit_depth = 8;
 		// Size of a chunk to decode an image
 		unsigned int a_chunk_size = pow(2, 24) - 1;
 		// Color type of the image
-		unsigned int a_color_type = 0;
+		unsigned int a_color_type = 6;
 		// Compression method of the image
 		unsigned int a_compression_method = 0;
 		// Error during the loading (1 = normal)
@@ -1364,11 +1520,11 @@ private:
 		// Path of the image
 		std::string a_path = "";
 		// Physical height of the image
-		unsigned int a_physical_height_ratio = 0;
+		unsigned int a_physical_height_ratio = 10000;
 		// Physical unit of the image (0 = unknow, 1 = meter)
-		unsigned int a_physical_unit = 0;
+		unsigned int a_physical_unit = 1;
 		// Physical width of the image
-		unsigned int a_physical_width_ratio = 0;
+		unsigned int a_physical_width_ratio = 10000;
 		// Pixel of the image
 		unsigned char* a_pixels = 0;
 		// Number of data processed
