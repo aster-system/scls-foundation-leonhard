@@ -103,6 +103,13 @@ namespace basix
 	// Returns if a file exists.
 	inline bool file_exists(std::string path) { struct stat sb; bool result = (stat(path.c_str(), &sb) == 0); return result; };
 
+	// Returns the size of a file (assuming the file exists).
+	inline unsigned int file_size(std::string path)
+	{
+		std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
+		return in.tellg();
+	}
+
 	// Join a vector of string into one string.
 	inline std::string join_string(std::vector<std::string> strings, std::string separation)
 	{
@@ -214,6 +221,18 @@ namespace basix
 			file.close();
 		}
 		catch (std::ifstream::failure e) { print("Error", "System", "The file \"" + path + "\" can't be opened, error -> " + e.what() + "."); }
+	};
+
+	// Read and return the content of all a binary file
+	char* read_entire_file_binary(std::string path)
+	{
+		unsigned int total_size = file_size(path);
+		char* file = new char[total_size];
+		std::vector<unsigned int> size = std::vector<unsigned int>();
+		size.push_back(total_size);
+		read_file_binary(path, file, size);
+
+		return file;
 	};
 
 	// Replace a string in an another string.
@@ -390,7 +409,7 @@ namespace basix
 		}
 	}
 
-	// Write binary data in a file
+	// Write binary data in a file from a char vector
 	inline void write_in_file_binary(std::string path, std::vector<char*> to_write, std::ios::openmode opening_mode = std::ios::out | std::ios::binary)
 	{
 		std::ofstream file;
@@ -402,6 +421,23 @@ namespace basix
 			{
 				file.write(to_write[i], sizeof(i));
 			}
+			file.close();
+		}
+		catch (std::ofstream::failure e)
+		{
+			print("Error", "System", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
+		}
+	}
+
+	// Write binary data in a file from a char array
+	inline void write_in_file_binary(std::string path, char* to_write, unsigned int size, std::ios::openmode opening_mode = std::ios::out | std::ios::binary)
+	{
+		std::ofstream file;
+		file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+		try
+		{
+			file.open(path, opening_mode);
+			file.write(to_write, size);
 			file.close();
 		}
 		catch (std::ofstream::failure e)
@@ -452,14 +488,14 @@ namespace basix
 		unsigned char red = 0;
 	};
 
-	class PNG_Image
+	class Image
 	{
 		// Class representing a PNG image handler
 	public:
 		// PNG_Image constructor
-		PNG_Image() {};
+		Image() {};
 		// PNG_Image constructor
-		PNG_Image(unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned int color_type = 6)
+		Image(unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned int color_type = 6)
 		{
 			a_color_type = color_type;
 			a_height = height;
@@ -468,7 +504,7 @@ namespace basix
 			fill(red, green, blue, alpha);
 		};
 		// PNG_Image copy constructor
-		PNG_Image(PNG_Image& copy) : PNG_Image()
+		Image(Image& copy) : Image()
 		{
 			a_bit_depth = copy.a_bit_depth;
 			a_color_type = copy.a_color_type;
@@ -876,6 +912,17 @@ namespace basix
 				return false;
 			}
 		};
+		// Load the image from a set of PNG binary data
+		inline bool load_from_binary_PNG(char* datas, unsigned int size)
+		{
+			write_in_file_binary("_temp.png", datas, size);
+
+			bool result = load_from_path("_temp.png");
+
+			std::filesystem::remove("_temp.png");
+
+			return result;
+		};
 		// Load a IDAT chunk grom a path
 		char load_IDAT_from_path(std::string path)
 		{
@@ -1207,7 +1254,7 @@ namespace basix
 			return y;
 		}
 		// PNG_Image destructor
-		~PNG_Image() { free_memory(); };
+		~Image() { free_memory(); };
 
 		// Getters and setters
 		inline unsigned int get_bit_depht() { return a_bit_depth; };

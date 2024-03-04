@@ -61,19 +61,8 @@ int main()
 	std::cout << loaded_successfully << "/" << loaded << " images loaded successfully, so " << ((float)loaded_successfully / (float)loaded) * 100.0 << "%" << std::endl;
 	//*/
 
-	basix::PNG_Image image = basix::PNG_Image(5000, 5000, 255, 0, 0);
-
-	unsigned int size = 100000;
-	unsigned char* ca = new unsigned char[size];
-
-	for (int i = 0; i < size; i++)
-	{
-		ca[i] = (unsigned char)(255.0 * ((float)i / size));
-	}
-
-	unsigned char* result = (unsigned char*)basix::compress_binary((char*)ca, size, size);
-
-	std::cout << "Size : " << size << std::endl;
+	basix::Image image = basix::Image();
+	image.load_from_binary_PNG(basix::read_entire_file_binary("cool_square.png"), basix::file_size("cool_square.png"));
 
 	return 0;
 }
