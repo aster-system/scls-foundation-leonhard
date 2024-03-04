@@ -181,7 +181,7 @@ namespace basix
 		catch (std::ifstream::failure e) { print("Error", "System", "The file \"" + path + "\" can't be opened."); }
 
 		return file_content;
-	}
+	};
 
 	// Return the content of a file in binary with vector of char
 	inline void read_file_binary(std::string path, std::vector<char*>& datas, std::vector<unsigned int> size, unsigned int start_pos = 0)
@@ -224,7 +224,7 @@ namespace basix
 	};
 
 	// Read and return the content of all a binary file
-	char* read_entire_file_binary(std::string path)
+	inline char* read_entire_file_binary(std::string path)
 	{
 		unsigned int total_size = file_size(path);
 		char* file = new char[total_size];
