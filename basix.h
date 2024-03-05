@@ -119,9 +119,8 @@ namespace basix
 	}
 
 	// Convert an integer to a char array
-	void int_to_char_array(int n, char* result)
+	inline void int_to_char_array(int n, char* result)
 	{
-
 		result[0] = (n & 0x000000ff);
 		result[1] = (n & 0x0000ff00) >> 8;
 		result[2] = (n & 0x00ff0000) >> 16;
