@@ -97,6 +97,87 @@ namespace basix
 		datas.clear();
 	}
 
+	// Extract a 2 bytes variable (short) from a char array
+	inline short extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false)
+	{
+		short number_1 = 0;
+		short number_2 = 0;
+		if (inverse)
+		{
+			number_1 = ((result[offset] << 8) & 0xff00);
+			number_2 = (result[offset + 1] & 0xff);
+		}
+		else
+		{
+			number_1 = ((result[offset + 1] << 8) & 0xff00);
+			number_2 = (result[offset] & 0xff);
+		}
+
+		return number_1 + number_2;
+	};
+
+	// Extract a 4 bytes variable from a char array
+	inline int extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false)
+	{
+		int number_1 = 0;
+		int number_2 = 0;
+		int number_3 = 0;
+		int number_4 = 0;
+		if (inverse)
+		{
+			number_1 = ((result[offset + 0] << 24) & 0xff000000);
+			number_2 = ((result[offset + 1] << 16) & 0x00ff0000);
+			number_3 = ((result[offset + 2] << 8) & 0x0000ff00);
+			number_4 = (result[offset + 3] & 0x000000ff);
+		}
+		else
+		{
+			number_1 = ((result[offset + 3] << 24) & 0xff000000);
+			number_2 = ((result[offset + 2] << 16) & 0x00ff0000);
+			number_3 = ((result[offset + 1] << 8) & 0x0000ff00);
+			number_4 = (result[offset] & 0x000000ff);
+		}
+
+		return number_1 + number_2 + number_3 + number_4;
+	};
+
+	// Extract a 8 bytes variable from a char array
+	inline int64_t extract_8bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false)
+	{
+		int64_t number_1 = 0;
+		int64_t number_2 = 0;
+		int64_t number_3 = 0;
+		int64_t number_4 = 0;
+		int64_t number_5 = 0;
+		int64_t number_6 = 0;
+		int64_t number_7 = 0;
+		int64_t number_8 = 0;
+		if (inverse)
+		{
+			number_1 = ((result[offset] << 56) & 0xff00000000000000);
+			number_2 = ((result[offset + 1] << 48) & 0x00ff000000000000);
+			number_3 = ((result[offset + 2] << 40) & 0x0000ff0000000000);
+			number_4 = ((result[offset + 3] << 32) & 0x000000ff00000000);
+			number_5 = ((result[offset + 4] << 24) & 0x00000000ff000000);
+			number_6 = ((result[offset + 5] << 16) & 0x0000000000ff0000);
+			number_7 = ((result[offset + 6] << 8) & 0x000000000000ff00);
+			number_8 = (result[offset + 7] & 0x00000000000000ff);
+		}
+		else
+		{
+			number_1 = ((result[offset + 7] << 56) & 0xff00000000000000);
+			number_2 = ((result[offset + 6] << 48) & 0x00ff000000000000);
+			number_3 = ((result[offset + 5] << 40) & 0x0000ff0000000000);
+			number_4 = ((result[offset + 4] << 32) & 0x000000ff00000000);
+			number_5 = ((result[offset + 3] << 24) & 0x00000000ff000000);
+			number_6 = ((result[offset + 2] << 16) & 0x0000000000ff0000);
+			number_7 = ((result[offset + 1] << 8) & 0x000000000000ff00);
+			number_8 = (result[offset] & 0x00000000000000ff);
+		}
+
+		return number_1 + number_2 + number_3 + number_4 + number_5 + number_6 + number_7 + number_8;
+	};
+
 	// Return the datas about a file (assuming the file exists).
 	inline struct stat file_datas(std::string path) { struct stat sb; bool result = (stat(path.c_str(), &sb) == 0); return sb; };
 
@@ -155,6 +236,33 @@ namespace basix
 
 	// Convert an integer to a char array
 	inline void put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool inverse = false)
+	{
+		if (inverse)
+		{
+			result[offset + 7] = (n & 0x00000000000000ff);
+			result[offset + 6] = (n & 0x000000000000ff00) >> 8;
+			result[offset + 5] = (n & 0x0000000000ff0000) >> 16;
+			result[offset + 4] = (n & 0x00000000ff000000) >> 24;
+			result[offset + 3] = (n & 0x000000ff00000000) >> 32;
+			result[offset + 2] = (n & 0x0000ff0000000000) >> 40;
+			result[offset + 1] = (n & 0x00ff000000000000) >> 48;
+			result[offset] = (n & 0xff00000000000000) >> 56;
+		}
+		else
+		{
+			result[offset] = (n & 0x00000000000000ff);
+			result[offset + 1] = (n & 0x000000000000ff00) >> 8;
+			result[offset + 2] = (n & 0x0000000000ff0000) >> 16;
+			result[offset + 3] = (n & 0x00000000ff000000) >> 24;
+			result[offset + 4] = (n & 0x000000ff00000000) >> 32;
+			result[offset + 5] = (n & 0x0000ff0000000000) >> 40;
+			result[offset + 6] = (n & 0x00ff000000000000) >> 48;
+			result[offset + 7] = (n & 0xff00000000000000) >> 56;
+		}
+	}
+
+	// Convert an float to a char array
+	inline void put_8bytes_to_char_array(double n, char* result, unsigned int offset = 0, bool inverse = false)
 	{
 		if (inverse)
 		{
