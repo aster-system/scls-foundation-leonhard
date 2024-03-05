@@ -13,6 +13,7 @@
 
 #include <bitset>
 #include <codecvt>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -119,12 +120,64 @@ namespace basix
 	}
 
 	// Convert an integer to a char array
-	inline void int_to_char_array(int n, char* result)
+	inline void put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool inverse = false)
 	{
-		result[0] = (n & 0x000000ff);
-		result[1] = (n & 0x0000ff00) >> 8;
-		result[2] = (n & 0x00ff0000) >> 16;
-		result[3] = (n & 0xff000000) >> 24;
+		if (inverse)
+		{
+			result[offset + 1] = (n & 0x000000ff);
+			result[offset] = (n & 0x0000ff00) >> 8;
+		}
+		else
+		{
+			result[offset] = (n & 0x000000ff);
+			result[offset + 1] = (n & 0x0000ff00) >> 8;
+		}
+	}
+
+	// Convert an integer to a char array
+	inline void put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool inverse = false)
+	{
+		if (inverse)
+		{
+			result[offset + 3] = (n & 0x000000ff);
+			result[offset + 2] = (n & 0x0000ff00) >> 8;
+			result[offset + 1] = (n & 0x00ff0000) >> 16;
+			result[offset] = (n & 0xff000000) >> 24;
+		}
+		else
+		{
+			result[offset] = (n & 0x000000ff);
+			result[offset + 1] = (n & 0x0000ff00) >> 8;
+			result[offset + 2] = (n & 0x00ff0000) >> 16;
+			result[offset + 3] = (n & 0xff000000) >> 24;
+		}
+	}
+
+	// Convert an integer to a char array
+	inline void put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool inverse = false)
+	{
+		if (inverse)
+		{
+			result[offset + 7] = (n & 0x00000000000000ff);
+			result[offset + 6] = (n & 0x00000000000000ff) >> 8;
+			result[offset + 5] = (n & 0x00000000000000ff) >> 16;
+			result[offset + 4] = (n & 0x00000000000000ff) >> 24;
+			result[offset + 3] = (n & 0x00000000000000ff) >> 32;
+			result[offset + 2] = (n & 0x00000000000000ff) >> 40;
+			result[offset + 1] = (n & 0x00000000000000ff) >> 48;
+			result[offset] = (n & 0x00000000000000ff) >> 56;
+		}
+		else
+		{
+			result[offset] = (n & 0x00000000000000ff);
+			result[offset + 1] = (n & 0x00000000000000ff) >> 8;
+			result[offset + 2] = (n & 0x00000000000000ff) >> 16;
+			result[offset + 3] = (n & 0x00000000000000ff) >> 24;
+			result[offset + 4] = (n & 0x00000000000000ff) >> 32;
+			result[offset + 5] = (n & 0x00000000000000ff) >> 40;
+			result[offset + 6] = (n & 0x00000000000000ff) >> 48;
+			result[offset + 7] = (n & 0x00000000000000ff) >> 56;
+		}
 	}
 
 	// Inverse a char array
@@ -232,7 +285,7 @@ namespace basix
 	};
 
 	// Return the content of a file in binary with a char array
-	inline void read_file_binary(std::string path, char* datas, std::vector<unsigned int> size, unsigned int start_pos = 0)
+	inline void read_file_binary(std::string path, char* datas, unsigned int size, unsigned int start_pos = 0)
 	{
 		std::string file_content;
 		std::ifstream file;
@@ -242,10 +295,7 @@ namespace basix
 		{
 			file.open(path, std::ios::binary);
 			file.seekg(start_pos, file.beg);
-			for (int i = 0; i < size.size(); i++)
-			{
-				file.read(datas, size[i]);
-			}
+			file.read(datas, size);
 			file.close();
 		}
 		catch (std::ifstream::failure e) { print("Error", "System", "The file \"" + path + "\" can't be opened, error -> " + e.what() + "."); }
@@ -256,9 +306,7 @@ namespace basix
 	{
 		unsigned int total_size = file_size(path);
 		char* file = new char[total_size];
-		std::vector<unsigned int> size = std::vector<unsigned int>();
-		size.push_back(total_size);
-		read_file_binary(path, file, size);
+		read_file_binary(path, file, total_size);
 
 		return file;
 	};
@@ -585,12 +633,12 @@ namespace basix
 			unsigned int idhr_size = 13;
 			unsigned int idhr_total_size = 25;
 			char* idhr = new char[idhr_total_size];
-			char* chunk_size = new char[4]; int_to_char_array(idhr_size, chunk_size); inverse_char_array(chunk_size, 4);
+			char* chunk_size = new char[4]; put_4bytes_to_char_array(idhr_size, chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) idhr[i] = chunk_size[i];
 			for (int i = 0; i < name.size(); i++) idhr[4 + i] = name[i];
-			int_to_char_array(get_width(), chunk_size); inverse_char_array(chunk_size, 4);
+			put_4bytes_to_char_array(get_width(), chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) idhr[8 + i] = chunk_size[i];
-			int_to_char_array(get_height(), chunk_size); inverse_char_array(chunk_size, 4);
+			put_4bytes_to_char_array(get_height(), chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) idhr[12 +  i] = chunk_size[i];
 			idhr[16] = (unsigned char)get_bit_depht();
 			idhr[17] = (unsigned char)get_color_type();
@@ -605,12 +653,12 @@ namespace basix
 			unsigned int phys_size = 9;
 			unsigned int phys_total_size = 21;
 			char* phys = new char[phys_total_size];
-			int_to_char_array(phys_size, chunk_size); inverse_char_array(chunk_size, 4);
+			put_4bytes_to_char_array(phys_size, chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) phys[i] = chunk_size[i];
 			for (int i = 0; i < name.size(); i++) phys[4 + i] = name[i];
-			int_to_char_array(get_physical_width_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
+			put_4bytes_to_char_array(get_physical_width_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) phys[8 + i] = chunk_size[i];
-			int_to_char_array(get_physical_height_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
+			put_4bytes_to_char_array(get_physical_height_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) phys[12 + i] = chunk_size[i];
 			phys[16] = get_physical_unit();
 			for (int i = 0; i < 4; i++) phys[17 + i] = 0;
@@ -624,7 +672,7 @@ namespace basix
 			delete[] idat_uncompressed;
 			unsigned int idat_total_size = idat_size + 12;
 			char* idat = new char[idat_total_size];
-			int_to_char_array(idat_size, chunk_size); inverse_char_array(chunk_size, 4);
+			put_4bytes_to_char_array(idat_size, chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) idat[i] = chunk_size[i];
 			for (int i = 0; i < name.size(); i++) idat[4 + i] = name[i];
 			for (int i = 0; i < idat_size; i++) idat[8 + i] = idat_compressed[i];
@@ -1083,16 +1131,13 @@ namespace basix
 				// Create the necessary things to read the PNG file
 				char* header = new char[current_size];
 				char* header_part = new char[current_size];
-				std::vector<unsigned int> size = std::vector<unsigned int>();
 				unsigned int total_size = 0;
 				current_size = 0;
 
 				// Read into the chunk
 				for (int i = 0; i < chunk.size(); i++)
 				{
-					size.clear();
-					size.push_back(chunk[i].size);
-					read_file_binary(path, header_part, size, chunk[i].position);
+					read_file_binary(path, header_part, chunk[i].size, chunk[i].position);
 					total_size += chunk[i].size;
 
 					for (int j = 0; j < chunk[i].size; j++)
