@@ -104,13 +104,13 @@ namespace basix
 		short number_2 = 0;
 		if (inverse)
 		{
-			number_1 = ((result[offset] << 8) & 0xff00);
-			number_2 = (result[offset + 1] & 0xff);
+			number_1 = ((static_cast<short>(result[offset]) << 8) & 0xff00);
+			number_2 = (static_cast<short>(result[offset + 1]) & 0xff);
 		}
 		else
 		{
-			number_1 = ((result[offset + 1] << 8) & 0xff00);
-			number_2 = (result[offset] & 0xff);
+			number_1 = ((static_cast<short>(result[offset + 1]) << 8) & 0xff00);
+			number_2 = (static_cast<short>(result[offset]) & 0xff);
 		}
 
 		return number_1 + number_2;
@@ -125,17 +125,17 @@ namespace basix
 		int number_4 = 0;
 		if (inverse)
 		{
-			number_1 = ((result[offset + 0] << 24) & 0xff000000);
-			number_2 = ((result[offset + 1] << 16) & 0x00ff0000);
-			number_3 = ((result[offset + 2] << 8) & 0x0000ff00);
-			number_4 = (result[offset + 3] & 0x000000ff);
+			number_1 = ((static_cast<int>(result[offset + 0]) << 24) & 0xff000000);
+			number_2 = ((static_cast<int>(result[offset + 1]) << 16) & 0x00ff0000);
+			number_3 = ((static_cast<int>(result[offset + 2]) << 8) & 0x0000ff00);
+			number_4 = (static_cast<int>(result[offset + 3]) & 0x000000ff);
 		}
 		else
 		{
-			number_1 = ((result[offset + 3] << 24) & 0xff000000);
-			number_2 = ((result[offset + 2] << 16) & 0x00ff0000);
-			number_3 = ((result[offset + 1] << 8) & 0x0000ff00);
-			number_4 = (result[offset] & 0x000000ff);
+			number_1 = ((static_cast<int>(result[offset + 3]) << 24) & 0xff000000);
+			number_2 = ((static_cast<int>(result[offset + 2]) << 16) & 0x00ff0000);
+			number_3 = ((static_cast<int>(result[offset + 1]) << 8) & 0x0000ff00);
+			number_4 = (static_cast<int>(result[offset]) & 0x000000ff);
 		}
 
 		return number_1 + number_2 + number_3 + number_4;
@@ -154,28 +154,38 @@ namespace basix
 		int64_t number_8 = 0;
 		if (inverse)
 		{
-			number_1 = ((result[offset] << 56) & 0xff00000000000000);
-			number_2 = ((result[offset + 1] << 48) & 0x00ff000000000000);
-			number_3 = ((result[offset + 2] << 40) & 0x0000ff0000000000);
-			number_4 = ((result[offset + 3] << 32) & 0x000000ff00000000);
-			number_5 = ((result[offset + 4] << 24) & 0x00000000ff000000);
-			number_6 = ((result[offset + 5] << 16) & 0x0000000000ff0000);
-			number_7 = ((result[offset + 6] << 8) & 0x000000000000ff00);
-			number_8 = (result[offset + 7] & 0x00000000000000ff);
+			number_1 = ((static_cast<int64_t>(result[offset    ]) << 56) & 0xff00000000000000);
+			number_2 = ((static_cast<int64_t>(result[offset + 1]) << 48) & 0x00ff000000000000);
+			number_3 = ((static_cast<int64_t>(result[offset + 2]) << 40) & 0x0000ff0000000000);
+			number_4 = ((static_cast<int64_t>(result[offset + 3]) << 32) & 0x000000ff00000000);
+			number_5 = ((static_cast<int64_t>(result[offset + 4]) << 24) & 0x00000000ff000000);
+			number_6 = ((static_cast<int64_t>(result[offset + 5]) << 16) & 0x0000000000ff0000);
+			number_7 = ((static_cast<int64_t>(result[offset + 6]) << 8) &  0x000000000000ff00);
+			number_8 = ((static_cast<int64_t>(result[offset + 7]))      &  0x00000000000000ff);
 		}
 		else
 		{
-			number_1 = ((result[offset + 7] << 56) & 0xff00000000000000);
-			number_2 = ((result[offset + 6] << 48) & 0x00ff000000000000);
-			number_3 = ((result[offset + 5] << 40) & 0x0000ff0000000000);
-			number_4 = ((result[offset + 4] << 32) & 0x000000ff00000000);
-			number_5 = ((result[offset + 3] << 24) & 0x00000000ff000000);
-			number_6 = ((result[offset + 2] << 16) & 0x0000000000ff0000);
-			number_7 = ((result[offset + 1] << 8) & 0x000000000000ff00);
-			number_8 = (result[offset] & 0x00000000000000ff);
+			number_1 = ((static_cast<int64_t>(result[offset + 7]) << 56) & 0xff00000000000000);
+			number_2 = ((static_cast<int64_t>(result[offset + 6]) << 48) & 0x00ff000000000000);
+			number_3 = ((static_cast<int64_t>(result[offset + 5]) << 40) & 0x0000ff0000000000);
+			number_4 = ((static_cast<int64_t>(result[offset + 4]) << 32) & 0x000000ff00000000);
+			number_5 = ((static_cast<int64_t>(result[offset + 3]) << 24) & 0x00000000ff000000);
+			number_6 = ((static_cast<int64_t>(result[offset + 2]) << 16) & 0x0000000000ff0000);
+			number_7 = ((static_cast<int64_t>(result[offset + 1]) << 8)  & 0x000000000000ff00);
+			number_8 = ((static_cast<int64_t>(result[offset]))           & 0x00000000000000ff);
 		}
 
 		return number_1 + number_2 + number_3 + number_4 + number_5 + number_6 + number_7 + number_8;
+	};
+
+	// Extract a double variable from a char array
+	inline double extract_double_from_char_array(char* result, unsigned int offset = 0, bool inverse = false)
+	{
+		int64_t number_1 = extract_8bytes_from_char_array(result, offset, inverse);
+		double* d = (double*)(&number_1);
+		double number = (*d);
+
+		return number;
 	};
 
 	// Return the datas about a file (assuming the file exists).
@@ -200,7 +210,25 @@ namespace basix
 		return in.tellg();
 	}
 
-	// Convert an integer to a char array
+	// Put a char array into an other char array
+	inline void put_bytes_to_char_array(char* to_put, char* result, unsigned int size, unsigned int offset = 0)
+	{
+		for (int i = 0; i < size; i++)
+		{
+			result[offset + i] = to_put[i];
+		}
+	};
+
+	// Put a string into an other char array
+	inline void put_string_to_char_array(std::string to_put, char* result, unsigned int offset = 0)
+	{
+		for (int i = 0; i < to_put.size(); i++)
+		{
+			result[offset + i] = to_put[i];
+		}
+	};
+
+	// Convert an integer to a char array and put it in the char array
 	inline void put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool inverse = false)
 	{
 		if (inverse)
@@ -215,7 +243,7 @@ namespace basix
 		}
 	}
 
-	// Convert an integer to a char array
+	// Convert an integer to a char array and put it in the char array
 	inline void put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool inverse = false)
 	{
 		if (inverse)
@@ -234,7 +262,7 @@ namespace basix
 		}
 	}
 
-	// Convert an integer to a char array
+	// Convert an integer to a char array and put it in the char array
 	inline void put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool inverse = false)
 	{
 		if (inverse)
@@ -261,31 +289,11 @@ namespace basix
 		}
 	}
 
-	// Convert an float to a char array
-	inline void put_8bytes_to_char_array(double n, char* result, unsigned int offset = 0, bool inverse = false)
+	// Convert an double to a char array and put it in the char array
+	inline void put_8bytes_double_to_char_array(double n, char* result, unsigned int offset = 0, bool inverse = false)
 	{
-		if (inverse)
-		{
-			result[offset + 7] = (n & 0x00000000000000ff);
-			result[offset + 6] = (n & 0x00000000000000ff) >> 8;
-			result[offset + 5] = (n & 0x00000000000000ff) >> 16;
-			result[offset + 4] = (n & 0x00000000000000ff) >> 24;
-			result[offset + 3] = (n & 0x00000000000000ff) >> 32;
-			result[offset + 2] = (n & 0x00000000000000ff) >> 40;
-			result[offset + 1] = (n & 0x00000000000000ff) >> 48;
-			result[offset] = (n & 0x00000000000000ff) >> 56;
-		}
-		else
-		{
-			result[offset] = (n & 0x00000000000000ff);
-			result[offset + 1] = (n & 0x00000000000000ff) >> 8;
-			result[offset + 2] = (n & 0x00000000000000ff) >> 16;
-			result[offset + 3] = (n & 0x00000000000000ff) >> 24;
-			result[offset + 4] = (n & 0x00000000000000ff) >> 32;
-			result[offset + 5] = (n & 0x00000000000000ff) >> 40;
-			result[offset + 6] = (n & 0x00000000000000ff) >> 48;
-			result[offset + 7] = (n & 0x00000000000000ff) >> 56;
-		}
+		int64_t* n_p = (int64_t*)(&n);
+		put_8bytes_to_char_array(*n_p, result, offset, inverse);
 	}
 
 	// Inverse a char array

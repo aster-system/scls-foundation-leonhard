@@ -62,9 +62,21 @@ int main()
 	//*/
 
 	// basix::Image image = basix::Image(500, 500, 255, 0, 0);
-	basix::Image image = basix::Image();
-	image.load_from_path("cool_square.png");
-	image.save_png("test.png");
+	
+	// basix::Image image = basix::Image();
+	// image.load_from_path("cool_square.png");
+	// image.save_png("test.png");
+
+	char* c = new char[8]; double n = 13475.135478;
+	basix::put_8bytes_double_to_char_array(n, c);
+
+	basix::write_in_file_binary("test.bin", c, 8);
+
+	char* d = new char[8];
+	basix::read_file_binary("test.bin", d, 8);
+	double chiffre = basix::extract_double_from_char_array(d);
+
+	std::cout << std::setprecision(10) << "U " << n << " " << chiffre << " " << c << " " << d << std::endl;
 
 	return 0;
 }
