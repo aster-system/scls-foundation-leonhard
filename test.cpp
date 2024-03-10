@@ -2,9 +2,7 @@
 
 int main()
 {
-	/*std::string base_path = "J:/Projets/Matix/matix/assets/textures/welcome_hud/background.png";
-
-	for (int i = 0; i < 1; i++)
+	/*for (int i = 0; i < 1; i++)
 	{
 		basix::PNG_Image image;
 		image.load_from_path(base_path);
@@ -67,16 +65,15 @@ int main()
 	// image.load_from_path("cool_square.png");
 	// image.save_png("test.png");
 
-	char* c = new char[8]; double n = 13475.135478;
-	basix::put_8bytes_double_to_char_array(n, c);
+	std::string base_path = "before.png";
 
-	basix::write_in_file_binary("test.bin", c, 8);
+	basix::Image image;
+	image.load_from_path(base_path);
 
-	char* d = new char[8];
-	basix::read_file_binary("test.bin", d, 8);
-	double chiffre = basix::extract_double_from_char_array(d);
+	image.draw_rect(0, 0, 50, 50, 255, 0, 0);
+	image.save_png("after.png");
 
-	std::cout << std::setprecision(10) << "U " << n << " " << chiffre << " " << c << " " << d << std::endl;
+	basix::print("Test", "Debugger", "Hello world !");
 
 	return 0;
 }

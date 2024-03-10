@@ -95,8 +95,8 @@ namespace basix
 		return join_string(cut_string(str, to_replace), new_str);
 	}
 
-	// Convert a string to a float
-	inline float string_to_float(std::string str)
+	// Convert a string to a double
+	inline double string_to_double(std::string str)
 	{
 		if (_float_character == "")
 		{

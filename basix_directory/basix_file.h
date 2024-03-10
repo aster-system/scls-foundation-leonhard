@@ -47,7 +47,7 @@ namespace basix
 	inline unsigned int file_size(std::string path)
 	{
 		std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
-		return in.tellg();
+		return static_cast<unsigned int>(in.tellg());
 	}
 
 	// Returns if a path is a directory or not

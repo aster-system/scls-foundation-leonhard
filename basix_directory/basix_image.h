@@ -96,7 +96,7 @@ namespace basix
 		if (ret != 1) return 0;
 
 		char* final = new char[output_size];
-		for (int i = 0; i < output_size; i++) final[i] = output[i];
+		for (unsigned int i = 0; i < output_size; i++) final[i] = output[i];
 
 		delete[] output;
 
@@ -215,9 +215,9 @@ namespace basix
 		inline unsigned char* data_filtered()
 		{
 			unsigned char* datas = new unsigned char[get_height() * get_width() * get_components() + get_height()];
-			for (int i = 0; i < get_height(); i++)
+			for (unsigned int i = 0; i < get_height(); i++)
 			{
-				for (int j = 0; j < get_width() * get_components() + 1; j++)
+				for (unsigned int j = 0; j < get_width() * get_components() + 1; j++)
 				{
 					if (j == 0)
 					{
@@ -281,10 +281,10 @@ namespace basix
 			unsigned int idat_total_size = idat_size + 12;
 			char* idat = new char[idat_total_size];
 			put_4bytes_to_char_array(idat_size, chunk_size); inverse_char_array(chunk_size, 4);
-			for (int i = 0; i < 4; i++) idat[i] = chunk_size[i];
-			for (int i = 0; i < name.size(); i++) idat[4 + i] = name[i];
-			for (int i = 0; i < idat_size; i++) idat[8 + i] = idat_compressed[i];
-			for (int i = 0; i < 4; i++) idat[(idat_size - 4) + i] = 0;
+			for (unsigned int i = 0; i < 4; i++) idat[i] = chunk_size[i];
+			for (unsigned int i = 0; i < name.size(); i++) idat[4 + i] = name[i];
+			for (unsigned int i = 0; i < idat_size; i++) idat[8 + i] = idat_compressed[i];
+			for (unsigned int i = 0; i < 4; i++) idat[(idat_size - 4) + i] = 0;
 			delete[] idat_compressed;
 			total_size += idat_total_size;
 
@@ -292,9 +292,9 @@ namespace basix
 			name = "IEND";
 			unsigned int iend_total_size = 12;
 			char* iend = new char[iend_total_size];
-			for (int i = 0; i < 4; i++) iend[i] = 0;
-			for (int i = 0; i < name.size(); i++) iend[4 + i] = name[i];
-			for (int i = 0; i < 4; i++) iend[8 + i] = 0;
+			for (unsigned int i = 0; i < 4; i++) iend[i] = 0;
+			for (unsigned int i = 0; i < name.size(); i++) iend[4 + i] = name[i];
+			for (unsigned int i = 0; i < 4; i++) iend[8 + i] = 0;
 			total_size += iend_total_size;
 
 			// Create the datas
@@ -302,19 +302,19 @@ namespace basix
 			unsigned int pos = 0;
 			char* datas = new char[total_size];
 			std::vector<float> signature = get_png_signature();
-			for (int i = 0; i < signature.size(); i++) datas[i] = (char)signature[i];
-			pos += signature.size();
+			for (unsigned int i = 0; i < signature.size(); i++) datas[i] = (char)signature[i];
+			pos += static_cast<unsigned int>(signature.size());
 			// Create the IDHR chunk
-			for (int i = 0; i < idhr_total_size; i++) datas[pos + i] = idhr[i];
+			for (unsigned int i = 0; i < idhr_total_size; i++) datas[pos + i] = idhr[i];
 			pos += idhr_total_size;
 			// Create the pHYS chunk
-			for (int i = 0; i < phys_total_size; i++) datas[pos + i] = phys[i];
+			for (unsigned int i = 0; i < phys_total_size; i++) datas[pos + i] = phys[i];
 			pos += phys_total_size;
 			// Create the IDAT chunk
-			for (int i = 0; i < idat_total_size; i++) datas[pos + i] = idat[i];
+			for (unsigned int i = 0; i < idat_total_size; i++) datas[pos + i] = idat[i];
 			pos += idat_total_size;
 			// Create the IEND chunk
-			for (int i = 0; i < iend_total_size; i++) datas[pos + i] = iend[i];
+			for (unsigned int i = 0; i < iend_total_size; i++) datas[pos + i] = iend[i];
 			pos += iend_total_size;
 
 			// Free the memory
@@ -331,9 +331,9 @@ namespace basix
 		{
 			if (width == 1 || true)
 			{
-				float distance_x = x_2 - x_1;
-				float distance_y = y_2 - y_1;
-				float distance = ceil(sqrt(pow(distance_x, 2) + pow(distance_y, 2)));
+				float distance_x = static_cast<float>(x_2 - x_1);
+				float distance_y = static_cast<float>(y_2 - y_1);
+				float distance = static_cast<float>(ceil(sqrt(pow(distance_x, 2) + pow(distance_y, 2))));
 
 				float x_y_ratio = distance_x / distance_y;
 
@@ -357,7 +357,7 @@ namespace basix
 					{
 						actual_y++;
 						actual_x += x_y_ratio;
-						set_pixel(actual_x, actual_y, red, green, blue, alpha, width);
+						set_pixel(static_cast<unsigned short>(actual_x), static_cast<unsigned short>(actual_y), red, green, blue, alpha, width);
 					}
 				}
 				else
@@ -381,7 +381,7 @@ namespace basix
 					{
 						actual_y += y_x_ratio;
 						actual_x++;
-						set_pixel(actual_x, actual_y, red, green, blue, alpha, width);
+						set_pixel(static_cast<unsigned short>(actual_x), static_cast<unsigned short>(actual_y), red, green, blue, alpha, width);
 					}
 				}
 			}
@@ -411,9 +411,9 @@ namespace basix
 		{
 			free_memory();
 			a_pixels = new unsigned char[get_width() * get_height() * get_components() + 1];
-			for (int i = 0; i < get_height(); i++)
+			for (unsigned int i = 0; i < get_height(); i++)
 			{
-				for (int j = 0; j < get_width(); j++)
+				for (unsigned int j = 0; j < get_width(); j++)
 				{
 					set_pixel(j, i, red, green, blue, alpha);
 				}
@@ -455,8 +455,8 @@ namespace basix
 				y_1 = temp;
 			}
 
-			float distance_x_1_2 = x_2 - x_1;
-			float distance_y_1_2 = y_2 - y_1;
+			float distance_x_1_2 = static_cast<float>(x_2 - x_1);
+			float distance_y_1_2 = static_cast<float>(y_2 - y_1);
 
 			float actual_x = x_1;
 			float actual_y = y_1;
@@ -479,10 +479,10 @@ namespace basix
 					else actual_x--;
 				}
 
-				draw_line(floor(actual_x), floor(actual_y), x_3, y_3, red, green, blue, alpha, 2);
-				draw_line(floor(actual_x), ceil(actual_y), x_3, y_3, red, green, blue, alpha, 2);
-				draw_line(ceil(actual_x), floor(actual_y), x_3, y_3, red, green, blue, alpha, 2);
-				draw_line(ceil(actual_x), ceil(actual_y), x_3, y_3, red, green, blue, alpha, 2);
+				draw_line(static_cast<unsigned short>(floor(actual_x)), static_cast<unsigned short>(floor(actual_y)), x_3, y_3, red, green, blue, alpha, 2);
+				draw_line(static_cast<unsigned short>(floor(actual_x)), static_cast<unsigned short>(ceil(actual_y)), x_3, y_3, red, green, blue, alpha, 2);
+				draw_line(static_cast<unsigned short>(ceil(actual_x)), static_cast<unsigned short>(floor(actual_y)), x_3, y_3, red, green, blue, alpha, 2);
+				draw_line(static_cast<unsigned short>(ceil(actual_x)), static_cast<unsigned short>(ceil(actual_y)), x_3, y_3, red, green, blue, alpha, 2);
 				iter++;
 			}
 		};
@@ -492,27 +492,27 @@ namespace basix
 			unsigned char* line1 = new unsigned char[get_width()];
 			unsigned int max = get_height();
 
-			for (int i = 0; i < floor((float)max / 2.0); i++)
+			for (int i = 0; i < floor(static_cast<float>(max) / 2.0); i++)
 			{
 				// Red
-				for (int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components()];
-				for (int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components()] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components()];
-				for (int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components()] = line1[j];
+				for (unsigned int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components()];
+				for (unsigned int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components()] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components()];
+				for (unsigned int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components()] = line1[j];
 
 				// Green
-				for (int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components() + 1];
-				for (int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components() + 1] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 1];
-				for (int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 1] = line1[j];
+				for (unsigned int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components() + 1];
+				for (unsigned int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components() + 1] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 1];
+				for (unsigned int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 1] = line1[j];
 
 				// Blue
-				for (int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components() + 2];
-				for (int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components() + 2] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 2];
-				for (int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 2] = line1[j];
+				for (unsigned int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components() + 2];
+				for (unsigned int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components() + 2] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 2];
+				for (unsigned int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 2] = line1[j];
 
 				// Alpha
-				for (int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components() + 3];
-				for (int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components() + 3] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 3];
-				for (int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 3] = line1[j];
+				for (unsigned int j = 0; j < get_width(); j++) line1[j] = a_pixels[(i * get_width() + j) * get_components() + 3];
+				for (unsigned int j = 0; j < get_width(); j++) a_pixels[(i * get_width() + j) * get_components() + 3] = a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 3];
+				for (unsigned int j = 0; j < get_width(); j++) a_pixels[((max - (i + 1)) * get_width() + j) * get_components() + 3] = line1[j];
 			}
 
 			delete[] line1;
@@ -523,27 +523,27 @@ namespace basix
 			unsigned char* line1 = new unsigned char[get_height()];
 			unsigned int max = get_width();
 
-			for (int i = 0; i < floor((float)max / 2.0); i++)
+			for (int i = 0; i < floor(static_cast<float>(max) / 2.0); i++)
 			{
 				// Red
-				for (int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components()];
-				for (int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components()] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components()];
-				for (int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components()] = line1[j];
+				for (unsigned int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components()];
+				for (unsigned int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components()] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components()];
+				for (unsigned int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components()] = line1[j];
 
 				// Green
-				for (int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components() + 1];
-				for (int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components() + 1] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 1];
-				for (int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 1] = line1[j];
+				for (unsigned int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components() + 1];
+				for (unsigned int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components() + 1] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 1];
+				for (unsigned int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 1] = line1[j];
 
 				// Blue
-				for (int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components() + 2];
-				for (int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components() + 2] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 2];
-				for (int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 2] = line1[j];
+				for (unsigned int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components() + 2];
+				for (unsigned int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components() + 2] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 2];
+				for (unsigned int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 2] = line1[j];
 
 				// Alpha
-				for (int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components() + 3];
-				for (int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components() + 3] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 3];
-				for (int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 3] = line1[j];
+				for (unsigned int j = 0; j < get_height(); j++) line1[j] = a_pixels[(i + j * get_width()) * get_components() + 3];
+				for (unsigned int j = 0; j < get_height(); j++) a_pixels[(i + j * get_width()) * get_components() + 3] = a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 3];
+				for (unsigned int j = 0; j < get_height(); j++) a_pixels[((max - (i + 1)) + j * get_width()) * get_components() + 3] = line1[j];
 			}
 
 			delete[] line1;
@@ -692,11 +692,9 @@ namespace basix
 				a_filter_method = *(header[5]);
 				a_interlace_method = *(header[6]);
 				delete_binary(header);
+				return true;
 			}
-			else
-			{
-				return false;
-			}
+			return false;
 		}
 		// Load the image from a path
 		bool load_from_path(std::string path)
@@ -704,11 +702,9 @@ namespace basix
 			if (load_base_from_path(path))
 			{
 				get_all_chunks_from_path(path);
+				return true;
 			}
-			else
-			{
-				return false;
-			}
+			return false;
 		};
 		// Load the image from a set of PNG binary data
 		inline bool load_from_binary_PNG(char* datas, unsigned int size)
@@ -748,7 +744,7 @@ namespace basix
 					read_file_binary(path, header_part, chunk[i].size, chunk[i].position);
 					total_size += chunk[i].size;
 
-					for (int j = 0; j < chunk[i].size; j++)
+					for (unsigned int j = 0; j < chunk[i].size; j++)
 					{
 						(header[current_size + j]) = (header_part[j]);
 					}
@@ -788,7 +784,7 @@ namespace basix
 				PNG_Pixel last_pixel;
 				unsigned int part = -1;
 				unsigned int y_pixel = 0;
-				for (int i = 0; i < out_size; i++)
+				for (unsigned int i = 0; i < out_size; i++)
 				{
 					if (part >= 0 && part < get_width() * component_size)
 					{
@@ -819,7 +815,7 @@ namespace basix
 						{
 							if (a_filter_type == 1) // Apply sub filtering
 							{
-								for (int i = 1; i < get_width(); i++)
+								for (unsigned int i = 1; i < get_width(); i++)
 								{
 									PNG_Pixel pixel = get_pixel(i - 1, current_line);
 									set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
@@ -830,7 +826,7 @@ namespace basix
 							}
 							else if (a_filter_type == 2 && a_processed_data > get_width()) // Apply up filtering
 							{
-								for (int i = 0; i < get_width(); i++)
+								for (unsigned int i = 0; i < get_width(); i++)
 								{
 									PNG_Pixel pixel = get_pixel(i, current_line - 1);
 									set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
@@ -843,7 +839,7 @@ namespace basix
 							{
 								if (a_processed_data > get_width())
 								{
-									for (int i = 0; i < get_width(); i++)
+									for (unsigned int i = 0; i < get_width(); i++)
 									{
 										PNG_Pixel final_pixel;
 										PNG_Pixel pixel1;
@@ -859,34 +855,34 @@ namespace basix
 											pixel1 = get_pixel(i - 1, current_line);
 										}
 										PNG_Pixel pixel2 = get_pixel(i, current_line - 1);
-										set_pixel_red(i, current_line, get_pixel(i, current_line).red + floor(((float)pixel1.red + (float)pixel2.red) / 2.0));
-										set_pixel_green(i, current_line, get_pixel(i, current_line).green + floor(((float)pixel1.green + (float)pixel2.green) / 2.0));
-										set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + floor(((float)pixel1.blue + (float)pixel2.blue) / 2.0));
-										set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + floor(((float)pixel1.alpha + (float)pixel2.alpha) / 2.0));
+										set_pixel_red(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).red + static_cast<unsigned char>(floor((static_cast<float>(pixel1.red) + static_cast<float>(pixel2.red)) / 2.0)));
+										set_pixel_green(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).green + static_cast<unsigned char>(floor((static_cast<float>(pixel1.green) + static_cast<float>(pixel2.green)) / 2.0)));
+										set_pixel_blue(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).blue + static_cast<unsigned char>(floor((static_cast<float>(pixel1.blue) + static_cast<float>(pixel2.blue)) / 2.0)));
+										set_pixel_alpha(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).alpha + static_cast<unsigned char>(floor((static_cast<float>(pixel1.alpha) + static_cast<float>(pixel2.alpha)) / 2.0)));
 									}
 								}
 							}
 							else if (a_filter_type == 4 && current_line > 0) // Apply paeth filtering
 							{
-								for (int i = 0; i < get_width(); i++)
+								for (unsigned int i = 0; i < get_width(); i++)
 								{
 									if (i == 0)
 									{
 										PNG_Pixel pixel = get_pixel(i, current_line - 1);
-										set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
-										set_pixel_green(i, current_line, get_pixel(i, current_line).green + pixel.green);
-										set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + pixel.blue);
-										set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + pixel.alpha);
+										set_pixel_red(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).red + pixel.red);
+										set_pixel_green(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).green + pixel.green);
+										set_pixel_blue(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).blue + pixel.blue);
+										set_pixel_alpha(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).alpha + pixel.alpha);
 									}
 									else
 									{
 										PNG_Pixel pixel2 = get_pixel(i - 1, current_line);
 										PNG_Pixel pixel3 = get_pixel(i - 1, current_line - 1);
 										PNG_Pixel pixel1 = get_pixel(i, current_line - 1);
-										set_pixel_red(i, current_line, get_pixel(i, current_line).red + paeth_function(pixel1.red, pixel2.red, pixel3.red));
-										set_pixel_green(i, current_line, get_pixel(i, current_line).green + paeth_function(pixel1.green, pixel2.green, pixel3.green));
-										set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + paeth_function(pixel1.blue, pixel2.blue, pixel3.blue));
-										set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha));
+										set_pixel_red(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).red + static_cast<unsigned char>(paeth_function(pixel1.red, pixel2.red, pixel3.red)));
+										set_pixel_green(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).green + static_cast<unsigned char>(paeth_function(pixel1.green, pixel2.green, pixel3.green)));
+										set_pixel_blue(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).blue + static_cast<unsigned char>(paeth_function(pixel1.blue, pixel2.blue, pixel3.blue)));
+										set_pixel_alpha(static_cast<unsigned short>(i), static_cast<unsigned short>(current_line), get_pixel(i, current_line).alpha + static_cast<unsigned char>(paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha)));
 									}
 								}
 							}
@@ -903,7 +899,7 @@ namespace basix
 				{
 					if (a_filter_type == 1) // Apply sub filtering
 					{
-						for (int i = 1; i < get_width(); i++)
+						for (unsigned int i = 1; i < get_width(); i++)
 						{
 							PNG_Pixel pixel = get_pixel(i - 1, current_line);
 							set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
@@ -914,7 +910,7 @@ namespace basix
 					}
 					else if (a_filter_type == 2 && a_processed_data > get_width()) // Apply up filtering
 					{
-						for (int i = 0; i < get_width(); i++)
+						for (unsigned int i = 0; i < get_width(); i++)
 						{
 							PNG_Pixel pixel = get_pixel(i, current_line - 1);
 							set_pixel_red(i, current_line, get_pixel(i, current_line).red + pixel.red);
@@ -927,7 +923,7 @@ namespace basix
 					{
 						if (a_processed_data > get_width())
 						{
-							for (int i = 0; i < get_width(); i++)
+							for (unsigned int i = 0; i < get_width(); i++)
 							{
 								PNG_Pixel final_pixel;
 								PNG_Pixel pixel1;
@@ -943,16 +939,16 @@ namespace basix
 									pixel1 = get_pixel(i - 1, current_line);
 								}
 								PNG_Pixel pixel2 = get_pixel(i, current_line - 1);
-								set_pixel_red(i, current_line, get_pixel(i, current_line).red + floor(((float)pixel1.red + (float)pixel2.red) / 2.0));
-								set_pixel_green(i, current_line, get_pixel(i, current_line).green + floor(((float)pixel1.green + (float)pixel2.green) / 2.0));
-								set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + floor(((float)pixel1.blue + (float)pixel2.blue) / 2.0));
-								set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + floor(((float)pixel1.alpha + (float)pixel2.alpha) / 2.0));
+								set_pixel_red(i, current_line, get_pixel(i, current_line).red + static_cast<unsigned char>(floor((static_cast<float>(pixel1.red) + static_cast<float>(pixel2.red)) / 2.0)));
+								set_pixel_green(i, current_line, get_pixel(i, current_line).green + static_cast<unsigned char>(floor((static_cast<float>(pixel1.green) + static_cast<float>(pixel2.green)) / 2.0)));
+								set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + static_cast<unsigned char>(floor((static_cast<float>(pixel1.blue) + static_cast<float>(pixel2.blue)) / 2.0)));
+								set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + static_cast<unsigned char>(floor((static_cast<float>(pixel1.alpha) + static_cast<float>(pixel2.alpha)) / 2.0)));
 							}
 						}
 					}
 					else if (a_filter_type == 4 && a_processed_data > get_width()) // Apply paeth filtering
 					{
-						for (int i = 0; i < get_width(); i++)
+						for (unsigned int i = 0; i < get_width(); i++)
 						{
 							if (i == 0)
 							{
@@ -967,10 +963,10 @@ namespace basix
 								PNG_Pixel pixel2 = get_pixel(i - 1, current_line);
 								PNG_Pixel pixel3 = get_pixel(i - 1, current_line - 1);
 								PNG_Pixel pixel1 = get_pixel(i, current_line - 1);
-								set_pixel_red(i, current_line, get_pixel(i, current_line).red + paeth_function(pixel1.red, pixel2.red, pixel3.red));
-								set_pixel_green(i, current_line, get_pixel(i, current_line).green + paeth_function(pixel1.green, pixel2.green, pixel3.green));
-								set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + paeth_function(pixel1.blue, pixel2.blue, pixel3.blue));
-								set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha));
+								set_pixel_red(i, current_line, get_pixel(i, current_line).red + static_cast<unsigned char>(paeth_function(pixel1.red, pixel2.red, pixel3.red)));
+								set_pixel_green(i, current_line, get_pixel(i, current_line).green + static_cast<unsigned char>(paeth_function(pixel1.green, pixel2.green, pixel3.green)));
+								set_pixel_blue(i, current_line, get_pixel(i, current_line).blue + static_cast<unsigned char>(paeth_function(pixel1.blue, pixel2.blue, pixel3.blue)));
+								set_pixel_alpha(i, current_line, get_pixel(i, current_line).alpha + static_cast<unsigned char>(paeth_function(pixel1.alpha, pixel2.alpha, pixel2.alpha)));
 							}
 						}
 					}
@@ -1010,11 +1006,9 @@ namespace basix
 				a_physical_width_ratio = _byteswap_ulong(physical_width);
 				a_physical_unit = *header[2];
 				delete_binary(header);
+				return true;
 			}
-			else
-			{
-				return false;
-			}
+			return false;
 		};
 		// Load the sRGB chunk from a path
 		bool load_sRGB_from_path(std::string path, PNG_Chunk chunk)
@@ -1064,7 +1058,7 @@ namespace basix
 		inline unsigned int get_color_type() { return a_color_type; };
 		inline unsigned char get_components() { if (get_color_type() == 6) return 4; return 3; };
 		inline unsigned int _get_current_x_processing(unsigned int offset = 0) { return ((a_processed_data - 1) - offset) % get_width(); };
-		inline unsigned int _get_current_y_processing(unsigned int offset = 0) { return floor(((float)(a_processed_data - 1) - (float)offset) / (float)get_width()); };
+		inline unsigned int _get_current_y_processing(unsigned int offset = 0) { return static_cast<unsigned int>(floor(static_cast<float>(a_processed_data - 1) - static_cast<float>(offset) / static_cast<float>(get_width()))); };
 		inline unsigned int get_compression_method() { return a_compression_method; };
 		inline std::vector<float> get_png_signature()
 		{
@@ -1108,10 +1102,10 @@ namespace basix
 			else if (width == 1)
 			{
 				unsigned int position = (y * get_width() + x) * get_components();
-				alpha = normalize_value(alpha, 0, 255);
-				blue = normalize_value(blue, 0, 255);
-				green = normalize_value(green, 0, 255);
-				red = normalize_value(red, 0, 255);
+				alpha = static_cast<unsigned char>(normalize_value(alpha, 0, 255));
+				blue = static_cast<unsigned char>(normalize_value(blue, 0, 255));
+				green = static_cast<unsigned char>(normalize_value(green, 0, 255));
+				red = static_cast<unsigned char>(normalize_value(red, 0, 255));
 				a_pixels[position] = red;
 				a_pixels[position + 1] = green;
 				a_pixels[position + 2] = blue;
@@ -1119,34 +1113,34 @@ namespace basix
 			}
 			else
 			{
-				draw_rect(x - ((float)width / 2.0), y - ((float)width / 2.0), width, width, red, green, blue, alpha);
+				draw_rect(static_cast<unsigned short>(x - (static_cast<float>(width / 2.0)), static_cast<unsigned short>(y - (static_cast<float>(width)) / 2.0)), width, width, red, green, blue, alpha);
 			}
 		}
 		inline void set_pixel_alpha(unsigned short x, unsigned short y, unsigned char alpha)
 		{
-			alpha = normalize_value(alpha, 0, 255);
+			alpha = static_cast<unsigned char>(normalize_value(alpha, 0, 255));
 			a_pixels[(y * get_width() + x) * get_components() + 3] = alpha;
 		}
 		inline void set_pixel_blue(unsigned short x, unsigned short y, unsigned char blue)
 		{
-			blue = normalize_value(blue, 0, 255);
+			blue = static_cast<unsigned char>(normalize_value(blue, 0, 255));
 			a_pixels[(y * get_width() + x) * get_components() + 2] = blue;
 		}
 		inline void set_pixel_green(unsigned short x, unsigned short y, unsigned char green)
 		{
-			green = normalize_value(green, 0, 255);
+			green = static_cast<unsigned char>(normalize_value(green, 0, 255));
 			a_pixels[(y * get_width() + x) * get_components() + 1] = green;
 		}
 		inline void set_pixel_red(unsigned short x, unsigned short y, unsigned char red)
 		{
-			red = normalize_value(red, 0, 255);
+			red = static_cast<unsigned char>(normalize_value(red, 0, 255));
 			a_pixels[((y * get_width()) + x) * get_components()] = red;
 		}
 	private:
 		// Bit depth of the image
 		unsigned int a_bit_depth = 8;
 		// Size of a chunk to decode an image
-		unsigned int a_chunk_size = pow(2, 24) - 1;
+		unsigned int a_chunk_size = static_cast<unsigned int>(pow(2, 24) - 1);
 		// Color type of the image
 		unsigned int a_color_type = 6;
 		// Compression method of the image

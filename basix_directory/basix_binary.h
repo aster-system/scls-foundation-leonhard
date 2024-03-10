@@ -127,7 +127,7 @@ namespace basix
 	// Put a char array into an other char array
 	inline void put_bytes_to_char_array(char* to_put, char* result, unsigned int size, unsigned int offset = 0)
 	{
-		for (int i = 0; i < size; i++)
+		for (unsigned int i = 0; i < size; i++)
 		{
 			result[offset + i] = to_put[i];
 		}
@@ -181,25 +181,25 @@ namespace basix
 	{
 		if (inverse)
 		{
-			result[offset + 7] = (n & 0x00000000000000ff);
-			result[offset + 6] = (n & 0x000000000000ff00) >> 8;
-			result[offset + 5] = (n & 0x0000000000ff0000) >> 16;
-			result[offset + 4] = (n & 0x00000000ff000000) >> 24;
-			result[offset + 3] = (n & 0x000000ff00000000) >> 32;
-			result[offset + 2] = (n & 0x0000ff0000000000) >> 40;
-			result[offset + 1] = (n & 0x00ff000000000000) >> 48;
-			result[offset] = (n & 0xff00000000000000) >> 56;
+			result[offset + 7] = static_cast<char>(n & 0x00000000000000ff);
+			result[offset + 6] = static_cast<char>((n & 0x000000000000ff00) >> 8);
+			result[offset + 5] = static_cast<char>((n & 0x0000000000ff0000) >> 16);
+			result[offset + 4] = static_cast<char>((n & 0x00000000ff000000) >> 24);
+			result[offset + 3] = static_cast<char>((n & 0x000000ff00000000) >> 32);
+			result[offset + 2] = static_cast<char>((n & 0x0000ff0000000000) >> 40);
+			result[offset + 1] = static_cast<char>((n & 0x00ff000000000000) >> 48);
+			result[offset] = static_cast<char>((n & 0xff00000000000000) >> 56);
 		}
 		else
 		{
-			result[offset] = (n & 0x00000000000000ff);
-			result[offset + 1] = (n & 0x000000000000ff00) >> 8;
-			result[offset + 2] = (n & 0x0000000000ff0000) >> 16;
-			result[offset + 3] = (n & 0x00000000ff000000) >> 24;
-			result[offset + 4] = (n & 0x000000ff00000000) >> 32;
-			result[offset + 5] = (n & 0x0000ff0000000000) >> 40;
-			result[offset + 6] = (n & 0x00ff000000000000) >> 48;
-			result[offset + 7] = (n & 0xff00000000000000) >> 56;
+			result[offset] = static_cast<char>((n & 0x00000000000000ff));
+			result[offset + 1] = static_cast<char>((n & 0x000000000000ff00) >> 8);
+			result[offset + 2] = static_cast<char>((n & 0x0000000000ff0000) >> 16);
+			result[offset + 3] = static_cast<char>((n & 0x00000000ff000000) >> 24);
+			result[offset + 4] = static_cast<char>((n & 0x000000ff00000000) >> 32);
+			result[offset + 5] = static_cast<char>((n & 0x0000ff0000000000) >> 40);
+			result[offset + 6] = static_cast<char>((n & 0x00ff000000000000) >> 48);
+			result[offset + 7] = static_cast<char>((n & 0xff00000000000000) >> 56);
 		}
 	}
 
