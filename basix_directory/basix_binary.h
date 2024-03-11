@@ -265,6 +265,16 @@ namespace basix
 		return file;
 	};
 
+	// Swap an unsigned int with his binary
+	inline unsigned int swap_unsigned_int(unsigned int n)
+	{
+		char* bytes = new char[4];
+		put_4bytes_to_char_array(n, bytes, 0, true);
+		unsigned int result = extract_4bytes_from_char_array(bytes);
+		delete[] bytes; bytes = 0;
+		return result;
+	};
+
 	// Write binary data in a file from a char vector
 	inline void write_in_file_binary(std::string path, std::vector<char*> to_write, std::ios::openmode opening_mode = std::ios::out | std::ios::binary)
 	{

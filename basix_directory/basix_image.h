@@ -639,7 +639,7 @@ namespace basix
 					}
 					read_file_binary(path, header, size, 8 + size_offset);
 					unsigned int chunk_size = *((int*)header[0]);
-					chunk_size = _byteswap_ulong(chunk_size);
+					chunk_size = swap_unsigned_int(chunk_size);
 					for (int i = 0; i < 4; i++)
 					{
 						name += *header[i + 1];
@@ -727,7 +727,7 @@ namespace basix
 				size.push_back(sizeof(unsigned int));
 				read_file_binary(path, header, size, 8);
 				unsigned int chunk_size = *((int*)header[0]);
-				chunk_size = _byteswap_ulong(chunk_size);
+				chunk_size = swap_unsigned_int(chunk_size);
 				delete_binary(header);
 				if (chunk_size != 13) return false;
 				// Get the datas of the chunk
@@ -744,9 +744,9 @@ namespace basix
 				}
 				read_file_binary(path, header, size, 16);
 				unsigned int chunk_height = *((int*)header[1]);
-				a_height = _byteswap_ulong(chunk_height);
+				a_height = swap_unsigned_int(chunk_height);
 				unsigned int chunk_width = *((int*)header[0]);
-				a_width = _byteswap_ulong(chunk_width);
+				a_width = swap_unsigned_int(chunk_width);
 				a_bit_depth = *(header[2]);
 				a_color_type = *(header[3]);
 				a_compression_method = *(header[4]);
@@ -1062,7 +1062,7 @@ namespace basix
 				size.push_back(sizeof(char));
 				read_file_binary(path, header, size, chunk.position);
 				unsigned int physical_height = *((unsigned int*)header[1]);
-				a_physical_height_ratio = _byteswap_ulong(physical_height);
+				a_physical_height_ratio = swap_unsigned_int(physical_height);
 				unsigned int physical_width = *((unsigned int*)header[0]);
 				a_physical_width_ratio = _byteswap_ulong(physical_width);
 				a_physical_unit = *header[2];
