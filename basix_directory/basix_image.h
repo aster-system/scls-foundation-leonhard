@@ -14,6 +14,9 @@
 // 
 // To work, this file needs the zlib library.
 // Get it on this web site : https://www.zlib.net/.
+// 
+// The CRC functions are copied from the W3 Consortium website.
+// See : https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix.
 //
 
 #pragma once
@@ -101,6 +104,51 @@ namespace basix
 		delete[] output;
 
 		return final;
+	}
+
+	/* Table of CRCs of all 8-bit messages. */
+	unsigned int _crc_table[256];
+
+	/* Flag: has the table been computed? Initially false. */
+	bool _crc_table_computed = false;
+
+	// Make the entire CRC table
+	void make_crc_table()
+	{
+		unsigned int c = 0;
+
+		for (int n = 0; n < 256; n++)
+		{
+			c = static_cast<unsigned int>(n);
+			for (int k = 0; k < 8; k++)
+			{
+				if (c & 1) c = 0xedb88320L ^ (c >> 1);
+				else c = c >> 1;
+			}
+			_crc_table[n] = c;
+		}
+		_crc_table_computed = true;
+	}
+
+	// Update the CRC according to the buf char array
+	unsigned int update_crc(unsigned int crc, unsigned char* buf, int len)
+	{
+		unsigned int c = crc;
+		int n;
+
+		if (!_crc_table_computed) make_crc_table();
+
+		for (n = 0; n < len; n++)
+		{
+			c = _crc_table[(c ^ buf[n]) & 0xff] ^ (c >> 8);
+		}
+		return c;
+	}
+
+	// Return the CRC of the char array
+	unsigned int crc(unsigned char* buf, int len)
+	{
+		return update_crc(0xffffffff, buf, len) ^ 0xffffffff;
 	}
 
 	// Uncompress data from a char array
@@ -234,6 +282,7 @@ namespace basix
 		// Returns the data of the image under the PNG format
 		inline char* data_png(unsigned int& total_size)
 		{
+			char* for_chunk = 0;
 			total_size = 8;
 
 			// Create the IDHR chunk
@@ -248,12 +297,15 @@ namespace basix
 			for (int i = 0; i < 4; i++) idhr[8 + i] = chunk_size[i];
 			put_4bytes_to_char_array(get_height(), chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) idhr[12 + i] = chunk_size[i];
-			idhr[16] = (unsigned char)get_bit_depht();
-			idhr[17] = (unsigned char)get_color_type();
-			idhr[18] = (unsigned char)get_compression_method();
+			idhr[16] = static_cast<unsigned char>(get_bit_depht());
+			idhr[17] = static_cast<unsigned char>((unsigned char)get_color_type());
+			idhr[18] = static_cast<unsigned char>((unsigned char)get_compression_method());
 			idhr[19] = 0;// (unsigned char)get_filter_method();
 			idhr[20] = 0;// (unsigned char)get_interlace_method();
-			for (int i = 0; i < 4; i++) idhr[21 + i] = 0;
+			for_chunk = extract_char_array_from_char_array(idhr, idhr_total_size - 8, 4);
+			unsigned int chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), idhr_total_size - 8);
+			delete[] for_chunk; for_chunk = 0;
+			put_4bytes_to_char_array(chunk_crc, idhr, 21, true);
 			total_size += idhr_total_size;
 
 			// Creathe the pHYS chunk
@@ -269,7 +321,10 @@ namespace basix
 			put_4bytes_to_char_array(get_physical_height_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) phys[12 + i] = chunk_size[i];
 			phys[16] = get_physical_unit();
-			for (int i = 0; i < 4; i++) phys[17 + i] = 0;
+			for_chunk = extract_char_array_from_char_array(phys, phys_total_size - 8, 4);
+			chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), phys_total_size - 8);
+			delete[] for_chunk; for_chunk = 0;
+			put_4bytes_to_char_array(chunk_crc, phys, 17, true);
 			total_size += phys_total_size;
 
 			// Create the IDAT chunk
@@ -284,7 +339,10 @@ namespace basix
 			for (unsigned int i = 0; i < 4; i++) idat[i] = chunk_size[i];
 			for (unsigned int i = 0; i < name.size(); i++) idat[4 + i] = name[i];
 			for (unsigned int i = 0; i < idat_size; i++) idat[8 + i] = idat_compressed[i];
-			for (unsigned int i = 0; i < 4; i++) idat[(idat_size - 4) + i] = 0;
+			for_chunk = extract_char_array_from_char_array(idat, idat_total_size - 8, 4);
+			chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), idat_total_size - 8);
+			delete[] for_chunk; for_chunk = 0;
+			put_4bytes_to_char_array(chunk_crc, phys, idat_size - 4, true);
 			delete[] idat_compressed;
 			total_size += idat_total_size;
 
@@ -294,7 +352,10 @@ namespace basix
 			char* iend = new char[iend_total_size];
 			for (unsigned int i = 0; i < 4; i++) iend[i] = 0;
 			for (unsigned int i = 0; i < name.size(); i++) iend[4 + i] = name[i];
-			for (unsigned int i = 0; i < 4; i++) iend[8 + i] = 0;
+			for_chunk = extract_char_array_from_char_array(iend, iend_total_size - 8, 4);
+			chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), iend_total_size - 8);
+			delete[] for_chunk; for_chunk = 0;
+			put_4bytes_to_char_array(chunk_crc, iend, 8, true);
 			total_size += iend_total_size;
 
 			// Create the datas

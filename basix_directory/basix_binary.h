@@ -114,6 +114,14 @@ namespace basix
 		return number_1 + number_2 + number_3 + number_4 + number_5 + number_6 + number_7 + number_8;
 	};
 
+	// Extract a char array variable from a char array
+	inline char* extract_char_array_from_char_array(char* result, unsigned int size, unsigned int offset = 0)
+	{
+		char* to_return = new char[size];
+		for (int i = 0; i < size; i++) to_return[i] = result[offset + i];
+		return to_return;
+	};
+
 	// Extract a double variable from a char array
 	inline double extract_double_from_char_array(char* result, unsigned int offset = 0, bool inverse = false)
 	{
@@ -208,18 +216,6 @@ namespace basix
 	{
 		int64_t* n_p = (int64_t*)(&n);
 		put_8bytes_to_char_array(*n_p, result, offset, inverse);
-	}
-
-	// Apply the Paeth function to a left, above and upper left values
-	inline float paeth_function(float left, float above, float upper_left)
-	{
-		float p = left + above - upper_left;
-		float pa = abs(p - left);
-		float pb = abs(p - above);
-		float pc = abs(p - upper_left);
-		if (pa <= pb && pa <= pc) return left;
-		else if (pb <= pc) return above;
-		else return upper_left;
 	}
 
 	// Return the content of a file in binary with vector of char
