@@ -1,25 +1,26 @@
 //******************
-// 
+//
 // basix_image.h
-// 
+//
 //******************
 // Presentation :
-// 
+//
 // Basix is a little project containing base functions for Matix.
 // It can also be use in any projects.
 // This file contains usefull things to manipulate image.
-// 
+//
 //******************
 // Dependencies :
-// 
+//
 // To work, this file needs the zlib library.
 // Get it on this web site : https://www.zlib.net/.
-// 
+//
 // The CRC functions are copied from the W3 Consortium website.
 // See : https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix.
 //
 
-#pragma once
+#ifndef BASIX_IMAGE
+#define BASIX_IMAGE
 
 #include <zlib/zlib.h>
 
@@ -107,13 +108,13 @@ namespace basix
 	}
 
 	/* Table of CRCs of all 8-bit messages. */
-	unsigned int _crc_table[256];
+	inline unsigned int _crc_table[256];
 
 	/* Flag: has the table been computed? Initially false. */
-	bool _crc_table_computed = false;
+	inline bool _crc_table_computed = false;
 
 	// Make the entire CRC table
-	void make_crc_table()
+	inline void make_crc_table()
 	{
 		unsigned int c = 0;
 
@@ -131,7 +132,7 @@ namespace basix
 	}
 
 	// Update the CRC according to the buf char array
-	unsigned int update_crc(unsigned int crc, unsigned char* buf, int len)
+	inline unsigned int update_crc(unsigned int crc, unsigned char* buf, int len)
 	{
 		unsigned int c = crc;
 		int n;
@@ -146,7 +147,7 @@ namespace basix
 	}
 
 	// Return the CRC of the char array
-	unsigned int crc(unsigned char* buf, int len)
+	inline unsigned int crc(unsigned char* buf, int len)
 	{
 		return update_crc(0xffffffff, buf, len) ^ 0xffffffff;
 	}
@@ -1244,3 +1245,5 @@ namespace basix
 		unsigned int a_width = 0;
 	};
 }
+
+#endif BASIX_IMAGE

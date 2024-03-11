@@ -1,22 +1,23 @@
 //******************
-// 
+//
 // basix_binary.h
-// 
+//
 //******************
 // Presentation :
-// 
+//
 // Basix is a little project containing base functions for Matix.
 // It can also be use in any projects.
 // This file contains stuff used to do some binary manipulation.
-// 
+//
 //******************
 // Warning :
-// 
+//
 // Using binary can cause troubles if you don't know what you do.
 // Be very careful with that.
 //
 
-#pragma once
+#ifndef BASIX_BINARY
+#define BASIX_BINARY
 
 #include "basix_core.h"
 #include "basix_data_structure.h"
@@ -312,3 +313,5 @@ namespace basix
 		}
 	}
 }
+
+#endif BASIX_BINARY

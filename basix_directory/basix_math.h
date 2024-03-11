@@ -1,16 +1,17 @@
 //******************
-// 
+//
 // basix_file.h
-// 
+//
 //******************
 // Presentation :
-// 
+//
 // Basix is a little project containing base functions for Matix.
 // It can also be use in any projects.
 // This file contains some mathematical functions.
 //
 
-#pragma once
+#ifndef BASIX_MATH
+#define BASIX_MATH
 
 // The namespace "basix" is used to simplify the all.
 namespace basix
@@ -39,3 +40,5 @@ namespace basix
 	// Return the size of a number
 	inline int sign(float number) { return number < 0 ? -1 : (number == 0 ? 0 : 1); };
 }
+
+#endif BASIX_MATH

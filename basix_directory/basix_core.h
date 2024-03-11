@@ -1,16 +1,17 @@
 //******************
-// 
+//
 // basix_core.h
-// 
+//
 //******************
 // Presentation :
-// 
+//
 // Basix is a little project containing base functions for Matix.
 // It can also be use in any projects.
 // This file contains the core of the library.
 //
 
-#pragma once
+#ifndef BASIX_CORE
+#define BASIX_CORE
 
 #include <iostream>
 #include <math.h>
@@ -38,3 +39,5 @@ namespace basix
 		}
 	};
 }
+
+#endif BASIX_CORE

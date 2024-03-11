@@ -9,13 +9,9 @@
 // It can also be use in any projects.
 // This file contains things to do some file manipulation.
 //
-//******************
-// Warning :
-//
-// The <filesystem> module needs C++ 20 at least.
-//
 
-#pragma once
+#ifndef BASIX_FILE
+#define BASIX_FILE
 
 #include <codecvt>
 #include <filesystem>
@@ -118,3 +114,5 @@ namespace basix
 		return result;
 	};
 }
+
+#endif // BASIX_FILE

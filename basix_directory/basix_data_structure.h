@@ -1,16 +1,17 @@
 //******************
-// 
+//
 // basix_data_structure.h
-// 
+//
 //******************
 // Presentation :
-// 
+//
 // Basix is a little project containing base functions for Matix.
 // It can also be use in any projects.
 // This file contains usefull stuff to handle simple data structure.
 //
 
-#pragma once
+#ifndef BASIX_DATA_STRUCTURE
+#define BASIX_DATA_STRUCTURE
 
 #include "basix_core.h"
 
@@ -125,3 +126,5 @@ namespace basix
 		return v;
 	};
 }
+
+#endif BASIX_DATA_STRUCTURE
