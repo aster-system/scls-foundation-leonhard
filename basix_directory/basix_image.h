@@ -298,7 +298,7 @@ namespace basix
 			char* idhr = new char[idhr_total_size];
 			char* chunk_size = new char[4]; put_4bytes_to_char_array(idhr_size, chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) idhr[i] = chunk_size[i];
-			for (int i = 0; i < name.size(); i++) idhr[4 + i] = name[i];
+			for (int i = 0; i < static_cast<int>(name.size()); i++) idhr[4 + i] = name[i];
 			put_4bytes_to_char_array(get_width(), chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) idhr[8 + i] = chunk_size[i];
 			put_4bytes_to_char_array(get_height(), chunk_size); inverse_char_array(chunk_size, 4);
@@ -321,7 +321,7 @@ namespace basix
 			char* phys = new char[phys_total_size];
 			put_4bytes_to_char_array(phys_size, chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) phys[i] = chunk_size[i];
-			for (int i = 0; i < name.size(); i++) phys[4 + i] = name[i];
+			for (int i = 0; i < static_cast<int>(name.size()); i++) phys[4 + i] = name[i];
 			put_4bytes_to_char_array(get_physical_width_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) phys[8 + i] = chunk_size[i];
 			put_4bytes_to_char_array(get_physical_height_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
@@ -400,7 +400,6 @@ namespace basix
 			{
 				float distance_x = static_cast<float>(x_2 - x_1);
 				float distance_y = static_cast<float>(y_2 - y_1);
-				float distance = static_cast<float>(ceil(sqrt(pow(distance_x, 2) + pow(distance_y, 2))));
 
 				float x_y_ratio = distance_x / distance_y;
 
@@ -720,7 +719,7 @@ namespace basix
 
 				// Check if the signature is correct (137 80 78 71 13 10 26 10 for png files)
 				std::vector<float> signature = get_png_signature();
-				for (int i = 0; i < signature.size(); i++)
+				for (int i = 0; i < static_cast<int>(signature.size()); i++)
 				{
 					if (signature[i] != *((unsigned char*)header[i])) return false;
 				}
@@ -794,7 +793,7 @@ namespace basix
 
 				// Get the size of the chunks
 				unsigned int current_size = 0;
-				for (int i = 0; i < chunk.size(); i++)
+				for (int i = 0; i < static_cast<int>(chunk.size()); i++)
 				{
 					current_size += chunk[i].size;
 				}
@@ -806,7 +805,7 @@ namespace basix
 				current_size = 0;
 
 				// Read into the chunk
-				for (int i = 0; i < chunk.size(); i++)
+				for (int i = 0; i < static_cast<int>(chunk.size()); i++)
 				{
 					read_file_binary(path, header_part, chunk[i].size, chunk[i].position);
 					total_size += chunk[i].size;
@@ -828,9 +827,7 @@ namespace basix
 
 				// Define compression variables
 				unsigned char components = get_components();
-				int level = get_compression_method();
 				int ret = 0;
-				unsigned have = 0;
 				unsigned int out_size = (get_width() * get_height() * components) + get_height();
 				unsigned char* out = new unsigned char[out_size];
 				ret = uncompress_binary(header, current_size, (char*)out, out_size);
@@ -847,10 +844,8 @@ namespace basix
 				unsigned char component_size = get_components();
 				unsigned int current_collumn = -1;
 				unsigned int current_line = -1;
-				unsigned short data_number = have - get_height();
 				PNG_Pixel last_pixel;
 				unsigned int part = -1;
-				unsigned int y_pixel = 0;
 				for (unsigned int i = 0; i < out_size; i++)
 				{
 					if (part >= 0 && part < get_width() * component_size)
@@ -1208,7 +1203,7 @@ namespace basix
 			}
 			else
 			{
-				draw_rect(static_cast<unsigned short>(x - (static_cast<float>(width / 2.0)), static_cast<unsigned short>(y - (static_cast<float>(width)) / 2.0)), width, width, red, green, blue, alpha);
+				draw_rect(static_cast<unsigned short>(x - static_cast<float>(width) / 2.0), static_cast<unsigned short>(y - (static_cast<float>(width)) / 2.0), width, width, red, green, blue, alpha);
 			}
 		}
 		inline void set_pixel_alpha(unsigned short x, unsigned short y, unsigned char alpha)
@@ -1279,4 +1274,4 @@ namespace basix
 	};
 }
 
-#endif BASIX_IMAGE
+#endif

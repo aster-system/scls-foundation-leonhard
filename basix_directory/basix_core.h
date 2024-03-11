@@ -40,4 +40,4 @@ namespace basix
 	};
 }
 
-#endif BASIX_CORE
+#endif

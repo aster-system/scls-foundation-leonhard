@@ -30,7 +30,7 @@ namespace basix
 	// Delete each element into an unused binary list
 	inline void delete_binary(std::vector<char*>& datas)
 	{
-		for (int i = 0; i < datas.size(); i++) delete datas[i];
+		for (int i = 0; i < static_cast<int>(datas.size()); i++) delete datas[i];
 		datas.clear();
 	}
 
@@ -119,7 +119,7 @@ namespace basix
 	inline char* extract_char_array_from_char_array(char* result, unsigned int size, unsigned int offset = 0)
 	{
 		char* to_return = new char[size];
-		for (int i = 0; i < size; i++) to_return[i] = result[offset + i];
+		for (unsigned int i = 0; i < size; i++) to_return[i] = result[offset + i];
 		return to_return;
 	};
 
@@ -145,7 +145,7 @@ namespace basix
 	// Put a string into an other char array
 	inline void put_string_to_char_array(std::string to_put, char* result, unsigned int offset = 0)
 	{
-		for (int i = 0; i < to_put.size(); i++)
+		for (int i = 0; i < static_cast<int>(to_put.size()); i++)
 		{
 			result[offset + i] = to_put[i];
 		}
@@ -230,7 +230,7 @@ namespace basix
 		{
 			file.open(path, std::ios::binary);
 			file.seekg(start_pos, file.beg);
-			for (int i = 0; i < datas.size(); i++)
+			for (int i = 0; i < static_cast<int>(datas.size()); i++)
 			{
 				file.read(datas[i], size[i]);
 			}
@@ -284,7 +284,7 @@ namespace basix
 		try
 		{
 			file.open(path, opening_mode);
-			for (int i = 0; i < to_write.size(); i++)
+			for (int i = 0; i < static_cast<int>(to_write.size()); i++)
 			{
 				file.write(to_write[i], sizeof(i));
 			}
@@ -314,4 +314,4 @@ namespace basix
 	}
 }
 
-#endif BASIX_BINARY
+#endif

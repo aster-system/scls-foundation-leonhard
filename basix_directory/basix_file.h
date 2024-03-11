@@ -104,7 +104,7 @@ namespace basix
 			if (sub_directory && path_is_directory(path) && file_exists(path))
 			{
 				std::vector<std::string> sub = directory_content(path, true);
-				for (int i = 0; i < sub.size(); i++) result.push_back(sub[i]);
+				for (int i = 0; i < static_cast<int>(sub.size()); i++) result.push_back(sub[i]);
 			}
 			else
 			{

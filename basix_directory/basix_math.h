@@ -41,4 +41,4 @@ namespace basix
 	inline int sign(float number) { return number < 0 ? -1 : (number == 0 ? 0 : 1); };
 }
 
-#endif BASIX_MATH
+#endif

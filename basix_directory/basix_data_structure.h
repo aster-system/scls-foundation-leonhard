@@ -28,7 +28,7 @@ namespace basix
 		std::string last_string = ""; // String since the last cut
 		std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
 		std::vector<std::string> result = std::vector<std::string>();
-		for (int i = 0; i < string.size(); i++) // Browse the string char by char
+		for (int i = 0; i < static_cast<int>(string.size()); i++) // Browse the string char by char
 		{
 			last_string_cut += string[i];
 			if (last_string_cut.size() > cut.size()) // If the string which allows to know where to cut is too long, cut him
@@ -78,10 +78,10 @@ namespace basix
 	inline std::string join_string(std::vector<std::string> strings, std::string separation)
 	{
 		std::string result = "";
-		for (int i = 0; i < strings.size(); i++)
+		for (int i = 0; i < static_cast<int>(strings.size()); i++)
 		{
 			result += strings[i]; // Concatenate each strings
-			if (i != strings.size() - 1)
+			if (i != static_cast<int>(strings.size()) - 1)
 			{
 				result += separation; // Add the separation between strings
 			}
@@ -127,4 +127,4 @@ namespace basix
 	};
 }
 
-#endif BASIX_DATA_STRUCTURE
+#endif
