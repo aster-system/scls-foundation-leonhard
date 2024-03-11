@@ -4,10 +4,10 @@ int main()
 {
 	std::string base_path = "before.png";
 
-	basix::Image image;
-	image.load_from_path(base_path);
+	basix::Image image(base_path);
 
-	image.draw_rect(0, 0, 500, 500, 255, 255, 255);
+	image.paste("croix.png", 0, 0);
+
 	image.save_png("after.png");
 
 	basix::print("Test", "Debugger", "Hello world !");

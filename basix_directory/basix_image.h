@@ -228,9 +228,14 @@ namespace basix
 	{
 		// Class representing a PNG image handler
 	public:
-		// PNG_Image constructor
+		// Image constructor
 		Image() {};
-		// PNG_Image constructor
+		// Image constructor with a path
+		Image(std::string path) : Image()
+		{
+		    load_from_path(path);
+		};
+		// Image constructor
 		Image(unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned int color_type = 6)
 		{
 			a_color_type = color_type;
@@ -611,7 +616,7 @@ namespace basix
 			delete[] line1;
 		};
 		// Get every chunks into a PNG image
-		std::vector<PNG_Chunk> get_all_chunks_from_path(std::string path)
+		std::vector<PNG_Chunk> _get_all_chunks_from_path(std::string path)
 		{
 			std::vector<PNG_Chunk> to_return = std::vector<PNG_Chunk>();
 			if (file_exists(path) && !path_is_directory(path))
@@ -655,7 +660,7 @@ namespace basix
 
 					if (name == "pHYs")
 					{
-						load_pHYS_from_path(path, chunk);
+						_load_pHYS_from_path(path, chunk);
 					}
 					else if (name == "IDAT" && is_loadable())
 					{
@@ -663,7 +668,7 @@ namespace basix
 					}
 					else if (name == "sRGB")
 					{
-						load_sRGB_from_path(path, chunk);
+						_load_sRGB_from_path(path, chunk);
 					}
 					else if (name == "PLTE" || name == "bKGD") // Not implemented yet
 					{
@@ -678,7 +683,7 @@ namespace basix
 				// Load IDAT chunks
 				if (a_idat_chunk.size() > 0 && is_loadable())
 				{
-					a_error_load = load_IDAT_from_path(path);
+					a_error_load = _load_IDAT_from_path(path);
 					if (a_error_load != 1) a_loadable = false;
 				}
 			}
@@ -699,7 +704,7 @@ namespace basix
 			return to_return;
 		}
 		// Load the base data of an image from a path
-		bool load_base_from_path(std::string path)
+		bool _load_base_from_path(std::string path)
 		{
 			if (file_exists(path) && !path_is_directory(path))
 			{
@@ -761,26 +766,26 @@ namespace basix
 		// Load the image from a path
 		bool load_from_path(std::string path)
 		{
-			if (load_base_from_path(path))
+			if (_load_base_from_path(path))
 			{
-				get_all_chunks_from_path(path);
+				_get_all_chunks_from_path(path);
 				return true;
 			}
 			return false;
 		};
 		// Load the image from a set of PNG binary data
-		inline bool load_from_binary_PNG(char* datas, unsigned int size)
+		inline bool _load_from_binary_PNG(char* datas, unsigned int size)
 		{
 			write_in_file_binary("_temp.png", datas, size);
 
 			bool result = load_from_path("_temp.png");
 
-			std::filesystem::remove("_temp.png");
+			std::remove("_temp.png");
 
 			return result;
 		};
 		// Load a IDAT chunk grom a path
-		char load_IDAT_from_path(std::string path)
+		char _load_IDAT_from_path(std::string path)
 		{
 			std::vector<PNG_Chunk>& chunk = a_idat_chunk;
 			if (file_exists(path) && !path_is_directory(path))
@@ -1045,7 +1050,7 @@ namespace basix
 			return 1;
 		};
 		// Load the pHYS chunk from a path
-		bool load_pHYS_from_path(std::string path, PNG_Chunk chunk)
+		bool _load_pHYS_from_path(std::string path, PNG_Chunk chunk)
 		{
 			if (file_exists(path) && !path_is_directory(path) && chunk.name == "pHYs" && chunk.size == 9)
 			{
@@ -1073,7 +1078,7 @@ namespace basix
 			return false;
 		};
 		// Load the sRGB chunk from a path
-		bool load_sRGB_from_path(std::string path, PNG_Chunk chunk)
+		bool _load_sRGB_from_path(std::string path, PNG_Chunk chunk)
 		{
 			if (file_exists(path) && !path_is_directory(path) && chunk.name == "sRGB" && chunk.size == 1)
 			{
@@ -1104,6 +1109,31 @@ namespace basix
 		{
 			return y;
 		}
+		// Paste an Image on this Image
+		inline void paste(Image* to_paste, unsigned short x, unsigned short y, float opacity = 1.0) {
+            for(unsigned int i = 0;i<to_paste->get_height();i++)
+            {
+                for(unsigned int j = 0;j<to_paste->get_width();j++)
+                {
+                    unsigned short final_x = x + j;
+                    unsigned short final_y = y + i;
+
+                    if(final_x >= get_width()) break;
+                    if(final_y >= get_height()) return;
+
+                    PNG_Pixel pixel = to_paste->get_pixel(j, i);
+                    pixel.alpha = static_cast<float>(pixel.alpha) * opacity;
+
+                    set_pixel(final_x, final_y, pixel);
+                }
+            }
+		};
+		// Paste an Image from a path to this Image
+		inline void paste(std::string path, unsigned short x, unsigned short y, float opacity = 1.0) {
+		    Image* img = new Image(path);
+		    paste(img, x, y, opacity);
+		    delete img; img = 0;
+		};
 		// Save the image into the PNG format
 		inline void save_png(std::string path)
 		{
@@ -1122,8 +1152,7 @@ namespace basix
 		inline unsigned int _get_current_x_processing(unsigned int offset = 0) { return ((a_processed_data - 1) - offset) % get_width(); };
 		inline unsigned int _get_current_y_processing(unsigned int offset = 0) { return static_cast<unsigned int>(floor(static_cast<float>(a_processed_data - 1) - static_cast<float>(offset) / static_cast<float>(get_width()))); };
 		inline unsigned int get_compression_method() { return a_compression_method; };
-		inline std::vector<float> get_png_signature()
-		{
+		inline std::vector<float> get_png_signature() {
 			std::vector<float> signature;
 			signature.push_back(137);
 			signature.push_back(80);
@@ -1148,13 +1177,8 @@ namespace basix
 		inline bool is_flipped_x() { return a_flipped_x; };
 		inline bool is_flipped_y() { return a_flipped_y; };
 		inline bool is_loadable() { return a_loadable; };
-		inline void set_pixel(unsigned short x, unsigned short y, PNG_Pixel pixel)
-		{
-			unsigned int position = (y * get_width() + x) * get_components();
-			a_pixels[position] = pixel.red;
-			a_pixels[position + 1] = pixel.green;
-			a_pixels[position + 2] = pixel.blue;
-			a_pixels[position + 3] = pixel.alpha;
+		inline void set_pixel(unsigned short x, unsigned short y, PNG_Pixel pixel) {
+			set_pixel(x, y, pixel.red, pixel.green, pixel.blue, pixel.alpha);
 		}
 		inline void set_pixel(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned short width = 1)
 		{
@@ -1163,11 +1187,20 @@ namespace basix
 			if (width == 0) return;
 			else if (width == 1)
 			{
+			    PNG_Pixel pixel = get_pixel(x, y);
+
 				unsigned int position = (y * get_width() + x) * get_components();
-				alpha = static_cast<unsigned char>(normalize_value(alpha, 0, 255));
-				blue = static_cast<unsigned char>(normalize_value(blue, 0, 255));
-				green = static_cast<unsigned char>(normalize_value(green, 0, 255));
-				red = static_cast<unsigned char>(normalize_value(red, 0, 255));
+				float alpha_f = normalize_value(alpha, 0, 255) / 255.0;
+				float blue_f = normalize_value(blue, 0, 255);
+				float green_f = normalize_value(green, 0, 255);
+				float red_f = normalize_value(red, 0, 255);
+
+				// Calculate alpha
+				alpha = 255.0;
+				blue = alpha_f * blue_f + (1.0 - alpha_f) * static_cast<float>(pixel.blue);
+				red = alpha_f * red_f + (1.0 - alpha_f) * static_cast<float>(pixel.red);
+				green = alpha_f * green_f + (1.0 - alpha_f) * static_cast<float>(pixel.green);
+
 				a_pixels[position] = red;
 				a_pixels[position + 1] = green;
 				a_pixels[position + 2] = blue;
