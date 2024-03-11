@@ -1,17 +1,17 @@
 //******************
-// 
+//
 // basix_file.h
-// 
+//
 //******************
 // Presentation :
-// 
+//
 // Basix is a little project containing base functions for Matix.
 // It can also be use in any projects.
 // This file contains things to do some file manipulation.
 //
 //******************
 // Warning :
-// 
+//
 // The <filesystem> module needs C++ 20 at least.
 //
 
@@ -28,11 +28,12 @@
 // The namespace "basix" is used to simplify the all.
 namespace basix
 {
-	// Return the datas about a file (assuming the file exists).
-	inline struct stat file_datas(std::string path) { struct stat sb; bool result = (stat(path.c_str(), &sb) == 0); return sb; };
-
 	// Returns if a file exists.
-	inline bool file_exists(std::string path) { struct stat sb; bool result = (stat(path.c_str(), &sb) == 0); return result; };
+	inline bool file_exists(std::string path)
+	{
+	    std::ifstream file(path);
+        return file.good();
+    };
 
 	// Returns the name of a file (assuming the file exists).
 	inline std::string file_name(std::string path)
@@ -51,7 +52,14 @@ namespace basix
 	}
 
 	// Returns if a path is a directory or not
-	inline bool path_is_directory(std::string path) { return ((file_datas(path).st_mode & S_IFDIR) == S_IFDIR); };
+	inline bool path_is_directory(std::string path)
+	{
+	    std::vector<std::string> cutted = cut_string(path, "/");
+		cutted = cut_string(cutted[cutted.size() - 1], "\\");
+		cutted = cut_string(cutted[cutted.size() - 1], ".");
+
+	    return cutted.size() < 2;
+    };
 
 	// Return the content of a file.
 	inline std::string read_file(std::string path)
@@ -63,7 +71,6 @@ namespace basix
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		try
 		{
-			file.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<char>));
 			file.open(path);
 			std::stringstream stream; stream << file.rdbuf();
 			file.close();
