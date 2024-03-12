@@ -6,9 +6,9 @@ int main()
 
 	basix::Image image(base_path);
 
-	image.paste("croix.png", 0, 0);
-
-	image.save_png("after.png");
+    basix::Image* text = basix::text("Hello world !");
+    text->save_png("after.png");
+	delete text; text = 0;
 
 	basix::print("Test", "Debugger", "Hello world !");
 

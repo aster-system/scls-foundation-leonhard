@@ -22,7 +22,13 @@
 #ifndef BASIX_IMAGE
 #define BASIX_IMAGE
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <zlib/zlib.h>
+
+// Base path to the fonts in the system
+#define BASE_FONT_PATH std::string("C:\\Windows\\Fonts\\")
 
 // ZLib mandatory stuff
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
@@ -36,6 +42,8 @@
 // The namespace "basix" is used to simplify the all.
 namespace basix
 {
+    FT_Library  _freetype_library;
+
 	// Compress data from a char array without returning the result
 	inline int _compress_binary(char* to_compress, unsigned int to_compress_size, char* output, unsigned int output_size, unsigned int& total_output_size, unsigned int compression_level = 9)
 	{
@@ -772,6 +780,17 @@ namespace basix
 			}
 			return false;
 		};
+		// Load the image from a set of binary datas coming from a FreeType text
+		inline bool _load_from_text_binary(char* datas, unsigned short width, unsigned short height)
+		{
+		    a_height = height; a_width = width;
+		    fill(255, 255, 255, 0);
+		    for(int i = 0;i<height * width;i++)
+            {
+                a_pixels[i * get_components()] = datas[i];
+            }
+            return true;
+		};
 		// Load the image from a set of PNG binary data
 		inline bool _load_from_binary_PNG(char* datas, unsigned int size)
 		{
@@ -1272,6 +1291,52 @@ namespace basix
 		// Width of the image
 		unsigned int a_width = 0;
 	};
+
+    // Return a pointer to an image with a text on it
+    inline Image* text(std::string content)
+    {
+        FT_Error error = FT_Init_FreeType(&_freetype_library);
+        if ( error )
+        {
+            print("Error", "Basix", "Unable to load the FreeType engine.");
+            return 0;
+        }
+
+        FT_Face face;
+
+        std::string path = BASE_FONT_PATH + "arial.ttf";
+        unsigned int font_size = 500;
+
+        error = FT_New_Face(_freetype_library, path.c_str(), 0, &face);
+        if ( error == FT_Err_Unknown_File_Format )
+        {
+            print("Error", "Basix", "Unable to load the \"" + path + "\" font, it does not exist.");
+            return 0;
+        }
+        else if ( error )
+        {
+            print("Error", "Basix", "Unable to load the \"" + path + "\" font.");
+            return 0;
+        }
+
+        error = FT_Set_Pixel_Sizes(face, 0, font_size);
+
+        FT_UInt index = FT_Get_Char_Index(face, 'A');
+
+        error = FT_Load_Glyph(face, index, 0);
+
+        FT_GlyphSlot binary_datas = face->glyph;
+
+        error = FT_Render_Glyph(binary_datas, FT_RENDER_MODE_NORMAL);
+
+        Image* img = new Image();
+        unsigned short height = static_cast<unsigned short>(binary_datas->bitmap.rows);
+        unsigned short width = static_cast<unsigned short>(binary_datas->bitmap.width);
+
+        img->_load_from_text_binary(reinterpret_cast<char*>(binary_datas->bitmap.buffer), width, height);
+
+        return img;
+    };
 }
 
 #endif
