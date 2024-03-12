@@ -45,8 +45,7 @@ namespace basix
     FT_Library  _freetype_library;
 
 	// Compress data from a char array without returning the result
-	inline int _compress_binary(char* to_compress, unsigned int to_compress_size, char* output, unsigned int output_size, unsigned int& total_output_size, unsigned int compression_level = 9)
-	{
+	inline int _compress_binary(char* to_compress, unsigned int to_compress_size, char* output, unsigned int output_size, unsigned int& total_output_size, unsigned int compression_level = 9) {
 		// Create compression ENV
 		int ret = 0;
 		z_stream strm;
@@ -100,19 +99,18 @@ namespace basix
 	};
 
 	// Compress data from a char array and return the result
-	inline char* compress_binary(char* to_compress, unsigned int to_compress_size, unsigned int& output_size, unsigned int compression_level = 9)
-	{
+	inline char* compress_binary(char* to_compress, unsigned int to_compress_size, unsigned int& output_size, unsigned int compression_level = 9) {
 		char* output = new char[to_compress_size + 1000];
 
 		unsigned int ret = _compress_binary(to_compress, to_compress_size, output, to_compress_size + 1000, output_size, compression_level);
 		if (ret != 1) return 0;
 
-		char* final = new char[output_size];
-		for (unsigned int i = 0; i < output_size; i++) final[i] = output[i];
+		char* final_array = new char[output_size];
+		for (unsigned int i = 0; i < output_size; i++) final_array[i] = output[i];
 
 		delete[] output;
 
-		return final;
+		return final_array;
 	}
 
 	/* Table of CRCs of all 8-bit messages. */
@@ -269,13 +267,11 @@ namespace basix
 			a_width = copy.a_width;
 		};
 		// Return the data of the image in a unsigned char*
-		inline unsigned char* data()
-		{
+		inline unsigned char* data() {
 			return a_pixels;
 		}
 		// Returns the data of the image filtered in a unsigned char*
-		inline unsigned char* data_filtered()
-		{
+		inline unsigned char* data_filtered() {
 			unsigned char* datas = new unsigned char[get_height() * get_width() * get_components() + get_height()];
 			for (unsigned int i = 0; i < get_height(); i++)
 			{
@@ -344,19 +340,19 @@ namespace basix
 			// Create the IDAT chunk
 			name = "IDAT";
 			unsigned int idat_size = 0;
-			char* idat_uncompressed = (char*)data_filtered();
+			char* idat_uncompressed = reinterpret_cast<char*>(data_filtered());
 			char* idat_compressed = compress_binary(idat_uncompressed, get_height() * get_width() * get_components() + get_height(), idat_size, 9);
 			delete[] idat_uncompressed;
 			unsigned int idat_total_size = idat_size + 12;
 			char* idat = new char[idat_total_size];
-			put_4bytes_to_char_array(idat_size, chunk_size); inverse_char_array(chunk_size, 4);
+			inverse_char_array(chunk_size, 4); put_4bytes_to_char_array(idat_size, chunk_size);
 			for (unsigned int i = 0; i < 4; i++) idat[i] = chunk_size[i];
-			for (unsigned int i = 0; i < name.size(); i++) idat[4 + i] = name[i];
+			for (unsigned int i = 0; i < 4; i++) idat[4 + i] = name[i];
 			for (unsigned int i = 0; i < idat_size; i++) idat[8 + i] = idat_compressed[i];
 			for_chunk = extract_char_array_from_char_array(idat, idat_total_size - 8, 4);
 			chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), idat_total_size - 8);
 			delete[] for_chunk; for_chunk = 0;
-			put_4bytes_to_char_array(chunk_crc, phys, idat_size - 4, true);
+			put_4bytes_to_char_array(chunk_crc, idat, idat_size - 4, true);
 			delete[] idat_compressed;
 			total_size += idat_total_size;
 
@@ -377,7 +373,7 @@ namespace basix
 			unsigned int pos = 0;
 			char* datas = new char[total_size];
 			std::vector<float> signature = get_png_signature();
-			for (unsigned int i = 0; i < signature.size(); i++) datas[i] = (char)signature[i];
+			for (unsigned int i = 0; i < signature.size(); i++) datas[i] = static_cast<char>(signature[i]);
 			pos += static_cast<unsigned int>(signature.size());
 			// Create the IDHR chunk
 			for (unsigned int i = 0; i < idhr_total_size; i++) datas[pos + i] = idhr[i];
@@ -402,8 +398,7 @@ namespace basix
 			return datas;
 		}
 		// Draw a line on the image
-		void draw_line(unsigned short x_1, unsigned short y_1, unsigned short x_2, unsigned short y_2, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned short width = 1)
-		{
+		void draw_line(unsigned short x_1, unsigned short y_1, unsigned short x_2, unsigned short y_2, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned short width = 1) {
 			if (width == 1 || true)
 			{
 				float distance_x = static_cast<float>(x_2 - x_1);
@@ -461,8 +456,7 @@ namespace basix
 			}
 		};
 		// Draw a rectangle on the image
-		void draw_rect(unsigned short x, unsigned short y, unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255)
-		{
+		void draw_rect(unsigned short x, unsigned short y, unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255) {
 			for (int i = 0; i < width; i++)
 			{
 				for (int j = 0; j < height; j++)
@@ -472,8 +466,7 @@ namespace basix
 			}
 		};
 		// Delete the pixels in the memory
-		void free_memory()
-		{
+		void free_memory() {
 			if (a_pixels != 0)
 			{
 				delete[] a_pixels;
@@ -481,8 +474,7 @@ namespace basix
 			}
 		};
 		// Fill the image with one color
-		void fill(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255)
-		{
+		void fill(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255) {
 			free_memory();
 			a_pixels = new unsigned char[get_width() * get_height() * get_components() + 1];
 			for (unsigned int i = 0; i < get_height(); i++)
@@ -494,8 +486,7 @@ namespace basix
 			}
 		};
 		// Fill a rectangle on the image
-		void fill_triangle(unsigned short x_1, unsigned short y_1, unsigned short x_2, unsigned short y_2, unsigned short x_3, unsigned short y_3, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255)
-		{
+		void fill_triangle(unsigned short x_1, unsigned short y_1, unsigned short x_2, unsigned short y_2, unsigned short x_3, unsigned short y_3, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255) {
 			// 3 should be the point with the largest X value
 			if (x_1 > x_3)
 			{
@@ -561,8 +552,7 @@ namespace basix
 			}
 		};
 		// Flip the image on the X axis
-		inline void flip_x()
-		{
+		inline void flip_x() {
 			unsigned char* line1 = new unsigned char[get_width()];
 			unsigned int max = get_height();
 
@@ -592,8 +582,7 @@ namespace basix
 			delete[] line1;
 		};
 		// Flip the image on the Y axis
-		inline void flip_y()
-		{
+		inline void flip_y() {
 			unsigned char* line1 = new unsigned char[get_height()];
 			unsigned int max = get_width();
 
@@ -623,8 +612,7 @@ namespace basix
 			delete[] line1;
 		};
 		// Get every chunks into a PNG image
-		std::vector<PNG_Chunk> _get_all_chunks_from_path(std::string path)
-		{
+		std::vector<PNG_Chunk> _get_all_chunks_from_path(std::string path) {
 			std::vector<PNG_Chunk> to_return = std::vector<PNG_Chunk>();
 			if (file_exists(path) && !path_is_directory(path))
 			{
@@ -697,8 +685,7 @@ namespace basix
 			return to_return;
 		};
 		// Return the pixel located in a position in the image
-		PNG_Pixel get_pixel(unsigned short x, unsigned short y)
-		{
+		PNG_Pixel get_pixel(unsigned short x, unsigned short y) {
 			PNG_Pixel to_return;
 			if (x >= 0 && x < get_width() && y >= 0 && y < get_height())
 			{
@@ -711,8 +698,7 @@ namespace basix
 			return to_return;
 		}
 		// Load the base data of an image from a path
-		bool _load_base_from_path(std::string path)
-		{
+		bool _load_base_from_path(std::string path) {
 			if (file_exists(path) && !path_is_directory(path))
 			{
 				// Create the necessary things to read the PNG file
@@ -771,8 +757,7 @@ namespace basix
 			return false;
 		}
 		// Load the image from a path
-		bool load_from_path(std::string path)
-		{
+		bool load_from_path(std::string path) {
 			if (_load_base_from_path(path))
 			{
 				_get_all_chunks_from_path(path);
@@ -781,19 +766,22 @@ namespace basix
 			return false;
 		};
 		// Load the image from a set of binary datas coming from a FreeType text
-		inline bool _load_from_text_binary(char* datas, unsigned short width, unsigned short height)
-		{
+		inline bool _load_from_text_binary(char* datas, unsigned short width, unsigned short height) {
 		    a_height = height; a_width = width;
 		    fill(255, 255, 255, 0);
-		    for(int i = 0;i<height * width;i++)
+		    for(int i = 0;i<height;i++)
             {
-                a_pixels[i * get_components()] = datas[i];
+                for(int j = 0;j<width;j++)
+                {
+                    float alpha = static_cast<unsigned char>(datas[i * width + j]);
+                    // set_pixel_red(j, i, 255);
+                    // set_pixel_alpha(j, i, alpha);
+                }
             }
             return true;
 		};
 		// Load the image from a set of PNG binary data
-		inline bool _load_from_binary_PNG(char* datas, unsigned int size)
-		{
+		inline bool _load_from_binary_PNG(char* datas, unsigned int size) {
 			write_in_file_binary("_temp.png", datas, size);
 
 			bool result = load_from_path("_temp.png");
@@ -803,8 +791,7 @@ namespace basix
 			return result;
 		};
 		// Load a IDAT chunk grom a path
-		char _load_IDAT_from_path(std::string path)
-		{
+		char _load_IDAT_from_path(std::string path) {
 			std::vector<PNG_Chunk>& chunk = a_idat_chunk;
 			if (file_exists(path) && !path_is_directory(path))
 			{
@@ -1064,8 +1051,7 @@ namespace basix
 			return 1;
 		};
 		// Load the pHYS chunk from a path
-		bool _load_pHYS_from_path(std::string path, PNG_Chunk chunk)
-		{
+		bool _load_pHYS_from_path(std::string path, PNG_Chunk chunk) {
 			if (file_exists(path) && !path_is_directory(path) && chunk.name == "pHYs" && chunk.size == 9)
 			{
 				// Create the necessary things to read the PNG file
@@ -1084,7 +1070,7 @@ namespace basix
 				unsigned int physical_height = *((unsigned int*)header[1]);
 				a_physical_height_ratio = swap_unsigned_int(physical_height);
 				unsigned int physical_width = *((unsigned int*)header[0]);
-				a_physical_width_ratio = _byteswap_ulong(physical_width);
+				a_physical_width_ratio = swap_unsigned_int(physical_width);
 				a_physical_unit = *header[2];
 				delete_binary(header);
 				return true;
@@ -1092,8 +1078,7 @@ namespace basix
 			return false;
 		};
 		// Load the sRGB chunk from a path
-		bool _load_sRGB_from_path(std::string path, PNG_Chunk chunk)
-		{
+		bool _load_sRGB_from_path(std::string path, PNG_Chunk chunk) {
 			if (file_exists(path) && !path_is_directory(path) && chunk.name == "sRGB" && chunk.size == 1)
 			{
 				// Create the necessary things to read the PNG file
@@ -1114,13 +1099,11 @@ namespace basix
 			}
 		}
 		// Return the x parameter normalized according to the image
-		inline unsigned short normalized_x(unsigned short x)
-		{
+		inline unsigned short normalized_x(unsigned short x) {
 			return x;
 		}
 		// Return the y parameter normalized according to the image
-		inline unsigned short normalized_y(unsigned short y)
-		{
+		inline unsigned short normalized_y(unsigned short y) {
 			return y;
 		}
 		// Paste an Image on this Image
@@ -1149,8 +1132,7 @@ namespace basix
 		    delete img; img = 0;
 		};
 		// Save the image into the PNG format
-		inline void save_png(std::string path)
-		{
+		inline void save_png(std::string path) {
 			unsigned int size = 0;
 			char* datas = data_png(size);
 			write_in_file_binary(path, datas, size);
@@ -1194,8 +1176,7 @@ namespace basix
 		inline void set_pixel(unsigned short x, unsigned short y, PNG_Pixel pixel) {
 			set_pixel(x, y, pixel.red, pixel.green, pixel.blue, pixel.alpha);
 		}
-		inline void set_pixel(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned short width = 1)
-		{
+		inline void set_pixel(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned short width = 1) {
 			if (x < 0 || y < 0 || x >= get_width() || y >= get_height()) return;
 
 			if (width == 0) return;
@@ -1225,23 +1206,19 @@ namespace basix
 				draw_rect(static_cast<unsigned short>(x - static_cast<float>(width) / 2.0), static_cast<unsigned short>(y - (static_cast<float>(width)) / 2.0), width, width, red, green, blue, alpha);
 			}
 		}
-		inline void set_pixel_alpha(unsigned short x, unsigned short y, unsigned char alpha)
-		{
+		inline void set_pixel_alpha(unsigned short x, unsigned short y, unsigned char alpha) {
 			alpha = static_cast<unsigned char>(normalize_value(alpha, 0, 255));
 			a_pixels[(y * get_width() + x) * get_components() + 3] = alpha;
 		}
-		inline void set_pixel_blue(unsigned short x, unsigned short y, unsigned char blue)
-		{
+		inline void set_pixel_blue(unsigned short x, unsigned short y, unsigned char blue) {
 			blue = static_cast<unsigned char>(normalize_value(blue, 0, 255));
 			a_pixels[(y * get_width() + x) * get_components() + 2] = blue;
 		}
-		inline void set_pixel_green(unsigned short x, unsigned short y, unsigned char green)
-		{
+		inline void set_pixel_green(unsigned short x, unsigned short y, unsigned char green) {
 			green = static_cast<unsigned char>(normalize_value(green, 0, 255));
 			a_pixels[(y * get_width() + x) * get_components() + 1] = green;
 		}
-		inline void set_pixel_red(unsigned short x, unsigned short y, unsigned char red)
-		{
+		inline void set_pixel_red(unsigned short x, unsigned short y, unsigned char red) {
 			red = static_cast<unsigned char>(normalize_value(red, 0, 255));
 			a_pixels[((y * get_width()) + x) * get_components()] = red;
 		}
@@ -1292,21 +1269,43 @@ namespace basix
 		unsigned int a_width = 0;
 	};
 
-    // Return a pointer to an image with a text on it
-    inline Image* text(std::string content)
+    // Return a pointer to an image with a char on it
+    inline Image* _char_image(char caracter, FT_Face& face, unsigned int& cursor_pos, unsigned int& y_pos)
     {
+        // Configure and load the FreeType glyph system
+        FT_UInt index = FT_Get_Char_Index(face, caracter);
+        FT_Error error = FT_Load_Glyph(face, index, 0);
+        FT_GlyphSlot binary_datas = face->glyph;
+        error = FT_Render_Glyph(binary_datas, FT_RENDER_MODE_NORMAL);
+
+        // Create and draw the image
+        Image* img = new Image();
+        unsigned short height = static_cast<unsigned short>(binary_datas->bitmap.rows);
+        unsigned short width = static_cast<unsigned short>(binary_datas->bitmap.width);
+        img->_load_from_text_binary(reinterpret_cast<char*>(binary_datas->bitmap.buffer), width, height);
+
+        // Get the position of the cursor
+        cursor_pos = binary_datas->bitmap_left;
+        y_pos = binary_datas->bitmap_left;
+
+        return img;
+    };
+
+    // Return a pointer to an image with a text on it
+    inline Image* text_image(std::string content)
+    {
+        // Base variables for the creation
+        unsigned int font_size = 500;
+        std::string path = BASE_FONT_PATH + "arial.ttf";
+
+        // Load the FreeType base system
         FT_Error error = FT_Init_FreeType(&_freetype_library);
         if ( error )
         {
             print("Error", "Basix", "Unable to load the FreeType engine.");
             return 0;
         }
-
         FT_Face face;
-
-        std::string path = BASE_FONT_PATH + "arial.ttf";
-        unsigned int font_size = 500;
-
         error = FT_New_Face(_freetype_library, path.c_str(), 0, &face);
         if ( error == FT_Err_Unknown_File_Format )
         {
@@ -1319,23 +1318,50 @@ namespace basix
             return 0;
         }
 
+        // Configure and load the FreeType glyph system
         error = FT_Set_Pixel_Sizes(face, 0, font_size);
 
-        FT_UInt index = FT_Get_Char_Index(face, 'A');
+        // Create each characters
+        std::vector<Image*> characters;
+        unsigned int current_pos = 0;
+        std::vector<unsigned int> cursor_pos;
+        unsigned int total_width = 0;
+        std::vector<unsigned int> y_pos;
+        for(int i = 0;i<content.size();i++)
+        {
+            if(content[i] == ' ')
+            {
+                characters.push_back(0);
+                cursor_pos.push_back(0);
+                y_pos.push_back(0);
+                total_width += font_size / 2.0;
+                continue;
+            }
+            unsigned int cursor_position = 0;
+            unsigned int y_position = 0;
+            Image* image = _char_image(content[i], face, cursor_position, y_position);
+            if(image != 0)image->save_png("chars/" + std::to_string(i) + ".png");
+            characters.push_back(image);
+            cursor_pos.push_back(total_width + cursor_position);
+            y_pos.push_back(font_size - (image->get_height() + y_position));
+            total_width += image->get_width() + cursor_position;
+        }
 
-        error = FT_Load_Glyph(face, index, 0);
+        // Create the final image
+        Image* final_image = new Image(total_width, font_size, 0, 0, 0, 0);
+        for(int i = 0;i<characters.size();i++)
+        {
+            if(characters[i] != 0)final_image->paste(characters[i], cursor_pos[i], y_pos[i]);
+        }
 
-        FT_GlyphSlot binary_datas = face->glyph;
+        // Clear memory
+        for(int i = 0;i<characters.size();i++)
+        {
+            if(characters[i] != 0) characters[i]; characters[i] = 0;
+        }
+        characters.clear();
 
-        error = FT_Render_Glyph(binary_datas, FT_RENDER_MODE_NORMAL);
-
-        Image* img = new Image();
-        unsigned short height = static_cast<unsigned short>(binary_datas->bitmap.rows);
-        unsigned short width = static_cast<unsigned short>(binary_datas->bitmap.width);
-
-        img->_load_from_text_binary(reinterpret_cast<char*>(binary_datas->bitmap.buffer), width, height);
-
-        return img;
+        return final_image;
     };
 }
 
