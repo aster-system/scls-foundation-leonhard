@@ -768,16 +768,18 @@ namespace basix
 			return false;
 		};
 		// Load the image from a set of binary datas coming from a FreeType text
-		inline bool _load_from_text_binary(char* datas, unsigned short width, unsigned short height) {
+		inline bool _load_from_text_binary(char* datas, unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha) {
 		    a_height = height; a_width = width;
 		    fill(0, 0, 0, 0);
 		    for(int i = 0;i<height;i++)
             {
                 for(int j = 0;j<width;j++)
                 {
-                    float alpha = static_cast<unsigned char>(datas[i * width + j]);
-                    set_pixel_red(j, i, 255);
-                    set_pixel_alpha(j, i, alpha);
+                    float glyph_alpha = (datas[i * width + j] / 255.0);
+                    set_pixel_blue(j, i, blue);
+                    set_pixel_green(j, i, green);
+                    set_pixel_red(j, i, red);
+                    set_pixel_alpha(j, i, static_cast<unsigned short>(glyph_alpha * static_cast<float>(alpha)));
                 }
             }
             return true;
@@ -1193,7 +1195,7 @@ namespace basix
 				float red_f = normalize_value(red, 0, 255);
 
 				// Calculate alpha
-				alpha = normalize_value(alpha, 0, 255);
+				alpha = normalize_value(alpha, 0, 255); if(pixel.alpha > alpha) alpha = pixel.alpha;
 				blue = alpha_f * blue_f + (1.0 - alpha_f) * static_cast<float>(pixel.blue);
 				red = alpha_f * red_f + (1.0 - alpha_f) * static_cast<float>(pixel.red);
 				green = alpha_f * green_f + (1.0 - alpha_f) * static_cast<float>(pixel.green);
@@ -1271,10 +1273,31 @@ namespace basix
 		unsigned int a_width = 0;
 	};
 
+	// Enumeration of each text alignment possible
+	enum Text_Alignment {
+	    Left, Center, Right
+	};
+
+	// Datas about the text to draw
+    struct Text_Image_Data {
+        // Color of the text
+        unsigned char alpha = 255;
+        unsigned char blue = 255;
+        unsigned char green = 255;
+        unsigned char red = 255;
+
+        // Font particularity
+        std::string font_family = "arial.ttf";
+        unsigned short font_size = 50;
+
+        // Multi line caracteristic
+        Text_Alignment alignment = Left;
+    };
+
     // Return a pointer to an image with a char on it
-    inline Image* _char_image(char caracter, FT_Face& face, unsigned int& cursor_pos, unsigned int& y_pos) {
+    inline Image* _char_image(char character, FT_Face& face, int& cursor_pos, unsigned int& y_pos, Text_Image_Data datas) {
         // Configure and load the FreeType glyph system
-        FT_UInt index = FT_Get_Char_Index(face, caracter);
+        FT_UInt index = FT_Get_Char_Index(face, character);
         FT_Error error = FT_Load_Glyph(face, index, 0);
         FT_GlyphSlot binary_datas = face->glyph;
         error = FT_Render_Glyph(binary_datas, FT_RENDER_MODE_NORMAL);
@@ -1283,21 +1306,21 @@ namespace basix
         unsigned short height = static_cast<unsigned short>(binary_datas->bitmap.rows);
         unsigned short width = static_cast<unsigned short>(binary_datas->bitmap.width);
         Image* img = new Image();
-        img->_load_from_text_binary(reinterpret_cast<char*>(binary_datas->bitmap.buffer), width, height);
+        img->_load_from_text_binary(reinterpret_cast<char*>(binary_datas->bitmap.buffer), width, height, datas.red, datas.green, datas.blue, datas.alpha);
 
         // Get the position of the cursor
+        FT_Glyph_Metrics metrics = binary_datas->metrics;
         cursor_pos = binary_datas->bitmap_left;
-        y_pos = binary_datas->bitmap_left;
+        y_pos = binary_datas->bitmap_top - height;
 
         return img;
     };
 
     // Return a pointer to an image with a text on it
-    inline Image* text_image(std::string content)
-    {
+    inline Image* _line_image(std::string content, Text_Image_Data datas) {
         // Base variables for the creation
-        unsigned int font_size = 50;
-        std::string path = BASE_FONT_PATH + "arial.ttf";
+        unsigned int font_size = datas.font_size;
+        std::string path = BASE_FONT_PATH + datas.font_family;
 
         // Load the FreeType base system
         FT_Error error = FT_Init_FreeType(&_freetype_library);
@@ -1325,7 +1348,7 @@ namespace basix
         // Create each characters
         std::vector<Image*> characters;
         unsigned int current_pos = 0;
-        std::vector<unsigned int> cursor_pos;
+        std::vector<int> cursor_pos;
         unsigned int total_width = 0;
         std::vector<unsigned int> y_pos;
         for(int i = 0;i<content.size();i++)
@@ -1338,31 +1361,78 @@ namespace basix
                 total_width += font_size / 2.0;
                 continue;
             }
-            unsigned int cursor_position = 0;
+            int cursor_position = 0;
             unsigned int y_position = 0;
-            Image* image = _char_image(content[i], face, cursor_position, y_position);
+            Image* image = _char_image(content[i], face, cursor_position, y_position, datas);
             characters.push_back(image);
             cursor_pos.push_back(total_width + cursor_position);
+            if(cursor_pos[cursor_pos.size() - 1] < 0) cursor_pos[cursor_pos.size() - 1] = 0; // Avoid a little bug with X position
             y_pos.push_back(font_size - (image->get_height() + y_position));
             total_width += image->get_width() + cursor_position;
         }
 
-        // Create the final image
-        Image* final_image = new Image(total_width, font_size, 0, 0, 0, 0);
+        // Create the final image and clear the memory
+        Image* final_image = new Image(total_width, font_size * 2, 0, 0, 0, 0);
         for(int i = 0;i<characters.size();i++)
         {
-            if(characters[i] != 0)final_image->paste(characters[i], cursor_pos[i], y_pos[i]);
+            if(characters[i] != 0)
+            {
+                unsigned int x = cursor_pos[i];
+                final_image->paste(characters[i], x, y_pos[i]);
+                characters[i]; characters[i] = 0;
+            }
         }
-
-        // Clear memory
-        for(int i = 0;i<characters.size();i++)
-        {
-            if(characters[i] != 0) characters[i]; characters[i] = 0;
-        }
-        characters.clear();
 
         return final_image;
     };
+
+    // Return a pointer to an image with a text on it
+    inline Image* text_image(std::string content, Text_Image_Data datas) {
+        // Construct each text parts
+        std::vector<std::string> parts = cut_string(content, "\n");
+        if(parts.size() <= 1)
+        {
+            return _line_image(content, datas);
+        }
+
+        // Create each lines
+        std::vector<Image*> image_parts = std::vector<Image*>();
+        unsigned int max_width = 0;
+        unsigned int total_height = 0;
+        for(int i = 0;i<parts.size();i++)
+        {
+            Image* image = _line_image(parts[i], datas);
+            if(image != 0)
+            {
+                image_parts.push_back(image);
+                total_height += image->get_height() / 2.0;
+                if(image->get_width() > max_width) max_width = image->get_width();
+            }
+        }
+        total_height += image_parts[image_parts.size() - 1]->get_height() / 2.0;
+
+        // Create the final image and clear memory
+        Image* final_image = new Image(max_width, total_height, 0, 0, 0, 0);
+        unsigned int y_position = 0;
+        for(int i = 0;i<image_parts.size();i++)
+        {
+            Image* image = image_parts[i]; if(image == 0) continue;
+            unsigned int x = 0;
+            if(datas.alignment == Center)x = static_cast<int>(static_cast<float>(max_width - image->get_width()) / 2.0);
+            else if(datas.alignment == Right) x = max_width - image->get_width();
+            final_image->paste(image, x, y_position); y_position += image->get_height() / 2.0;
+            delete image_parts[i]; image_parts[i] = 0;
+        }
+
+        return final_image;
+    };
+
+    // Most simple text_image function
+    inline Image* text_image(std::string content)
+    {
+        Text_Image_Data datas;
+        return text_image(content, datas);
+    }
 }
 
 #endif
