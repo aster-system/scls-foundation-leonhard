@@ -1,8 +1,12 @@
 #include "basix.h"
 
+#include <map>
+
 int main()
 {
-	std::cout << "Welcome to the " << BASIX_NAME << " test program." << std::endl;
+    std::string text = "Étude du mouvement des étoiles à la lunette inclinée";
+    basix::Image* image = basix::text_image(basix::to_utf_8(text));
+    image->save_png("text.png");
 
 	return 0;
 }

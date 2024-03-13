@@ -127,8 +127,7 @@ namespace basix
 	};
 
 	// Put a char array into an other char array
-	inline void put_bytes_to_char_array(char* to_put, char* result, unsigned int size, unsigned int offset = 0)
-	{
+	inline void put_bytes_to_char_array(char* to_put, char* result, unsigned int size, unsigned int offset = 0) {
 		for (unsigned int i = 0; i < size; i++)
 		{
 			result[offset + i] = to_put[i];
@@ -136,8 +135,7 @@ namespace basix
 	};
 
 	// Put a string into an other char array
-	inline void put_string_to_char_array(std::string to_put, char* result, unsigned int offset = 0)
-	{
+	inline void put_string_to_char_array(std::string to_put, char* result, unsigned int offset = 0) {
 		for (int i = 0; i < static_cast<int>(to_put.size()); i++)
 		{
 			result[offset + i] = to_put[i];
@@ -145,8 +143,7 @@ namespace basix
 	};
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool inverse = false)
-	{
+	inline void put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool inverse = false) {
 		if (inverse)
 		{
 			result[offset + 1] = (n & 0x000000ff);
@@ -160,8 +157,7 @@ namespace basix
 	}
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool inverse = false)
-	{
+	inline void put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool inverse = false) {
 		if (inverse)
 		{
 			result[offset + 3] = (n & 0x000000ff);
@@ -179,8 +175,7 @@ namespace basix
 	}
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool inverse = false)
-	{
+	inline void put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool inverse = false) {
 		if (inverse)
 		{
 			result[offset + 7] = static_cast<char>(n & 0x00000000000000ff);
@@ -206,15 +201,13 @@ namespace basix
 	}
 
 	// Convert an double to a char array and put it in the char array
-	inline void put_8bytes_double_to_char_array(double n, char* result, unsigned int offset = 0, bool inverse = false)
-	{
+	inline void put_8bytes_double_to_char_array(double n, char* result, unsigned int offset = 0, bool inverse = false) {
 		int64_t* n_p = (int64_t*)(&n);
 		put_8bytes_to_char_array(*n_p, result, offset, inverse);
 	}
 
 	// Return the content of a file in binary with vector of char
-	inline void read_file_binary(std::string path, std::vector<char*>& datas, std::vector<unsigned int> size, unsigned int start_pos = 0)
-	{
+	inline void read_file_binary(std::string path, std::vector<char*>& datas, std::vector<unsigned int> size, unsigned int start_pos = 0) {
 		std::string file_content;
 		std::ifstream file;
 		// ensure ifstream objects can throw exceptions:
@@ -233,8 +226,7 @@ namespace basix
 	};
 
 	// Return the content of a file in binary with a char array
-	inline void read_file_binary(std::string path, char* datas, unsigned int size, unsigned int start_pos = 0)
-	{
+	inline void read_file_binary(std::string path, char* datas, unsigned int size, unsigned int start_pos = 0) {
 		std::string file_content;
 		std::ifstream file;
 		// ensure ifstream objects can throw exceptions:
@@ -250,8 +242,7 @@ namespace basix
 	};
 
 	// Read and return the content of all a binary file
-	inline char* read_entire_file_binary(std::string path)
-	{
+	inline char* read_entire_file_binary(std::string path) {
 		unsigned int total_size = file_size(path);
 		char* file = new char[total_size];
 		read_file_binary(path, file, total_size);
@@ -260,8 +251,7 @@ namespace basix
 	};
 
 	// Swap an unsigned int with his binary
-	inline unsigned int swap_unsigned_int(unsigned int n)
-	{
+	inline unsigned int swap_unsigned_int(unsigned int n) {
 		char* bytes = new char[4];
 		put_4bytes_to_char_array(n, bytes, 0, true);
 		unsigned int result = extract_4bytes_from_char_array(bytes);
@@ -270,8 +260,7 @@ namespace basix
 	};
 
 	// Write binary data in a file from a char vector
-	inline void write_in_file_binary(std::string path, std::vector<char*> to_write, std::ios::openmode opening_mode = std::ios::out | std::ios::binary)
-	{
+	inline void write_in_file_binary(std::string path, std::vector<char*> to_write, std::ios::openmode opening_mode = std::ios::out | std::ios::binary) {
 		std::ofstream file;
 		file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
 		try
@@ -290,8 +279,7 @@ namespace basix
 	}
 
 	// Write binary data in a file from a char array
-	inline void write_in_file_binary(std::string path, char* to_write, unsigned int size, std::ios::openmode opening_mode = std::ios::out | std::ios::binary)
-	{
+	inline void write_in_file_binary(std::string path, char* to_write, unsigned int size, std::ios::openmode opening_mode = std::ios::out | std::ios::binary) {
 		std::ofstream file;
 		file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
 		try

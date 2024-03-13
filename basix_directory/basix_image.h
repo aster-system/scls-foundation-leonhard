@@ -1297,7 +1297,7 @@ namespace basix
     // Return a pointer to an image with a char on it
     inline Image* _char_image(char character, FT_Face& face, int& cursor_pos, unsigned int& y_pos, Text_Image_Data datas) {
         // Configure and load the FreeType glyph system
-        FT_UInt index = FT_Get_Char_Index(face, character);
+        FT_UInt index = FT_Get_Char_Index(face, (static_cast<unsigned char>(character)));
         FT_Error error = FT_Load_Glyph(face, index, 0);
         FT_GlyphSlot binary_datas = face->glyph;
         error = FT_Render_Glyph(binary_datas, FT_RENDER_MODE_NORMAL);
@@ -1343,6 +1343,7 @@ namespace basix
         }
 
         // Configure and load the FreeType glyph system
+        error = FT_Select_Charmap(face, FT_ENCODING_UNICODE);
         error = FT_Set_Pixel_Sizes(face, 0, font_size);
 
         // Create each characters
@@ -1428,8 +1429,7 @@ namespace basix
     };
 
     // Most simple text_image function
-    inline Image* text_image(std::string content)
-    {
+    inline Image* text_image(std::string content) {
         Text_Image_Data datas;
         return text_image(content, datas);
     }

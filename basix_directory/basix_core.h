@@ -141,6 +141,70 @@ namespace basix
 		}
 		return v;
 	};
+
+    // Convert a char to an UTF-8
+    inline std::string to_utf_8(const char* character, unsigned int text_size) {
+        std::string result = "";
+        unsigned int current_pos = 0;
+        for(int i = 0;i<text_size;i++)
+        {
+            if(~character[current_pos] & 0b10000000)
+            {
+                result += character[current_pos];
+            }
+            else if((character[current_pos] & 0b11100000) == 0b11100000)
+            {
+                unsigned short final_character_1 = 0;
+                unsigned short final_character_2 = 0;
+                unsigned short final_character_3 = 0;
+                final_character_1 = (character[current_pos]) & 0b00001111; final_character_1 = final_character_1 << 11; current_pos++;
+                final_character_2 = (character[current_pos]) & 0b00011111; final_character_2 = final_character_2 << 6; current_pos++;
+                final_character_3 = character[current_pos] & 0b00111111;
+                result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
+            }
+            else if((character[current_pos] & 0b11000000) == 0b11000000)
+            {
+                unsigned short final_character_1 = 0;
+                unsigned short final_character_2 = 0;
+                final_character_1 = (character[current_pos]) & 0b00011111; final_character_1 = final_character_1 << 6; current_pos++;
+                final_character_2 = character[current_pos] & 0b00111111;
+                result += static_cast<char>(final_character_1 + final_character_2);
+            }
+            current_pos++;
+        }
+        return result;
+    };
+
+    // Convert a string to an UTF-8
+    inline std::string to_utf_8(std::string character) {
+        std::string result = "";
+        for(int i = 0;i<character.size();i++)
+        {
+            if(~character[i] & 0b10000000)
+            {
+                result += character[i];
+            }
+            else if((character[i] & 0b11100000) == 0b11100000)
+            {
+                unsigned short final_character_1 = 0;
+                unsigned short final_character_2 = 0;
+                unsigned short final_character_3 = 0;
+                final_character_1 = (character[i]) & 0b00001111; final_character_1 = final_character_1 << 11; i++;
+                final_character_2 = (character[i]) & 0b00011111; final_character_2 = final_character_2 << 6; i++;
+                final_character_3 = character[i] & 0b00111111;
+                result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
+            }
+            else if((character[i] & 0b11000000) == 0b11000000)
+            {
+                unsigned short final_character_1 = 0;
+                unsigned short final_character_2 = 0;
+                final_character_1 = (character[i]) & 0b00011111; final_character_1 = final_character_1 << 6; i++;
+                final_character_2 = character[i] & 0b00111111;
+                result += static_cast<char>(final_character_1 + final_character_2);
+            }
+        }
+        return result;
+    };
 }
 
 #endif
