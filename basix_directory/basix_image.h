@@ -120,8 +120,7 @@ namespace basix
 	inline bool _crc_table_computed = false;
 
 	// Make the entire CRC table
-	inline void make_crc_table()
-	{
+	inline void make_crc_table() {
 		unsigned int c = 0;
 
 		for (int n = 0; n < 256; n++)
@@ -138,8 +137,7 @@ namespace basix
 	}
 
 	// Update the CRC according to the buf char array
-	inline unsigned int update_crc(unsigned int crc, unsigned char* buf, int len)
-	{
+	inline unsigned int update_crc(unsigned int crc, unsigned char* buf, int len) {
 		unsigned int c = crc;
 		int n;
 
@@ -153,14 +151,12 @@ namespace basix
 	}
 
 	// Return the CRC of the char array
-	inline unsigned int crc(unsigned char* buf, int len)
-	{
+	inline unsigned int crc(unsigned char* buf, int len) {
 		return update_crc(0xffffffff, buf, len) ^ 0xffffffff;
 	}
 
 	// Uncompress data from a char array
-	inline int uncompress_binary(char* to_uncompress, unsigned int to_uncompress_size, char* output, unsigned int output_size)
-	{
+	inline int uncompress_binary(char* to_uncompress, unsigned int to_uncompress_size, char* output, unsigned int output_size) {
 		// Create compression ENV
 		int ret = 0;
 		z_stream strm;
@@ -237,13 +233,11 @@ namespace basix
 		// Image constructor
 		Image() {};
 		// Image constructor with a path
-		Image(std::string path) : Image()
-		{
+		Image(std::string path) : Image() {
 		    load_from_path(path);
 		};
 		// Image constructor
-		Image(unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned int color_type = 6)
-		{
+		Image(unsigned short width, unsigned short height, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255, unsigned int color_type = 6) {
 			a_color_type = color_type;
 			a_height = height;
 			a_width = width;
@@ -251,8 +245,7 @@ namespace basix
 			fill(red, green, blue, alpha);
 		};
 		// PNG_Image copy constructor
-		Image(Image& copy) : Image()
-		{
+		Image(Image& copy) : Image() {
 			a_bit_depth = copy.a_bit_depth;
 			a_color_type = copy.a_color_type;
 			a_compression_method = copy.a_compression_method;
@@ -290,8 +283,7 @@ namespace basix
 			return datas;
 		};
 		// Returns the data of the image under the PNG format
-		inline char* data_png(unsigned int& total_size)
-		{
+		inline char* data_png(unsigned int& total_size) {
 			char* for_chunk = 0;
 			total_size = 8;
 
@@ -303,14 +295,12 @@ namespace basix
 			char* chunk_size = new char[4]; put_4bytes_to_char_array(idhr_size, chunk_size); inverse_char_array(chunk_size, 4);
 			for (int i = 0; i < 4; i++) idhr[i] = chunk_size[i];
 			for (int i = 0; i < static_cast<int>(name.size()); i++) idhr[4 + i] = name[i];
-			put_4bytes_to_char_array(get_width(), chunk_size); inverse_char_array(chunk_size, 4);
-			for (int i = 0; i < 4; i++) idhr[8 + i] = chunk_size[i];
-			put_4bytes_to_char_array(get_height(), chunk_size); inverse_char_array(chunk_size, 4);
-			for (int i = 0; i < 4; i++) idhr[12 + i] = chunk_size[i];
+			put_4bytes_to_char_array(get_width(), idhr, 8, true);
+			put_4bytes_to_char_array(get_height(), idhr, 12, true);
 			idhr[16] = static_cast<unsigned char>(get_bit_depht());
-			idhr[17] = static_cast<unsigned char>((unsigned char)get_color_type());
-			idhr[18] = static_cast<unsigned char>((unsigned char)get_compression_method());
-			idhr[19] = 0;// (unsigned char)get_filter_method();
+			idhr[17] = static_cast<unsigned char>(get_color_type());
+			idhr[18] = static_cast<unsigned char>(get_compression_method());
+			idhr[19] = static_cast<unsigned char>(get_filter_method());
 			idhr[20] = 0;// (unsigned char)get_interlace_method();
 			for_chunk = extract_char_array_from_char_array(idhr, idhr_total_size - 8, 4);
 			unsigned int chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), idhr_total_size - 8);
@@ -341,7 +331,7 @@ namespace basix
 			name = "IDAT";
 			unsigned int idat_size = 0;
 			char* idat_uncompressed = reinterpret_cast<char*>(data_filtered());
-			char* idat_compressed = compress_binary(idat_uncompressed, get_height() * get_width() * get_components() + get_height(), idat_size, 9);
+			char* idat_compressed = compress_binary(idat_uncompressed, get_height() * get_width() * get_components() + get_height() * 2, idat_size, 9);
 			delete[] idat_uncompressed;
 			unsigned int idat_total_size = idat_size + 12;
 			char* idat = new char[idat_total_size];
@@ -481,7 +471,7 @@ namespace basix
 			{
 				for (unsigned int j = 0; j < get_width(); j++)
 				{
-					set_pixel(j, i, red, green, blue, alpha);
+					force_pixel(j, i, red, green, blue, alpha);
 				}
 			}
 		};
@@ -610,6 +600,18 @@ namespace basix
 			}
 
 			delete[] line1;
+		};
+		// Force a pixel to change its value
+		inline void force_pixel(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255) {
+            if (x < 0 || y < 0 || x >= get_width() || y >= get_height()) return;
+
+			PNG_Pixel pixel = get_pixel(x, y);
+
+            unsigned int position = (y * get_width() + x) * get_components();
+            a_pixels[position] = red;
+            a_pixels[position + 1] = green;
+            a_pixels[position + 2] = blue;
+            a_pixels[position + 3] = alpha;
 		};
 		// Get every chunks into a PNG image
 		std::vector<PNG_Chunk> _get_all_chunks_from_path(std::string path) {
@@ -768,14 +770,14 @@ namespace basix
 		// Load the image from a set of binary datas coming from a FreeType text
 		inline bool _load_from_text_binary(char* datas, unsigned short width, unsigned short height) {
 		    a_height = height; a_width = width;
-		    fill(255, 255, 255, 0);
+		    fill(0, 0, 0, 0);
 		    for(int i = 0;i<height;i++)
             {
                 for(int j = 0;j<width;j++)
                 {
                     float alpha = static_cast<unsigned char>(datas[i * width + j]);
-                    // set_pixel_red(j, i, 255);
-                    // set_pixel_alpha(j, i, alpha);
+                    set_pixel_red(j, i, 255);
+                    set_pixel_alpha(j, i, alpha);
                 }
             }
             return true;
@@ -1191,7 +1193,7 @@ namespace basix
 				float red_f = normalize_value(red, 0, 255);
 
 				// Calculate alpha
-				alpha = 255.0;
+				alpha = normalize_value(alpha, 0, 255);
 				blue = alpha_f * blue_f + (1.0 - alpha_f) * static_cast<float>(pixel.blue);
 				red = alpha_f * red_f + (1.0 - alpha_f) * static_cast<float>(pixel.red);
 				green = alpha_f * green_f + (1.0 - alpha_f) * static_cast<float>(pixel.green);
@@ -1270,8 +1272,7 @@ namespace basix
 	};
 
     // Return a pointer to an image with a char on it
-    inline Image* _char_image(char caracter, FT_Face& face, unsigned int& cursor_pos, unsigned int& y_pos)
-    {
+    inline Image* _char_image(char caracter, FT_Face& face, unsigned int& cursor_pos, unsigned int& y_pos) {
         // Configure and load the FreeType glyph system
         FT_UInt index = FT_Get_Char_Index(face, caracter);
         FT_Error error = FT_Load_Glyph(face, index, 0);
@@ -1279,9 +1280,9 @@ namespace basix
         error = FT_Render_Glyph(binary_datas, FT_RENDER_MODE_NORMAL);
 
         // Create and draw the image
-        Image* img = new Image();
         unsigned short height = static_cast<unsigned short>(binary_datas->bitmap.rows);
         unsigned short width = static_cast<unsigned short>(binary_datas->bitmap.width);
+        Image* img = new Image();
         img->_load_from_text_binary(reinterpret_cast<char*>(binary_datas->bitmap.buffer), width, height);
 
         // Get the position of the cursor
@@ -1295,7 +1296,7 @@ namespace basix
     inline Image* text_image(std::string content)
     {
         // Base variables for the creation
-        unsigned int font_size = 500;
+        unsigned int font_size = 50;
         std::string path = BASE_FONT_PATH + "arial.ttf";
 
         // Load the FreeType base system
@@ -1340,7 +1341,6 @@ namespace basix
             unsigned int cursor_position = 0;
             unsigned int y_position = 0;
             Image* image = _char_image(content[i], face, cursor_position, y_position);
-            if(image != 0)image->save_png("chars/" + std::to_string(i) + ".png");
             characters.push_back(image);
             cursor_pos.push_back(total_width + cursor_position);
             y_pos.push_back(font_size - (image->get_height() + y_position));
