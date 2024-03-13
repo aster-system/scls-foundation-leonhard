@@ -20,7 +20,6 @@
 #define BASIX_BINARY
 
 #include "basix_core.h"
-#include "basix_data_structure.h"
 #include "basix_file.h"
 #include "basix_math.h"
 
@@ -28,15 +27,13 @@
 namespace basix
 {
 	// Delete each element into an unused binary list
-	inline void delete_binary(std::vector<char*>& datas)
-	{
+	inline void delete_binary(std::vector<char*>& datas) {
 		for (int i = 0; i < static_cast<int>(datas.size()); i++) delete datas[i];
 		datas.clear();
 	}
 
 	// Extract a 2 bytes variable (short) from a char array
-	inline short extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false)
-	{
+	inline short extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
 		short number_1 = 0;
 		short number_2 = 0;
 		if (inverse)
@@ -54,8 +51,7 @@ namespace basix
 	};
 
 	// Extract a 4 bytes variable from a char array
-	inline int extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false)
-	{
+	inline int extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
 		int number_1 = 0;
 		int number_2 = 0;
 		int number_3 = 0;
@@ -79,8 +75,7 @@ namespace basix
 	};
 
 	// Extract a 8 bytes variable from a char array
-	inline int64_t extract_8bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false)
-	{
+	inline int64_t extract_8bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
 		int64_t number_1 = 0;
 		int64_t number_2 = 0;
 		int64_t number_3 = 0;
@@ -116,16 +111,14 @@ namespace basix
 	};
 
 	// Extract a char array variable from a char array
-	inline char* extract_char_array_from_char_array(char* result, unsigned int size, unsigned int offset = 0)
-	{
+	inline char* extract_char_array_from_char_array(char* result, unsigned int size, unsigned int offset = 0) {
 		char* to_return = new char[size];
 		for (unsigned int i = 0; i < size; i++) to_return[i] = result[offset + i];
 		return to_return;
 	};
 
 	// Extract a double variable from a char array
-	inline double extract_double_from_char_array(char* result, unsigned int offset = 0, bool inverse = false)
-	{
+	inline double extract_double_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
 		int64_t number_1 = extract_8bytes_from_char_array(result, offset, inverse);
 		double* d = (double*)(&number_1);
 		double number = (*d);

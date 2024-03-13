@@ -19,7 +19,7 @@
 #include <locale>
 #include <sstream>
 
-#include "basix_data_structure.h"
+#include "basix_core.h"
 
 // The namespace "basix" is used to simplify the all.
 namespace basix
