@@ -98,6 +98,19 @@ namespace basix
 		return result;
 	}
 
+	// Return the string with only lower case
+	inline std::string lowercase_string(std::string str)
+	{
+        for(int i = 0;i<static_cast<int>(str.size());i++)
+        {
+            if(str[i] >= 65 && str[i] <= 90)
+            {
+                str[i] += 32;
+            }
+        }
+        return str;
+	};
+
 	// Replace a string in an another string.
 	inline std::string replace(std::string str, std::string to_replace, std::string new_str) {
 		return join_string(cut_string(str, to_replace), new_str);
@@ -146,7 +159,7 @@ namespace basix
     inline std::string to_utf_8(const char* character, unsigned int text_size) {
         std::string result = "";
         unsigned int current_pos = 0;
-        for(int i = 0;i<text_size;i++)
+        for(int i = 0;i<static_cast<int>(text_size);i++)
         {
             if(~character[current_pos] & 0b10000000)
             {
@@ -178,7 +191,7 @@ namespace basix
     // Convert a string to an UTF-8
     inline std::string to_utf_8(std::string character) {
         std::string result = "";
-        for(int i = 0;i<character.size();i++)
+        for(int i = 0;i<static_cast<int>(character.size());i++)
         {
             if(~character[i] & 0b10000000)
             {

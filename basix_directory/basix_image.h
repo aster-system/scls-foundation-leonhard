@@ -28,13 +28,18 @@
 #include <zlib/zlib.h>
 
 // Base path to the fonts in the system
-#define BASE_FONT_PATH std::string("")
+#ifdef __WIN32__ // With Windows
+#define BASE_FONT_PATH std::string("C:\\Windows\\Fonts\\")
+#endif
+#ifdef __linux__ // With Linux
+#define BASE_FONT_PATH std::string("/usr/share/fonts/truetype/")
+#endif
 
 // ZLib mandatory stuff
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
-#  define SET_BINARY_MODE(file) _setmode(_fileno(file), O_BINARY)
+#  define SET_BINARY_MODE(file) (void)_setmode(_fileno(file), O_BINARY)
 #else
 #  define SET_BINARY_MODE(file)
 #endif
@@ -226,8 +231,7 @@ namespace basix
 		unsigned char red = 0;
 	};
 
-	class Image
-	{
+	class Image {
 		// Class representing a PNG image handler
 	public:
 		// Image constructor
@@ -344,8 +348,6 @@ namespace basix
 			put_4bytes_to_char_array(chunk_crc, idat, idat_total_size - 4, true);
 			delete[] idat_compressed;
 			total_size += idat_total_size;
-
-			std::cout << "J " << idat_size << std::endl;
 
 			// Create the IEND chunk
 			name = "IEND";
@@ -606,9 +608,7 @@ namespace basix
 		inline void force_pixel(unsigned short x, unsigned short y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 255) {
             if (x < 0 || y < 0 || x >= get_width() || y >= get_height()) return;
 
-			PNG_Pixel pixel = get_pixel(x, y);
-
-            unsigned int position = (y * get_width() + x) * get_components();
+			unsigned int position = (y * get_width() + x) * get_components();
             a_pixels[position] = red;
             a_pixels[position + 1] = green;
             a_pixels[position + 2] = blue;
@@ -1274,6 +1274,21 @@ namespace basix
 		unsigned int a_width = 0;
 	};
 
+	// Return the system path of a font
+	inline std::string get_system_font(std::string font, std::string font_type = "", std::string font_presentation = "") {
+        std::string font_name = file_name(font);
+        #ifdef __WIN32__ // With Windows
+        return BASE_FONT_PATH + font;
+        #endif
+        #ifdef __linux__ // With Linux
+        font = font_name + font_type;
+        if(font_presentation != "") font += "-" + font_presentation;
+        font += ".ttf";
+        std::string final_path = BASE_FONT_PATH + lowercase_string(font_name) + "/" + font;
+        return final_path;
+        #endif
+	};
+
 	// Enumeration of each text alignment possible
 	enum Text_Alignment {
 	    Left, Center, Right
@@ -1283,13 +1298,22 @@ namespace basix
     struct Text_Image_Data {
         // Color of the text
         unsigned char alpha = 255;
-        unsigned char blue = 255;
-        unsigned char green = 255;
-        unsigned char red = 255;
+        unsigned char blue = 0;
+        unsigned char green = 0;
+        unsigned char red = 0;
+
+        // Color of the background
+        unsigned char background_alpha = 0;
+        unsigned char background_blue = 0;
+        unsigned char background_green = 0;
+        unsigned char background_red = 0;
 
         // Font particularity
         std::string font_family = "arial.ttf";
+        std::string font_path = BASE_FONT_PATH;
+        std::string font_presentation = "";
         unsigned short font_size = 50;
+        std::string font_type = "";
 
         // Multi line caracteristic
         Text_Alignment alignment = Left;
@@ -1310,7 +1334,6 @@ namespace basix
         img->_load_from_text_binary(reinterpret_cast<char*>(binary_datas->bitmap.buffer), width, height, datas.red, datas.green, datas.blue, datas.alpha);
 
         // Get the position of the cursor
-        FT_Glyph_Metrics metrics = binary_datas->metrics;
         cursor_pos = binary_datas->bitmap_left;
         y_pos = binary_datas->bitmap_top - height;
 
@@ -1321,7 +1344,7 @@ namespace basix
     inline Image* _line_image(std::string content, Text_Image_Data datas) {
         // Base variables for the creation
         unsigned int font_size = datas.font_size;
-        std::string path = BASE_FONT_PATH + datas.font_family;
+        std::string path = get_system_font(datas.font_family, datas.font_type, datas.font_presentation);
 
         // Load the FreeType base system
         FT_Error error = FT_Init_FreeType(&_freetype_library);
@@ -1332,7 +1355,7 @@ namespace basix
         }
         FT_Face face;
         error = FT_New_Face(_freetype_library, path.c_str(), 0, &face);
-        if ( error == FT_Err_Unknown_File_Format )
+        if (!file_exists(path))
         {
             print("Error", "Basix", "Unable to load the \"" + path + "\" font, it does not exist.");
             return 0;
@@ -1349,11 +1372,10 @@ namespace basix
 
         // Create each characters
         std::vector<Image*> characters;
-        unsigned int current_pos = 0;
         std::vector<int> cursor_pos;
         unsigned int total_width = 0;
         std::vector<unsigned int> y_pos;
-        for(int i = 0;i<content.size();i++)
+        for(int i = 0;i<static_cast<int>(content.size());i++)
         {
             if(content[i] == ' ')
             {
@@ -1374,8 +1396,8 @@ namespace basix
         }
 
         // Create the final image and clear the memory
-        Image* final_image = new Image(total_width, font_size * 2, 0, 0, 0, 0);
-        for(int i = 0;i<characters.size();i++)
+        Image* final_image = new Image(total_width, font_size * 2, datas.background_red, datas.background_green, datas.background_blue, datas.background_alpha);
+        for(int i = 0;i<static_cast<int>(characters.size());i++)
         {
             if(characters[i] != 0)
             {
@@ -1401,7 +1423,7 @@ namespace basix
         std::vector<Image*> image_parts = std::vector<Image*>();
         unsigned int max_width = 0;
         unsigned int total_height = 0;
-        for(int i = 0;i<parts.size();i++)
+        for(int i = 0;i<static_cast<int>(parts.size());i++)
         {
             Image* image = _line_image(parts[i], datas);
             if(image != 0)
@@ -1416,7 +1438,7 @@ namespace basix
         // Create the final image and clear memory
         Image* final_image = new Image(max_width, total_height, 0, 0, 0, 0);
         unsigned int y_position = 0;
-        for(int i = 0;i<image_parts.size();i++)
+        for(int i = 0;i<static_cast<int>(image_parts.size());i++)
         {
             Image* image = image_parts[i]; if(image == 0) continue;
             unsigned int x = 0;
