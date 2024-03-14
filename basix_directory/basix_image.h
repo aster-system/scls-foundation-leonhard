@@ -1277,10 +1277,15 @@ namespace basix
 
 	// Fonts datas
 	struct Font {
+	    // Path descriptor
         std::string font_family = "";
         std::string font_path = "";
-        std::string font_presentation = "";
-        std::string font_type = "";
+
+        // Aspect descriptor
+        bool bold = false;
+        bool condensed = false;
+        bool italic = false;
+        bool light = false;
 	};
 
 	// List of all the fonts in the system
@@ -1303,13 +1308,71 @@ namespace basix
         for(int i = 0;i<font_files.size();i++)
         {
             Font font; font.font_path = font_files[i];
-            _system_fonts[std::to_string(i)] = font;
+            std::string font_name = "";
+            std::string font_full_name = file_name(font_files[i]);
+            std::vector<std::string> cutted = cut_string(font_full_name, "-");
+            std::string last_name = "";
+            if(cutted.size() > 0)
+            {
+                std::string descriptor = cutted[cutted.size() - 1];
+                if(contains(descriptor, "Bold"))
+                {
+                    font.bold = true;
+                    last_name += "b";
+                }
+                if(contains(descriptor, "Italic"))
+                {
+                    font.italic = true;
+                    last_name += "i";
+                }
+                if(contains(descriptor, "Condensed"))
+                {
+                    font.condensed = true;
+                    last_name += "c";
+                }
+                if(contains(descriptor, "Light"))
+                {
+                    font.light = true;
+                    last_name += "l";
+                }
+                font.font_family = cutted[0];
+                font_name = cutted[0];
+            }
+            _system_fonts[font_name + last_name] = font;
         }
 	};
 
 	// Return the system path of a font
-	inline Font get_system_font(std::string font, std::string font_type = "", std::string font_presentation = "") {
-        return _system_fonts[font];
+	inline Font get_system_font(std::string font, bool bold = false, bool italic = false, bool condensed = false, bool light = false) {
+	    std::string last_name = "";
+	    if(bold) last_name += "b";
+	    if(italic) last_name += "i";
+	    if(condensed) last_name += "c";
+	    if(light) last_name += "l";
+        return _system_fonts[font + last_name];
+	};
+
+	// Print each system fonts
+	inline void print_system_fonts() {
+	    for(std::map<std::string, Font>::iterator it = _system_fonts.begin();it!=_system_fonts.end();it++)
+        {
+            std::string message = "System font \"" + it->second.font_family + "\"";
+            if(it->second.bold) message += " bold";
+            if(it->second.condensed) message += " condensed";
+            if(it->second.italic) message += " italic";
+            if(it->second.light) message += " light";
+            message += ".";
+            std::string command_parameter = "\"" + it->second.font_family + "\"";
+            if(it->second.bold) { command_parameter += ", true"; if(it->second.italic || it->second.condensed || it->second.light) command_parameter += ", "; }
+            else if(it->second.italic || it->second.condensed || it->second.light) command_parameter += ", false, ";
+            if(it->second.italic) { command_parameter += "true"; if(it->second.condensed || it->second.light) command_parameter += ", "; }
+            else if(it->second.condensed || it->second.light) command_parameter += "false, ";
+            if(it->second.condensed) {command_parameter += "true"; if(it->second.light) command_parameter += ", "; }
+            else if(it->second.light) command_parameter += "false, ";
+            if(it->second.light) command_parameter += "true";
+            message += " Use \"basix::get_system_font(" + command_parameter + ")\" to get it.";
+            print("Information", BASIX_NAME, message);
+        }
 	};
 
 	// Enumeration of each text alignment possible

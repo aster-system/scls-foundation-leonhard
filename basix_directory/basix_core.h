@@ -33,6 +33,25 @@ namespace basix
 	// Return the value of "_can_print".
 	inline bool can_print() { return _can_print; };
 
+	// Return if a string contains an another string
+	inline bool contains(std::string str, std::string part) {
+	    std::string last_string = ""; // String since the last cut
+		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
+		{
+			last_string += str[i];
+			if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
+			{
+				last_string = last_string.substr(1, part.size());
+			}
+
+			if (last_string == part) // If the string which allows to know where to find the equality is true, return true
+			{
+				return true;
+			}
+		}
+	    return false;
+	};
+
 	// Cut a string in a vector where there are the "cut" part
 	inline std::vector<std::string> cut_string(std::string string, std::string cut, bool erase_blank = false) {
 		std::string last_string = ""; // String since the last cut
