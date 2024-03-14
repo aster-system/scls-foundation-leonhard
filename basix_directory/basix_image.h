@@ -25,6 +25,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <map>
 #include <zlib/zlib.h>
 
 // Base path to the fonts in the system
@@ -1274,19 +1275,41 @@ namespace basix
 		unsigned int a_width = 0;
 	};
 
+	// Fonts datas
+	struct Font {
+        std::string font_family = "";
+        std::string font_path = "";
+        std::string font_presentation = "";
+        std::string font_type = "";
+	};
+
+	// List of all the fonts in the system
+	static std::map<std::string, Font> _system_fonts = std::map<std::string, Font>();
+
+	// Load all the fonts system fonts
+	inline void load_system_font() {
+        _system_fonts.clear();
+        std::vector<std::string> font_files = std::vector<std::string>();
+        std::vector<std::string> subpaths = directory_content(BASE_FONT_PATH, true);
+
+        for(int i = 0;i<subpaths.size();i++)
+        {
+            if(file_extension(subpaths[i]) == "ttf")
+            {
+                font_files.push_back(subpaths[i]);
+            }
+        }
+
+        for(int i = 0;i<font_files.size();i++)
+        {
+            Font font; font.font_path = font_files[i];
+            _system_fonts[std::to_string(i)] = font;
+        }
+	};
+
 	// Return the system path of a font
-	inline std::string get_system_font(std::string font, std::string font_type = "", std::string font_presentation = "") {
-        std::string font_name = file_name(font);
-        #ifdef __WIN32__ // With Windows
-        return BASE_FONT_PATH + font;
-        #endif
-        #ifdef __linux__ // With Linux
-        font = font_name + font_type;
-        if(font_presentation != "") font += "-" + font_presentation;
-        font += ".ttf";
-        std::string final_path = BASE_FONT_PATH + lowercase_string(font_name) + "/" + font;
-        return final_path;
-        #endif
+	inline Font get_system_font(std::string font, std::string font_type = "", std::string font_presentation = "") {
+        return _system_fonts[font];
 	};
 
 	// Enumeration of each text alignment possible
@@ -1309,11 +1332,8 @@ namespace basix
         unsigned char background_red = 0;
 
         // Font particularity
-        std::string font_family = "arial.ttf";
-        std::string font_path = BASE_FONT_PATH;
-        std::string font_presentation = "";
+        Font font;
         unsigned short font_size = 50;
-        std::string font_type = "";
 
         // Multi line caracteristic
         Text_Alignment alignment = Left;
@@ -1344,7 +1364,7 @@ namespace basix
     inline Image* _line_image(std::string content, Text_Image_Data datas) {
         // Base variables for the creation
         unsigned int font_size = datas.font_size;
-        std::string path = get_system_font(datas.font_family, datas.font_type, datas.font_presentation);
+        std::string path = datas.font.font_path;
 
         // Load the FreeType base system
         FT_Error error = FT_Init_FreeType(&_freetype_library);

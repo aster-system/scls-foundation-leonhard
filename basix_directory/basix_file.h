@@ -24,6 +24,13 @@
 // The namespace "basix" is used to simplify the all.
 namespace basix
 {
+    // Returns the extension of a file (assuming the file exists).
+    inline std::string file_extension(std::string path)
+    {
+        std::vector<std::string> cutted = cut_string(path, ".");
+        return cutted[cutted.size() - 1];
+    };
+
 	// Returns if a file exists.
 	inline bool file_exists(std::string path)
 	{
