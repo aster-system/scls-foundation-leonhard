@@ -28,7 +28,7 @@
 #include <zlib/zlib.h>
 
 // Base path to the fonts in the system
-#define BASE_FONT_PATH std::string("C:\\Windows\\Fonts\\")
+#define BASE_FONT_PATH std::string("")
 
 // ZLib mandatory stuff
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
@@ -335,16 +335,17 @@ namespace basix
 			delete[] idat_uncompressed;
 			unsigned int idat_total_size = idat_size + 12;
 			char* idat = new char[idat_total_size];
-			inverse_char_array(chunk_size, 4); put_4bytes_to_char_array(idat_size, chunk_size);
-			for (unsigned int i = 0; i < 4; i++) idat[i] = chunk_size[i];
+			put_4bytes_to_char_array(idat_size, idat, 0, true);
 			for (unsigned int i = 0; i < 4; i++) idat[4 + i] = name[i];
 			for (unsigned int i = 0; i < idat_size; i++) idat[8 + i] = idat_compressed[i];
 			for_chunk = extract_char_array_from_char_array(idat, idat_total_size - 8, 4);
 			chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), idat_total_size - 8);
 			delete[] for_chunk; for_chunk = 0;
-			put_4bytes_to_char_array(chunk_crc, idat, idat_size - 4, true);
+			put_4bytes_to_char_array(chunk_crc, idat, idat_total_size - 4, true);
 			delete[] idat_compressed;
 			total_size += idat_total_size;
+
+			std::cout << "J " << idat_size << std::endl;
 
 			// Create the IEND chunk
 			name = "IEND";
@@ -832,8 +833,8 @@ namespace basix
 				header_part = 0;
 
 				// Set binary mode
-				(void)SET_BINARY_MODE(stdin);
-				(void)SET_BINARY_MODE(stdout);
+				SET_BINARY_MODE(stdin);
+				SET_BINARY_MODE(stdout);
 
 				// Define compression variables
 				unsigned char components = get_components();
