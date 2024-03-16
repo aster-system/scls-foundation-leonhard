@@ -1472,6 +1472,7 @@ namespace basix
         // Create each characters
         std::vector<Image*> characters;
         std::vector<int> cursor_pos;
+        int max_height = 0;
         int to_add_font_size = 0;
         unsigned int total_width = 0;
         std::vector<unsigned int> y_pos;
@@ -1491,13 +1492,23 @@ namespace basix
             characters.push_back(image);
             cursor_pos.push_back(total_width + cursor_position);
             if(cursor_pos[cursor_pos.size() - 1] < 0) cursor_pos[cursor_pos.size() - 1] = 0; // Avoid a little bug with X position
-            y_pos.push_back(font_size - (image->get_height() + y_position));
+            if(image->get_height() + y_position > max_height) max_height = image->get_height() + y_position;
             if(y_position < to_add_font_size) to_add_font_size = y_position;
+            y_pos.push_back(y_position);
             total_width += image->get_width() + cursor_position;
         }
 
+        int y_position = 0;
+        for(int i = 0;i<static_cast<int>(characters.size());i++)
+        {
+            if(characters[i] != 0)
+            {
+                y_pos[i] = max_height - (characters[i]->get_height() + y_pos[i]);
+            }
+        }
+
         // Create the final image and clear the memory
-        Image* final_image = new Image(total_width, font_size - to_add_font_size, datas.background_red, datas.background_green, datas.background_blue, datas.background_alpha);
+        Image* final_image = new Image(total_width, max_height - to_add_font_size, datas.background_red, datas.background_green, datas.background_blue, datas.background_alpha);
         for(int i = 0;i<static_cast<int>(characters.size());i++)
         {
             if(characters[i] != 0)
@@ -1515,10 +1526,6 @@ namespace basix
     inline Image* text_image(std::string content, Text_Image_Data datas) {
         // Construct each text parts
         std::vector<std::string> parts = cut_string(content, "\n");
-        if(parts.size() <= 1)
-        {
-            return _line_image(content, datas);
-        }
 
         // Create each lines
         std::vector<Image*> image_parts = std::vector<Image*>();
@@ -1543,7 +1550,7 @@ namespace basix
         for(int i = 0;i<static_cast<int>(image_parts.size());i++)
         {
             Image* image = image_parts[i]; if(image == 0) continue;
-            unsigned int x = 0;
+            unsigned int x = min_x;
             if(datas.alignment == Center)x = min_x + static_cast<int>(static_cast<float>(max_width - image->get_width()) / 2.0);
             else if(datas.alignment == Right) x = min_x + max_width - image->get_width();
             final_image->paste(image, x, y_position); y_position += image->get_height();
