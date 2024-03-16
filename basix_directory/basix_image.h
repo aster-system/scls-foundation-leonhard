@@ -1406,10 +1406,16 @@ namespace basix
 
         // Multi line caracteristic
         Text_Alignment alignment = Left;
+
+        // Out offset
+        unsigned short out_offset_bottom_width = 0;
+        unsigned short out_offset_left_width = 0;
+        unsigned short out_offset_right_width = 0;
+        unsigned short out_offset_top_width = 0;
     };
 
     // Return a pointer to an image with a char on it
-    inline Image* _char_image(char character, FT_Face& face, int& cursor_pos, unsigned int& y_pos, Text_Image_Data datas) {
+    inline Image* _char_image(char character, FT_Face& face, int& cursor_pos, int& y_pos, Text_Image_Data datas) {
         // Configure and load the FreeType glyph system
         FT_UInt index = FT_Get_Char_Index(face, (static_cast<unsigned char>(character)));
         FT_Error error = FT_Load_Glyph(face, index, 0);
@@ -1466,6 +1472,7 @@ namespace basix
         // Create each characters
         std::vector<Image*> characters;
         std::vector<int> cursor_pos;
+        int to_add_font_size = 0;
         unsigned int total_width = 0;
         std::vector<unsigned int> y_pos;
         for(int i = 0;i<static_cast<int>(content.size());i++)
@@ -1479,17 +1486,18 @@ namespace basix
                 continue;
             }
             int cursor_position = 0;
-            unsigned int y_position = 0;
+            int y_position = 0;
             Image* image = _char_image(content[i], face, cursor_position, y_position, datas);
             characters.push_back(image);
             cursor_pos.push_back(total_width + cursor_position);
             if(cursor_pos[cursor_pos.size() - 1] < 0) cursor_pos[cursor_pos.size() - 1] = 0; // Avoid a little bug with X position
             y_pos.push_back(font_size - (image->get_height() + y_position));
+            if(y_position < to_add_font_size) to_add_font_size = y_position;
             total_width += image->get_width() + cursor_position;
         }
 
         // Create the final image and clear the memory
-        Image* final_image = new Image(total_width, font_size * 2, datas.background_red, datas.background_green, datas.background_blue, datas.background_alpha);
+        Image* final_image = new Image(total_width, font_size - to_add_font_size, datas.background_red, datas.background_green, datas.background_blue, datas.background_alpha);
         for(int i = 0;i<static_cast<int>(characters.size());i++)
         {
             if(characters[i] != 0)
@@ -1515,6 +1523,8 @@ namespace basix
         // Create each lines
         std::vector<Image*> image_parts = std::vector<Image*>();
         unsigned int max_width = 0;
+        unsigned int min_x = datas.out_offset_left_width;
+        unsigned int min_y = datas.out_offset_top_width;
         unsigned int total_height = 0;
         for(int i = 0;i<static_cast<int>(parts.size());i++)
         {
@@ -1522,22 +1532,21 @@ namespace basix
             if(image != 0)
             {
                 image_parts.push_back(image);
-                total_height += image->get_height() / 2.0;
+                total_height += image->get_height();
                 if(image->get_width() > max_width) max_width = image->get_width();
             }
         }
-        total_height += image_parts[image_parts.size() - 1]->get_height() / 2.0;
 
         // Create the final image and clear memory
-        Image* final_image = new Image(max_width, total_height, 0, 0, 0, 0);
-        unsigned int y_position = 0;
+        Image* final_image = new Image(max_width + min_x + datas.out_offset_right_width, total_height + min_y + datas.out_offset_bottom_width, datas.background_red, datas.background_green, datas.background_blue, datas.background_alpha);
+        unsigned int y_position = min_y;
         for(int i = 0;i<static_cast<int>(image_parts.size());i++)
         {
             Image* image = image_parts[i]; if(image == 0) continue;
             unsigned int x = 0;
-            if(datas.alignment == Center)x = static_cast<int>(static_cast<float>(max_width - image->get_width()) / 2.0);
-            else if(datas.alignment == Right) x = max_width - image->get_width();
-            final_image->paste(image, x, y_position); y_position += image->get_height() / 2.0;
+            if(datas.alignment == Center)x = min_x + static_cast<int>(static_cast<float>(max_width - image->get_width()) / 2.0);
+            else if(datas.alignment == Right) x = min_x + max_width - image->get_width();
+            final_image->paste(image, x, y_position); y_position += image->get_height();
             delete image_parts[i]; image_parts[i] = 0;
         }
 
