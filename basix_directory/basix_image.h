@@ -48,7 +48,8 @@
 // The namespace "basix" is used to simplify the all.
 namespace basix
 {
-    FT_Library  _freetype_library;
+    static FT_Library  _freetype_library;
+    static bool _free_type_library_inited = false;
 
 	// Compress data from a char array without returning the result
 	inline int _compress_binary(char* to_compress, unsigned int to_compress_size, char* output, unsigned int output_size, unsigned int& total_output_size, unsigned int compression_level = 9) {
@@ -756,6 +757,7 @@ namespace basix
 				a_filter_method = *(header[5]);
 				a_interlace_method = *(header[6]);
 				delete_binary(header);
+				fill(0, 0, 0, 0);
 				return true;
 			}
 			return false;
@@ -1344,6 +1346,8 @@ namespace basix
 
 	// Return the system path of a font
 	inline Font get_system_font(std::string font, bool bold = false, bool italic = false, bool condensed = false, bool light = false) {
+	    if(_system_fonts.size() <= 0) load_system_font();
+
 	    std::string last_name = "";
 	    if(bold) last_name += "b";
 	    if(italic) last_name += "i";
@@ -1354,6 +1358,8 @@ namespace basix
 
 	// Print each system fonts
 	inline void print_system_fonts() {
+	    if(_system_fonts.size() <= 0) load_system_font();
+
 	    for(std::map<std::string, Font>::iterator it = _system_fonts.begin();it!=_system_fonts.end();it++)
         {
             std::string message = "System font \"" + it->second.font_family + "\"";
@@ -1430,14 +1436,18 @@ namespace basix
         std::string path = datas.font.font_path;
 
         // Load the FreeType base system
-        FT_Error error = FT_Init_FreeType(&_freetype_library);
-        if ( error )
+        if(!_free_type_library_inited)
         {
-            print("Error", "Basix", "Unable to load the FreeType engine.");
-            return 0;
+            FT_Error error = FT_Init_FreeType(&_freetype_library);
+            if ( error )
+            {
+                print("Error", "Basix", "Unable to load the FreeType engine.");
+                return 0;
+            }
+            _free_type_library_inited = true;
         }
         FT_Face face;
-        error = FT_New_Face(_freetype_library, path.c_str(), 0, &face);
+        FT_Error error = FT_New_Face(_freetype_library, path.c_str(), 0, &face);
         if (!file_exists(path))
         {
             print("Error", "Basix", "Unable to load the \"" + path + "\" font, it does not exist.");
