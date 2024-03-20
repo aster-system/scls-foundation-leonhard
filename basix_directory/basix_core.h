@@ -27,11 +27,77 @@ namespace basix
 	static std::string _float_character = "";
 	static std::string _non_float_character = "";
 
-	// Static bool, usefull in debugging to tell to Basix if the "print" function works or not
+	//*********
+	//
+	// Debugging helper (100% developed)
+	//
+	//*********
+
+	// Static vector of each authorized sender to be printed
+	static std::vector<std::string> _authorized_sender = std::vector<std::string>();
+	// Static vector of each authorized type to be printed
+	static std::vector<std::string> _authorized_type = std::vector<std::string>();
+
+	// Static bool, usefull in debugging to tell to Basix if the "print" function is enable or not
 	static bool _can_print = true;
+
+	// Static string, separation between the sender and the message in the "print" function
+	static std::string _sender_message_separation = " : ";
+	// Static string, separation between the type and the sender in the "print" function
+	static std::string _type_sender_separation = " -> ";
+
+	// Return a reference to "_authorized_sender"
+	inline std::vector<std::string>& authorized_sender() {return _authorized_sender;};
+
+	// Return a reference to "_authorized_type"
+	inline std::vector<std::string>& authorized_type() {return _authorized_type;};
 
 	// Return the value of "_can_print".
 	inline bool can_print() { return _can_print; };
+
+	// Returns if a sender is authorized or not
+	inline bool is_sender_authorized(std::string sender_to_test) {
+        if(authorized_sender().size() == 0) return true;
+
+        for(int i = 0;i<static_cast<int>(authorized_sender().size());i++) {
+            if(authorized_sender()[i] == sender_to_test) return true;
+        }
+        return false;
+	}
+
+	// Returns if a type is authorized or not
+	inline bool is_type_authorized(std::string type_to_test) {
+        if(authorized_type().size() == 0) return true;
+
+        for(int i = 0;i<static_cast<int>(authorized_type().size());i++) {
+            if(authorized_type()[i] == type_to_test) return true;
+        }
+        return false;
+	}
+
+	// Return the value of "_sender_message_separation"
+	inline std::string sender_message_separation () {return _sender_message_separation;};
+
+	// Change the value of the static "_can_print" variable.
+	inline void set_can_print(bool new_can_print) { _can_print = new_can_print; };
+
+	// Change the value of the static "_sender_message_separation" variable.
+	inline void set_sender_message_separation(std::string new_sender_message_separation) { _sender_message_separation = new_sender_message_separation; };
+
+	// Change the value of the static "_type_sender_separation" variable.
+	inline void set_type_sender_separation(std::string new_type_sender_separation) { _type_sender_separation = new_type_sender_separation; };
+
+	// Return the value of "_type_sender_separation"
+	inline std::string type_sender_separation () {return _type_sender_separation;};
+
+	// Print the message in the console, coming from "sender" of type "type".
+	template <typename Type_To_Print = std::string>
+	inline void print(std::string type, std::string sender, Type_To_Print message) {
+		if (can_print() && is_type_authorized(type) && is_sender_authorized(sender))
+		{
+			std::cout << type << _type_sender_separation << sender << _sender_message_separation << message << std::endl;
+		}
+	};
 
 	// Return if a string contains an another string
 	inline bool contains(std::string str, std::string part) {
@@ -118,8 +184,7 @@ namespace basix
 	}
 
 	// Return the string with only lower case
-	inline std::string lowercase_string(std::string str)
-	{
+	inline std::string lowercase_string(std::string str) {
         for(int i = 0;i<static_cast<int>(str.size());i++)
         {
             if(str[i] >= 65 && str[i] <= 90)
@@ -134,9 +199,6 @@ namespace basix
 	inline std::string replace(std::string str, std::string to_replace, std::string new_str) {
 		return join_string(cut_string(str, to_replace), new_str);
 	};
-
-	// Change the value of the static "_can_print" function.
-	inline void set_can_print(bool can_print) { _can_print = can_print; };
 
 	// Convert a string to a double
 	inline double string_to_double(std::string str) {
@@ -154,15 +216,7 @@ namespace basix
 		return std::stod(replace(str, _non_float_character, _float_character));
 	}
 
-	// Print the "message" something in the console, coming from "sender" of type "type".
-	inline void print(std::string type, std::string sender, std::string message) {
-		if (can_print())
-		{
-			std::cout << message << std::endl;
-		}
-	};
-
-    // Swap a buffer
+	// Swap a buffer
 	template<typename T>
 	inline std::vector<T> swap_vector(std::vector<T> v) {
 	    for (int i = 0; i < floor((float)v.size() / 2.0); i++)

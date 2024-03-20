@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <link rel="stylesheet" href="../style.css">
+        <meta charset="utf-8">
+        <title>Basix - Core</title>
+    </head>
+    <body>
+        <h1>Basix Core</h1>
+        <h2>Presentation</h2>
+        <div>
+            Basix Core contains each very basics functions to use Basix, or that can be used in a C++ program.
+        </div>
+        <h2>
+            Content
+        </h2>
+        <div>
+            Basix Core has a lot of differents features, presented here.
+            <h3>
+                Debugging helper
+            </h3>
+            <div>
+                Basix Core offers a little debugging tool, using "std::cout" to create a debugging output with the "print" function.
+                The difference with a simple "std::cout" is the ability to target a special debugging.
+                Indeed, to print datas, you should specify two things : the type and the sender of the data.
+                Theses two things aren't subjects to any kinds of nomenclature, you can do literaly how you want.
+                You can then tell Basix Core which type / sender can or cannot be printed, to target a part of the program to debug.
+                To be more precise, the "print" function print the type, the sender, and the message, each separate by a editable std::string separation.
+                You can also disable each "print" functions if you want.</br>
+                As the authorized sender and type are stored in vector (see <a href="authorized_sender">authorized_sender()</a> and <a href="authorized_type">authorized_type()</a>), you can use this functions and base vecor functions to handle the authorisation.
+                For exemple, use "basix::authorized_type().clear()" to clear the authorisation, and "basix::authorized_type().push_back("Test")" to add some other.</br>
+                To do a quite big exemple, assuming you are developing a Mandelbrot set creator with an image, you may create two classes : "Complex" and "Mandelbrot_Creator".
+                If your result is not what you are expecting, you can place some "print" functions, the one in the "Complex" class with the type "Complex", and the other one in the "Mandelbrot_Creator" class with the type "Mandelbrot_Creator".
+                Then, you can tell Basix Core which type can or not be printed to see which part of the program is doing unexpected behaviors.
+                You can do the same thing with the sender of the data.
+                <h4>
+                    Functions
+                </h4>
+                <div>
+                    The functions are documented in alphabetical order, which may not be their place in the code.
+                    <h5 href="#authorized_sender">
+                        std::vector&lt;std::string&gt;& authorized_sender()
+                    </h5>
+                    <div>
+                        Return a reference towards authorized sender to be printed by the "print" function.
+                    </div>
+                    <h5 href="#authorized_type">
+                        std::vector&lt;std::string&gt;& authorized_type()
+                    </h5>
+                    <div>
+                        Return a reference towards authorized type to be printed by the "print" function.
+                    </div>
+                    <h5>
+                        bool can_print()
+                    </h5>
+                    <div>
+                        Return if the print function can be used or not, if it is enable or not.
+                    </div>
+                    <h5>
+                        bool is_sender_authorized(std::string sender_to_test)
+                    </h5>
+                    <div>
+                        Return if the sender "sender_to_test" is authorized to be printed by the "print" function.</br>
+                        IMPORTANT : if "_authorized_sender" is empty, this function will always return true.
+                    </div>
+                    <h5>
+                        bool is_type_authorized(std::string type_to_test)
+                    </h5>
+                    <div>
+                        Return if the type "type_to_test" is authorized to be printed by the "print" function.</br>
+                        IMPORTANT : if "_authorized_type" is empty, this function will always return true.
+                    </div>
+                    <h5>
+                        template &lt;typename Type_To_Print = std::string&gt;</br>
+                        void print(std::string type, std::string sender, Type_To_Print message)
+                    </h5>
+                    <div>
+                        Print the message "message" to the console, with the type "type" and the sender "sender".</br>
+                        The use of a typename allows the user to print any type of data, if their "&lt;&lt;" insertion operator is overloaded.
+                        For more details, see <a href="https://www.geeksforgeeks.org/overloading-stream-insertion-operators-c/" target = "_blank">this geeksforgeeks article</a>.
+                    </div>
+                    <h5>
+                        std::string sender_message_separation()
+                    </h5>
+                    <div>
+                        Return the separation between the sender and the message in the "print" function.
+                    </div>
+                    <h5>
+                        void set_can_print(bool new_can_print)
+                    </h5>
+                    <div>
+                        Change if the print function can be used or not, if it is enable or not, by "new_can_print".
+                    </div>
+                    <h5>
+                        void set_sender_message_separation(std::string new_sender_message_separation)
+                    </h5>
+                    <div>
+                        Change the separation between the sender and the message in the "print" function by "new_sender_message_separation".
+                    </div>
+                    <h5>
+                        void set_type_sender_separation(std::string new_type_sender_separation)
+                    </h5>
+                    <div>
+                        Change the separation between the type and the sender in the "print" function by "new_type_sender_separation".
+                    </div>
+                    <h5>
+                        std::string type_sender_separation()
+                    </h5>
+                    <div>
+                        return the separation between the type and the sender in the "print" function.
+                    </div>
+                </div>
+                <h4>
+                    Hiddens things
+                </h4>
+                <div>
+                    <h5>
+                        static std::vector&lt;std::string&gt; _authorized_sender
+                    </h5>
+                    <div>
+                        Vector storing each authorized sender to be printed by the "print" function.
+                    </div>
+                    <h5>
+                        static std::vector&lt;std::string&gt; _authorized_type
+                    </h5>
+                    <div>
+                        Vector storing each authorized type to be printed by the "print" function.
+                    </div>
+                    <h5>
+                        static bool _can_print
+                    </h5>
+                    <div>
+                        Variable storing if the "print" function is enable or not, by default to true.
+                    </div>
+                    <h5>
+                        static std::string _sender_message_separation
+                    </h5>
+                    <div>
+                        Variable storing the separation between the sender and the message in the "print" function, by default to " : ".
+                    </div>
+                    <h5>
+                        static std::string _type_sender_separation
+                    </h5>
+                    <div>
+                        Variable storing the separation between the type and the sender in the "print" function, by default to " :-> ".
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1115,7 +1115,7 @@ namespace basix
 			return y;
 		}
 		// Paste an Image on this Image
-		inline void paste(Image* to_paste, unsigned short x, unsigned short y, float opacity = 1.0) {
+		inline void paste(Image* to_paste, unsigned short x, unsigned short y, float opacity = 1.0, bool force_pasting = false) {
             for(unsigned int i = 0;i<to_paste->get_height();i++)
             {
                 for(unsigned int j = 0;j<to_paste->get_width();j++)
@@ -1127,16 +1127,20 @@ namespace basix
                     if(final_y >= get_height()) return;
 
                     PNG_Pixel pixel = to_paste->get_pixel(j, i);
-                    pixel.alpha = static_cast<float>(pixel.alpha) * opacity;
 
-                    set_pixel(final_x, final_y, pixel);
+                    if(force_pasting) force_pixel(final_x, final_y, pixel.red, pixel.green, pixel.blue, pixel.alpha);
+                    else
+                    {
+                        pixel.alpha = static_cast<float>(pixel.alpha) * opacity;
+                        set_pixel(final_x, final_y, pixel);
+                    }
                 }
             }
 		};
 		// Paste an Image from a path to this Image
-		inline void paste(std::string path, unsigned short x, unsigned short y, float opacity = 1.0) {
+		inline void paste(std::string path, unsigned short x, unsigned short y, float opacity = 1.0, bool force_pasting = false) {
 		    Image* img = new Image(path);
-		    paste(img, x, y, opacity);
+		    paste(img, x, y, opacity, force_pasting);
 		    delete img; img = 0;
 		};
 		// Save the image into the PNG format
@@ -1492,7 +1496,7 @@ namespace basix
             characters.push_back(image);
             cursor_pos.push_back(total_width + cursor_position);
             if(cursor_pos[cursor_pos.size() - 1] < 0) cursor_pos[cursor_pos.size() - 1] = 0; // Avoid a little bug with X position
-            if(image->get_height() + y_position > max_height) max_height = image->get_height() + y_position;
+            if(static_cast<int>(image->get_height()) + y_position > max_height) max_height = image->get_height() + y_position;
             if(y_position < to_add_font_size) to_add_font_size = y_position;
             y_pos.push_back(y_position);
             total_width += image->get_width() + cursor_position;
