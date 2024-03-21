@@ -298,7 +298,7 @@ namespace basix
 			unsigned int idhr_size = 13;
 			unsigned int idhr_total_size = 25;
 			char* idhr = new char[idhr_total_size];
-			char* chunk_size = new char[4]; put_4bytes_to_char_array(idhr_size, chunk_size); inverse_char_array(chunk_size, 4);
+			char* chunk_size = new char[4]; put_4bytes_to_char_array(idhr_size, chunk_size, 0, true);
 			for (int i = 0; i < 4; i++) idhr[i] = chunk_size[i];
 			for (int i = 0; i < static_cast<int>(name.size()); i++) idhr[4 + i] = name[i];
 			put_4bytes_to_char_array(get_width(), idhr, 8, true);
@@ -319,12 +319,12 @@ namespace basix
 			unsigned int phys_size = 9;
 			unsigned int phys_total_size = 21;
 			char* phys = new char[phys_total_size];
-			put_4bytes_to_char_array(phys_size, chunk_size); inverse_char_array(chunk_size, 4);
+			put_4bytes_to_char_array(phys_size, chunk_size, 0, true);
 			for (int i = 0; i < 4; i++) phys[i] = chunk_size[i];
 			for (int i = 0; i < static_cast<int>(name.size()); i++) phys[4 + i] = name[i];
-			put_4bytes_to_char_array(get_physical_width_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
+			put_4bytes_to_char_array(get_physical_width_ratio(), chunk_size, 0, true);
 			for (int i = 0; i < 4; i++) phys[8 + i] = chunk_size[i];
-			put_4bytes_to_char_array(get_physical_height_ratio(), chunk_size); inverse_char_array(chunk_size, 4);
+			put_4bytes_to_char_array(get_physical_height_ratio(), chunk_size, 0, true);
 			for (int i = 0; i < 4; i++) phys[12 + i] = chunk_size[i];
 			phys[16] = get_physical_unit();
 			for_chunk = extract_char_array_from_char_array(phys, phys_total_size - 8, 4);

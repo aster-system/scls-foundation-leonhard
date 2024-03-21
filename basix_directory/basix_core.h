@@ -106,7 +106,7 @@ namespace basix
 	static std::string _non_float_character = "";
 
 	// Test and choose the separation character in a double
-	inline void _test_separtion_character() {
+	inline void _test_separation_character() {
 	    _float_character = ".";
         _non_float_character = ",";
         if (std::stod("0.25") != 0.25) // Test if the "." is the separation character
@@ -115,6 +115,15 @@ namespace basix
             _non_float_character = ".";
         }
 	};
+
+	// Convert a char array to a string and return it
+	inline std::string char_array_to_string(const char* c_a, unsigned int c_a_size) {
+        std::string result = "";
+        for(unsigned int i = 0;i<c_a_size;i++) {
+            result += c_a[i];
+        }
+        return result;
+	}
 
 	// Return if a string contains an another string
 	inline bool contains(std::string str, std::string part) {
@@ -196,16 +205,6 @@ namespace basix
 		return result;
 	};
 
-	// Inverse a char array
-	inline void inverse_char_array(char* array, unsigned int size) {
-		for (int i = 0; i < floor(size / 2.0); i++)
-		{
-			char temp = array[i];
-			array[i] = array[size - (i + 1)];
-			array[size - (i + 1)] = temp;
-		}
-	};
-
 	// Join a vector of string into one string.
 	inline std::string join_string(std::vector<std::string> strings, std::string separation = "") {
 		std::string result = "";
@@ -242,20 +241,30 @@ namespace basix
 	inline double string_to_double(std::string str) {
 		if (_float_character == "")
 		{
-			_test_separtion_character();
+			_test_separation_character();
 		}
 
 		return std::stod(replace(str, _non_float_character, _float_character));
 	}
 
-	// Swap a buffer
+	// Swap a char array
+	inline void swap_char_array(char* array, unsigned int size) {
+		for (int i = 0; i < floor(size / 2.0); i++)
+		{
+			char temp = array[i];
+			array[i] = array[size - (i + 1)];
+			array[size - (i + 1)] = temp;
+		}
+	};
+
+	// Swap a vector
 	template<typename T>
 	inline std::vector<T> swap_vector(std::vector<T> v) {
 	    for (int i = 0; i < floor((float)v.size() / 2.0); i++)
 		{
 			T temp = v[i];
 			v[i] = v[v.size() - (i + 1)];
-			v[i + 1] = temp;
+			v[v.size() - (i + 1)] = temp;
 		}
 		return v;
 	};
@@ -295,33 +304,7 @@ namespace basix
 
     // Convert a string to an UTF-8
     inline std::string to_utf_8(std::string str) {
-        std::string result = "";
-        for(int i = 0;i<static_cast<int>(str.size());i++)
-        {
-            if(~str[i] & 0b10000000)
-            {
-                result += str[i];
-            }
-            else if((str[i] & 0b11100000) == 0b11100000)
-            {
-                unsigned short final_character_1 = 0;
-                unsigned short final_character_2 = 0;
-                unsigned short final_character_3 = 0;
-                final_character_1 = (str[i]) & 0b00001111; final_character_1 = final_character_1 << 11; i++;
-                final_character_2 = (str[i]) & 0b00011111; final_character_2 = final_character_2 << 6; i++;
-                final_character_3 = str[i] & 0b00111111;
-                result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
-            }
-            else if((str[i] & 0b11000000) == 0b11000000)
-            {
-                unsigned short final_character_1 = 0;
-                unsigned short final_character_2 = 0;
-                final_character_1 = (str[i]) & 0b00011111; final_character_1 = final_character_1 << 6; i++;
-                final_character_2 = str[i] & 0b00111111;
-                result += static_cast<char>(final_character_1 + final_character_2);
-            }
-        }
-        return result;
+        return to_utf_8(str.c_str(), str.size());
     };
 }
 

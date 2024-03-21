@@ -7,7 +7,7 @@ void test_data_structure() {
     std::string double_1 = "128.48";
     std::string double_2 = "128,48";
     std::string parts = "Leclerc<*>M1A2 Abrams<*><*>Leopard 2A6";
-    const char* utf_8 = "�";
+    std::string utf_8 = "éàè";
 
     basix::print("Test", "Double with .", basix::string_to_double(double_1));
     basix::print("Test", "Double with ,", basix::string_to_double(double_2));
@@ -20,35 +20,47 @@ void test_data_structure() {
     basix::print("Test", "Count 8", basix::count(double_1, "8"));
 
     std::vector<std::string> cutted = basix::cut_string(parts, "*");
-    for(int i = 0;i<cutted.size();i++) {
+    for(int i = 0;i<static_cast<int>(cutted.size());i++) {
         basix::print("Test 1", "Part " + std::to_string(i), cutted[i]);
     }
 
     basix::print("Test", "Joined", basix::join_string(cutted, "-"));
 
     cutted = basix::cut_string(parts, "<*>");
-    for(int i = 0;i<cutted.size();i++) {
+    for(int i = 0;i<static_cast<int>(cutted.size());i++) {
         basix::print("Test 2", "Part " + std::to_string(i), cutted[i]);
     }
 
     basix::print("Test", "Joined", basix::join_string(cutted, "/-\\"));
 
     cutted = basix::cut_string(parts, "<*>", true);
-    for(int i = 0;i<cutted.size();i++) {
+    for(int i = 0;i<static_cast<int>(cutted.size());i++) {
         basix::print("Test 3", "Part " + std::to_string(i), cutted[i]);
     }
 
     basix::print("Test", "Joined", basix::join_string(cutted));
 
-    basix::print("Test", "Not UTF-8", utf_8);
-    basix::print("Test", "UTF-8", basix::to_utf_8(utf_8, 1));
+    // Need more tests
+    // basix::print("Test", "Not UTF-8", utf_8);
+    // basix::print("Test", "UTF-8", basix::to_utf_8(utf_8));
 
-    for(int i = 0;i<256;i++) {
-        std::string str = ""; str += (unsigned char)i;
-        std::cout << "E " << i << " " << (unsigned char)i << " " << basix::to_utf_8(str) << std::endl;
+    unsigned int number_of_test = 10;
+    char* test_char_array = new char[number_of_test];
+    std::vector<int> test_vector = std::vector<int>();
+    for(int i = 0;i<number_of_test;i++) {
+        test_char_array[i] = i;
+        test_vector.push_back(i);
     }
 
-    std::cout << "L " << basix::to_utf_8(utf_8, 1) << " " << (unsigned int)((unsigned char)utf_8[0]) << " " << (unsigned int)((unsigned char)utf_8[1]) << std::endl;
+    basix::swap_char_array(test_char_array, number_of_test);
+    test_vector = basix::swap_vector(test_vector);
+    for(int i = 0;i<static_cast<int>(test_vector.size());i++) {
+        basix::print("Test", "Swapped vector", test_vector[i]);
+    }
+    for(int i = 0;i<static_cast<int>(test_vector.size());i++) {
+        basix::print("Test", "Swapped char array", static_cast<unsigned int>(test_char_array[i]));
+    }
+    delete[] test_char_array; test_char_array = 0;
 }
 void test_debugging_helper() {
     double data_1 = 1548.20654;
