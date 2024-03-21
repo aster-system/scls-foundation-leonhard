@@ -153,7 +153,8 @@
                 Basix offers some usefull functions to manipulate some data structure, like std::string, std::vector, or char*.</br>
                 There are in Basix some little usefull functions to do some simple std::string manipulation.
                 You can check if an another std::string appears in a std::string with "contains", to count its number of occurence with "count", split a std::string with "cut_string" or join it with "join_string".
-                You can also put an entire std::string to lowercase with "lowercase_string", replace a part of a std::string by an another std::string in "replace", convert a std::string to utf_8 with "to_utf_8" and convert a char array to a std::string with "char_array_to_string".</br>
+                You can also put an entire std::string to lowercase with "lowercase_string", replace a part of a std::string by an another std::string in "replace", convert a std::string to utf_8 with "to_utf_8" and convert a char array to a std::string with "char_array_to_string".
+                However, if you aspire to use the "to_utf_8" function, read the documentation below before.</br>
                 There are also some others usefull functions, like "swap_vector" which can swap a vector, or "swap_char_array" which san swap a char array.</br>
                 If you want to convert a std::string to a double, the std library gives the "std::stod" function.
                 But, with this function, in some computer, the separation between the integer part and the decimal is ".", and in others computer, it's ",".
@@ -225,20 +226,19 @@
                     <div>
                         Swap the vector "v" of any type "T", and return it swapped.
                     </div>
-
-
-                    
                     <h5>
                         std::string to_utf_8(const char* character, unsigned int text_size)
                     </h5>
                     <div>
-                        Return a std::string in UTF-8, coming from a char array "character" of size "text_size" not already converted.
+                        Return a std::string in UTF-8, coming from a char array "character" of size "text_size" not already converted.</br>
+                        IMPORTANT : during the test phase, multiples unexpected behaviors have been found. You should do some test to see if your compiler do not already use UTF-8 before using this function. Moreover, the console can't print properly a lot of characters, so using the basix::Image "text_image" function may be more appropriate to test it.
                     </div>
                     <h5>
                         std::string to_utf_8(std::string str)
                     </h5>
                     <div>
-                        Return a std::string in UTF-8, coming form a std::string "str".
+                        Return a std::string in UTF-8, coming form a std::string "str".</br>
+                        IMPORTANT : during the test phase, multiples unexpected behaviors have been found. You should do some test to see if your compiler do not already use UTF-8 before using this function. Moreover, the console can't print properly a lot of characters, so using the basix::Image "text_image" function may be more appropriate to test it.
                     </div>
                 </div>
                 <h4>

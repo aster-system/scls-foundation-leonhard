@@ -40,9 +40,10 @@ void test_data_structure() {
 
     basix::print("Test", "Joined", basix::join_string(cutted));
 
-    // Need more tests
-    // basix::print("Test", "Not UTF-8", utf_8);
-    // basix::print("Test", "UTF-8", basix::to_utf_8(utf_8));
+    basix::Text_Image_Data datas; datas.font = basix::get_system_font("arial");
+    basix::Image* img = basix::text_image(basix::to_utf_8(utf_8), datas);
+    img->save_png("utf_8.png");
+    delete img; img = 0;
 
     unsigned int number_of_test = 10;
     char* test_char_array = new char[number_of_test];

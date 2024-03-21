@@ -304,7 +304,33 @@ namespace basix
 
     // Convert a string to an UTF-8
     inline std::string to_utf_8(std::string str) {
-        return to_utf_8(str.c_str(), str.size());
+        std::string result = "";
+        for(int i = 0;i<static_cast<int>(str.size());i++)
+        {
+            if(~str[i] & 0b10000000)
+            {
+                result += str[i];
+            }
+            else if((str[i] & 0b11100000) == 0b11100000)
+            {
+                unsigned short final_character_1 = 0;
+                unsigned short final_character_2 = 0;
+                unsigned short final_character_3 = 0;
+                final_character_1 = (str[i]) & 0b00001111; final_character_1 = final_character_1 << 11; i++;
+                final_character_2 = (str[i]) & 0b00011111; final_character_2 = final_character_2 << 6; i++;
+                final_character_3 = str[i] & 0b00111111;
+                result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
+            }
+            else if((str[i] & 0b11000000) == 0b11000000)
+            {
+                unsigned short final_character_1 = 0;
+                unsigned short final_character_2 = 0;
+                final_character_1 = (str[i]) & 0b00011111; final_character_1 = final_character_1 << 6; i++;
+                final_character_2 = str[i] & 0b00111111;
+                result += static_cast<char>(final_character_1 + final_character_2);
+            }
+        }
+        return result;
     };
 }
 
