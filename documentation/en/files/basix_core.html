@@ -146,6 +146,102 @@
                     </div>
                 </div>
             </div>
+            <h3>
+                Datas structures manipulation
+            </h3>
+            <div>
+                Basix offers some usefull functions to manipulate some data structure, like std::string, std::vector, or char*.</br>
+                There are in Basix some little usefull functions to do some simple std::string manipulation.
+                You can check if an another std::string appears in a std::string with "contains", to count its number of occurence with "count", split a std::string with "cut_string" or join it with "join_string".
+                You can also put an entire std::string to lowercase with "lowercase_string", replace a part of a std::string by an another std::string in "replace" and convert an std::string to utf_8 with "to_utf_8".</br>
+                If you want to convert a std::string to a double, the std library gives the "std::stod" function.
+                But, with this function, in some computer, the separation between the integer part and the decimal is ".", and in others computer, it's ",".
+                To be the most portable possible, Basix offers a function "string_to_double(std::string str)" which takes this in count to convert the std::string.
+                It tests which character to use and which not to use, and replace it if necessary for the conversion.
+                <h4>
+                    Functions
+                </h4>
+                <div>
+                    <h5>
+                        bool contains(std::string str, std::string part)
+                    </h5>
+                    <div>
+                        Return if the std::string "str" contains at least one occurence of "part" in it.
+                    </div>
+                    <h5>
+                        bool count(std::string str, std::string part)
+                    </h5>
+                    <div>
+                        Return the number of occurence of the std::string "part" in the std::string "str".
+                    </div>
+                    <h5>
+                        std::vector&lt;std::string&gt; cut_string(std::string string, std::string cut, bool erase_blank = false)
+                    </h5>
+                    <div>
+                        Split the std::string "string" at each "cut" occurence in "string", and return it in a std::vector.</br>
+                        If "erase_blank" is true, each empty part cutted are deleted.
+                    </div>
+                    <h5>
+                        std::string lowercase_string(std::string str)
+                    </h5>
+                    <div>
+                        Put the entire std::string "str" to lowercase and return it.
+                    </div>
+                    <h5>
+                        std::string join_string(std::vector&lt;std::string&gt; strings, std::string separation = "")
+                    </h5>
+                    <div>
+                        Join each std::string in the std::vector "strings", separate by "separation", in a single std::string, and return it.
+                    </div>
+                    <h5>
+                        std::string replace(std::string str, std::string to_replace, std::string new_str)
+                    </h5>
+                    <div>
+                        Replace in the std::string "str" the occurences "to_replace" by the std::string "new_str" and return it. 
+                    </div>
+                    <h5>
+                        double string_to_double(std::string str)
+                    </h5>
+                    <div>
+                        Convert the std::string "str" to a double, by considering "_float_character" and "_non_float_character".
+                    </div>
+                    <h5>
+                        std::string to_utf_8(const char* character, unsigned int text_size)
+                    </h5>
+                    <div>
+                        Return a std::string in UTF-8, coming from a char array "character" of size "text_size" not already converted.
+                    </div>
+                    <h5>
+                        std::string to_utf_8(std::string str)
+                    </h5>
+                    <div>
+                        Return a std::string in UTF-8, coming form a std::string "str".
+                    </div>
+                </div>
+                <h4>
+                    Hiddens things
+                </h4>
+                <div>
+                    <h5>
+                        static std::string _float_character
+                    </h5>
+                    <div>
+                        Separation between the integer and decimal part in a std::string double, by defaults to "".
+                    </div>
+                    <h5>
+                        static std::string _non_float_character
+                    </h5>
+                    <div>
+                        Other possible separation between the integer and decimal part in a std::string double, but not in this computer, by defaults to "".
+                    </div>
+                    <h5>
+                        void _test_separtion_character()
+                    </h5>
+                    <div>
+                        Test and assign "_float_character" and "_non_float_character", to know which ones is "." and which one is ",".
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>

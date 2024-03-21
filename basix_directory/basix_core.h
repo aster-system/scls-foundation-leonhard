@@ -23,11 +23,7 @@
 // The namespace "basix" is used to simplify the all.
 namespace basix
 {
-    // Variables used to define a float separation character
-	static std::string _float_character = "";
-	static std::string _non_float_character = "";
-
-	//*********
+    //*********
 	//
 	// Debugging helper (100% developed)
 	//
@@ -99,6 +95,27 @@ namespace basix
 		}
 	};
 
+	//*********
+	//
+	// Datas structures manipulation
+	//
+	//*********
+
+	// Variables used to define a float separation character
+	static std::string _float_character = "";
+	static std::string _non_float_character = "";
+
+	// Test and choose the separation character in a double
+	inline void _test_separtion_character() {
+	    _float_character = ".";
+        _non_float_character = ",";
+        if (std::stod("0.25") != 0.25) // Test if the "." is the separation character
+        {
+            _float_character = ",";
+            _non_float_character = ".";
+        }
+	};
+
 	// Return if a string contains an another string
 	inline bool contains(std::string str, std::string part) {
 	    std::string last_string = ""; // String since the last cut
@@ -116,6 +133,27 @@ namespace basix
 			}
 		}
 	    return false;
+	};
+
+	// Return the number occurence of a string in an another string
+	inline unsigned int count(std::string str, std::string part) {
+	    std::string last_string = ""; // String since the last cut
+	    unsigned int occurence = 0;
+		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
+		{
+			last_string += str[i];
+			if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
+			{
+				last_string = last_string.substr(1, part.size());
+			}
+
+			if (last_string == part) // If the string which allows to know where to find the equality is true, return true
+			{
+			    last_string = "";
+				occurence++;
+			}
+		}
+	    return occurence;
 	};
 
 	// Cut a string in a vector where there are the "cut" part
@@ -169,7 +207,7 @@ namespace basix
 	};
 
 	// Join a vector of string into one string.
-	inline std::string join_string(std::vector<std::string> strings, std::string separation) {
+	inline std::string join_string(std::vector<std::string> strings, std::string separation = "") {
 		std::string result = "";
 		for (int i = 0; i < static_cast<int>(strings.size()); i++)
 		{
@@ -204,13 +242,7 @@ namespace basix
 	inline double string_to_double(std::string str) {
 		if (_float_character == "")
 		{
-			_float_character = ".";
-			_non_float_character = ",";
-			if (std::stod("0.25") != 0.25) // Test if the "." is the separation character
-			{
-				_float_character = ",";
-				_non_float_character = ".";
-			}
+			_test_separtion_character();
 		}
 
 		return std::stod(replace(str, _non_float_character, _float_character));
@@ -262,30 +294,30 @@ namespace basix
     };
 
     // Convert a string to an UTF-8
-    inline std::string to_utf_8(std::string character) {
+    inline std::string to_utf_8(std::string str) {
         std::string result = "";
-        for(int i = 0;i<static_cast<int>(character.size());i++)
+        for(int i = 0;i<static_cast<int>(str.size());i++)
         {
-            if(~character[i] & 0b10000000)
+            if(~str[i] & 0b10000000)
             {
-                result += character[i];
+                result += str[i];
             }
-            else if((character[i] & 0b11100000) == 0b11100000)
+            else if((str[i] & 0b11100000) == 0b11100000)
             {
                 unsigned short final_character_1 = 0;
                 unsigned short final_character_2 = 0;
                 unsigned short final_character_3 = 0;
-                final_character_1 = (character[i]) & 0b00001111; final_character_1 = final_character_1 << 11; i++;
-                final_character_2 = (character[i]) & 0b00011111; final_character_2 = final_character_2 << 6; i++;
-                final_character_3 = character[i] & 0b00111111;
+                final_character_1 = (str[i]) & 0b00001111; final_character_1 = final_character_1 << 11; i++;
+                final_character_2 = (str[i]) & 0b00011111; final_character_2 = final_character_2 << 6; i++;
+                final_character_3 = str[i] & 0b00111111;
                 result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
             }
-            else if((character[i] & 0b11000000) == 0b11000000)
+            else if((str[i] & 0b11000000) == 0b11000000)
             {
                 unsigned short final_character_1 = 0;
                 unsigned short final_character_2 = 0;
-                final_character_1 = (character[i]) & 0b00011111; final_character_1 = final_character_1 << 6; i++;
-                final_character_2 = character[i] & 0b00111111;
+                final_character_1 = (str[i]) & 0b00011111; final_character_1 = final_character_1 << 6; i++;
+                final_character_2 = str[i] & 0b00111111;
                 result += static_cast<char>(final_character_1 + final_character_2);
             }
         }
