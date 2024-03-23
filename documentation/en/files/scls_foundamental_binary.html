@@ -229,6 +229,122 @@
                 </div>
             </div>
             <h3>
+                Binary manipulation
+            </h3>
+            <div>
+                Even if the Binary class exists, there are some char array manipulation functions.
+                They do the same things that in the Binary class, but in a less optimized way (even if they are used in the class).
+                Excluding if you have no choice, it is recommended to use the Binary class instead of this functions.
+                <h4>
+                    Functions
+                </h4>
+                <div>
+                    <h5>
+                        short extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Extract a short from the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        unsigned short extract_u2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Extract an unsigned short from the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        int extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Extract an int from the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        unsigned int extract_u4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Extract an unsigned int from the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        int64_t extract_8bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Extract an int64_t from the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        double extract_double_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Extract a double from the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        void put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Put the short "n" in the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        void put_2bytes_to_char_array(unsigned short n, char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Put the unsigned short "n" in the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        void put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Put the int "n" in the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        void put_4bytes_to_char_array(unsigned int n, char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Put the unsigned int "n" in the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        void put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Put the int64_t "n" in the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        void put_8bytes_double_to_char_array(double n, char* result, unsigned int offset = 0, bool big_endian = false)
+                    </h5>
+                    <div>
+                        Put the double "n" in the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                </div>
+            </div>
+            <h3>
+                Binary file manipulation
+            </h3>
+            <div>
+                Even if the Binary class exists, there are some binary file manipulation functions.
+                They do the same things that in the Binary class, but in a less optimized way (even if they are used in the class).
+                Excluding if you have no choice, it is recommended to use the Binary class instead of this functions.
+                <h4>
+                    Functions
+                </h4>
+                <div>
+                    <h5>
+                        void read_file_binary(std::string path, char* datas, unsigned int size, unsigned int start_pos = 0)
+                    </h5>
+                    <div>
+                        Put "size" bytes of the file at the path "path" into the char array "datas", starting at the pos "start_pos" in the file.
+                    </div>
+                    <h5>
+                        char* read_entire_file_binary(std::string path, unsigned int& total_size)
+                    </h5>
+                    <div>
+                        Put the entire content of the file at the path "path" into the char array returned, and put into the referenced variable "total_size" the size of the datas.
+                    </div>
+                    <h5>
+                        void write_in_file_binary(std::string path, char* to_write, unsigned int size, std::ios::openmode opening_mode = std::ios::out | std::ios::binary)
+                    </h5>
+                    <div>
+                        Write "size" bytes of the char array "to_write", in the file at the path "path", opened with the mode defined by "opening_mode".
+                    </div>
+                </div>
+            </div>
+            <h3>
                 Code specification
             </h3>
             <div>

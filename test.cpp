@@ -171,11 +171,11 @@ void test_binary_object() {
     current_size += 250 * 8;
     scls::print("Debug", "Double (50 / 1024 = 0.0488281)", binary_read.extract_double(current_size + 50 * 8, true));
     current_size += 250 * 8;
-    scls::print("Debug", "UInt (50)", binary_read.extract_int(current_size + 50 * 4, true));
-    scls::print("Debug", "Int (-128 + 50 = -78)", binary_read.extract_uint(current_size + 300 * 4, true));
+    scls::print("Debug", "UInt (50)", binary_read.extract_uint(current_size + 50 * 4, true));
+    scls::print("Debug", "Int (-128 + 50 = -78)", binary_read.extract_int(current_size + 300 * 4, true));
     current_size += 500 * 4;
-    scls::print("Debug", "UShort (50)", binary_read.extract_short(current_size + 50 * 2, true));
-    scls::print("Debug", "Short (-128 + 50 = -78)", binary_read.extract_ushort(current_size + 300 * 2, true));
+    scls::print("Debug", "UShort (50)", binary_read.extract_ushort(current_size + 50 * 2, true));
+    scls::print("Debug", "Short (-128 + 50 = -78)", binary_read.extract_short(current_size + 300 * 2, true));
     current_size += 500 * 2;
     scls::print("Debug", "Char (50)", static_cast<int>(binary_read.extract_data(current_size + 50)));
 }

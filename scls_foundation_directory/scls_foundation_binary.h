@@ -37,10 +37,10 @@ namespace scls
 	//*********
 
 	// Extract a 2 bytes variable (short) from a char array
-	inline short extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
+	inline short extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		short number_1 = 0;
 		short number_2 = 0;
-		if (inverse)
+		if (big_endian)
 		{
 			number_1 = ((static_cast<short>(result[offset]) << 8) & 0xff00);
 			number_2 = (static_cast<short>(result[offset + 1]) & 0xff);
@@ -55,10 +55,10 @@ namespace scls
 	};
 
 	// Extract a 2 bytes variable (unsigned short) from a char array
-	inline unsigned short extract_u2bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
+	inline unsigned short extract_u2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		unsigned short number_1 = 0;
 		unsigned short number_2 = 0;
-		if (inverse)
+		if (big_endian)
 		{
 			number_1 = ((static_cast<unsigned short>(result[offset]) << 8) & 0xff00);
 			number_2 = (static_cast<unsigned short>(result[offset + 1]) & 0xff);
@@ -73,12 +73,12 @@ namespace scls
 	};
 
 	// Extract a 4 bytes variable from a char array
-	inline int extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
+	inline int extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		int number_1 = 0;
 		int number_2 = 0;
 		int number_3 = 0;
 		int number_4 = 0;
-		if (inverse)
+		if (big_endian)
 		{
 			number_1 = ((static_cast<int>(result[offset + 0]) << 24) & 0xff000000);
 			number_2 = ((static_cast<int>(result[offset + 1]) << 16) & 0x00ff0000);
@@ -97,12 +97,12 @@ namespace scls
 	};
 
 	// Extract a 4 bytes unsigned variable from a char array
-	inline unsigned int extract_u4bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
+	inline unsigned int extract_u4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		unsigned int number_1 = 0;
 		unsigned int number_2 = 0;
 		unsigned int number_3 = 0;
 		unsigned int number_4 = 0;
-		if (inverse)
+		if (big_endian)
 		{
 			number_1 = ((static_cast<unsigned int>(result[offset + 0]) << 24) & 0xff000000);
 			number_2 = ((static_cast<unsigned int>(result[offset + 1]) << 16) & 0x00ff0000);
@@ -121,7 +121,7 @@ namespace scls
 	};
 
 	// Extract a 8 bytes variable from a char array
-	inline int64_t extract_8bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
+	inline int64_t extract_8bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		int64_t number_1 = 0;
 		int64_t number_2 = 0;
 		int64_t number_3 = 0;
@@ -130,7 +130,7 @@ namespace scls
 		int64_t number_6 = 0;
 		int64_t number_7 = 0;
 		int64_t number_8 = 0;
-		if (inverse)
+		if (big_endian)
 		{
 			number_1 = ((static_cast<int64_t>(result[offset]) << 56) & 0xff00000000000000);
 			number_2 = ((static_cast<int64_t>(result[offset + 1]) << 48) & 0x00ff000000000000);
@@ -157,8 +157,8 @@ namespace scls
 	};
 
 	// Extract a double variable from a char array
-	inline double extract_double_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
-		int64_t number_1 = extract_8bytes_from_char_array(result, offset, inverse);
+	inline double extract_double_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
+		int64_t number_1 = extract_8bytes_from_char_array(result, offset, big_endian);
 		double* d = (double*)(&number_1);
 		double number = (*d);
 
@@ -166,8 +166,8 @@ namespace scls
 	};
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool inverse = false) {
-		if (inverse)
+	inline void put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool big_endian = false) {
+		if (big_endian)
 		{
 			result[offset + 1] = (n & 0x000000ff);
 			result[offset] = (n & 0x0000ff00) >> 8;
@@ -180,8 +180,8 @@ namespace scls
 	}
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_2bytes_to_char_array(unsigned short n, char* result, unsigned int offset = 0, bool inverse = false) {
-		if (inverse)
+	inline void put_2bytes_to_char_array(unsigned short n, char* result, unsigned int offset = 0, bool big_endian = false) {
+		if (big_endian)
 		{
 			result[offset + 1] = (n & 0x000000ff);
 			result[offset] = (n & 0x0000ff00) >> 8;
@@ -194,8 +194,8 @@ namespace scls
 	}
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool inverse = false) {
-		if (inverse)
+	inline void put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool big_endian = false) {
+		if (big_endian)
 		{
 			result[offset + 3] = (n & 0x000000ff);
 			result[offset + 2] = (n & 0x0000ff00) >> 8;
@@ -212,8 +212,8 @@ namespace scls
 	}
 
 	// Convert an unsigned integer to a char array and put it in the char array
-	inline void put_4bytes_to_char_array(unsigned int n, char* result, unsigned int offset = 0, bool inverse = false) {
-		if (inverse)
+	inline void put_4bytes_to_char_array(unsigned int n, char* result, unsigned int offset = 0, bool big_endian = false) {
+		if (big_endian)
 		{
 			result[offset + 3] = (n & 0x000000ff);
 			result[offset + 2] = (n & 0x0000ff00) >> 8;
@@ -230,8 +230,8 @@ namespace scls
 	}
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool inverse = false) {
-		if (inverse)
+	inline void put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool big_endian = false) {
+		if (big_endian)
 		{
 			result[offset + 7] = static_cast<char>(n & 0x00000000000000ff);
 			result[offset + 6] = static_cast<char>((n & 0x000000000000ff00) >> 8);
@@ -256,9 +256,9 @@ namespace scls
 	}
 
 	// Convert an double to a char array and put it in the char array
-	inline void put_8bytes_double_to_char_array(double n, char* result, unsigned int offset = 0, bool inverse = false) {
+	inline void put_8bytes_double_to_char_array(double n, char* result, unsigned int offset = 0, bool big_endian = false) {
 		int64_t* n_p = (int64_t*)(&n);
-		put_8bytes_to_char_array(*n_p, result, offset, inverse);
+		put_8bytes_to_char_array(*n_p, result, offset, big_endian);
 	}
 
 	//*********
