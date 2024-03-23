@@ -19,8 +19,8 @@
 
 #include "scls_foundation_directory/scls_foundation_binary.h"
 #include "scls_foundation_directory/scls_foundation_core.h"
-#include "scls_foundation_directory/scls_foundation_file.h"
-#include "scls_foundation_directory/scls_foundation_image.h"
-#include "scls_foundation_directory/scls_foundation_math.h"
+// #include "scls_foundation_directory/scls_foundation_file.h"
+// #include "scls_foundation_directory/scls_foundation_image.h"
+// #include "scls_foundation_directory/scls_foundation_math.h"
 
 #endif // SCLS_FOUNDATION

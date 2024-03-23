@@ -40,10 +40,12 @@ void test_data_structure() {
 
     scls::print("Test", "Joined", scls::join_string(cutted));
 
+    #ifdef SCLS_FOUNDATION_IMAGE
     scls::Text_Image_Data datas; datas.font = scls::get_system_font("arial");
     scls::Image* img = scls::text_image(scls::to_utf_8(utf_8), datas);
     img->save_png("utf_8.png");
     delete img; img = 0;
+    #endif // SCLS_FOUNDATION_IMAGE
 
     unsigned int number_of_test = 10;
     char* test_char_array = new char[number_of_test];
@@ -99,9 +101,88 @@ void test_debugging_helper() {
     scls::print("Test", "Tester", "Should be printed");
 }
 
+// Test scls_foundation_binary.h
+void test_binary_object() {
+    scls::Binary binary_number = scls::Binary();
+
+    int to_add_size = 250;
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_int64(static_cast<int64_t>(i), true);
+    }
+
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_double(static_cast<double>(i) / 1024.0, true);
+    }
+
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_uint(static_cast<unsigned int>(i), true);
+    }
+
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_int(static_cast<int>(-128 + i), true);
+    }
+
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_ushort(static_cast<unsigned short>(i), true);
+    }
+
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_short(static_cast<short>(-128 + i), true);
+    }
+
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_data(static_cast<unsigned char>(i));
+    }
+
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_data(static_cast<char>(-128 + i));
+    }
+
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_data(static_cast<unsigned char>(i));
+    }
+
+    for(int i = 0;i<to_add_size;i++) {
+        binary_number.add_data(static_cast<char>(-128 + i));
+    }
+
+    scls::print("Test", "Binary good", binary_number[15]);
+    scls::print("Test", "Binary not good", binary_number[1500000000]);
+
+    binary_number.save("binary_number.binary");
+
+    scls::Binary binary_text = scls::Binary();
+    std::string to_write = "Le char Leclerc est un char de combat français de 4ème génération, conçu dans les années 90.";
+    binary_text.add_string(to_write);
+
+    binary_text.save("binary_text.binary");
+
+    scls::Binary _binary_read = scls::Binary();
+    _binary_read.load_from_file("binary_text.binary");
+    scls::Binary binary_read = scls::Binary(_binary_read);
+
+    std::string all = binary_read.extract_string(to_write.size());
+    scls::print("Debug", "Base", to_write);
+    scls::print("Debug", "Text", all);
+
+    binary_read.load_from_file("binary_number.binary");
+    unsigned int current_size = 0;
+    scls::print("Debug", "Int64 (50)", binary_read.extract_int64(current_size + 50 * 8, true));
+    current_size += 250 * 8;
+    scls::print("Debug", "Double (50 / 1024 = 0.0488281)", binary_read.extract_double(current_size + 50 * 8, true));
+    current_size += 250 * 8;
+    scls::print("Debug", "UInt (50)", binary_read.extract_int(current_size + 50 * 4, true));
+    scls::print("Debug", "Int (-128 + 50 = -78)", binary_read.extract_uint(current_size + 300 * 4, true));
+    current_size += 500 * 4;
+    scls::print("Debug", "UShort (50)", binary_read.extract_short(current_size + 50 * 2, true));
+    scls::print("Debug", "Short (-128 + 50 = -78)", binary_read.extract_ushort(current_size + 300 * 2, true));
+    current_size += 500 * 2;
+    scls::print("Debug", "Char (50)", static_cast<int>(binary_read.extract_data(current_size + 50)));
+}
+
 int main()
 {
-    test_data_structure();
+    test_binary_object();
 
 	return 0;
 }

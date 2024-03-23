@@ -27,7 +27,7 @@ namespace scls
 {
     //*********
 	//
-	// Debugging helper (100% developed)
+	// Debugging helper
 	//
 	//*********
 

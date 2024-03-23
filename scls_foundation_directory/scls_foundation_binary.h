@@ -30,11 +30,11 @@
 // The namespace "scls" is used to simplify the all.
 namespace scls
 {
-	// Delete each element into an unused binary list
-	inline void delete_binary(std::vector<char*>& datas) {
-		for (int i = 0; i < static_cast<int>(datas.size()); i++) delete datas[i];
-		datas.clear();
-	}
+    //*********
+	//
+	// Binary handling
+	//
+	//*********
 
 	// Extract a 2 bytes variable (short) from a char array
 	inline short extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
@@ -49,6 +49,24 @@ namespace scls
 		{
 			number_1 = ((static_cast<short>(result[offset + 1]) << 8) & 0xff00);
 			number_2 = (static_cast<short>(result[offset]) & 0xff);
+		}
+
+		return number_1 + number_2;
+	};
+
+	// Extract a 2 bytes variable (unsigned short) from a char array
+	inline unsigned short extract_u2bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
+		unsigned short number_1 = 0;
+		unsigned short number_2 = 0;
+		if (inverse)
+		{
+			number_1 = ((static_cast<unsigned short>(result[offset]) << 8) & 0xff00);
+			number_2 = (static_cast<unsigned short>(result[offset + 1]) & 0xff);
+		}
+		else
+		{
+			number_1 = ((static_cast<unsigned short>(result[offset + 1]) << 8) & 0xff00);
+			number_2 = (static_cast<unsigned short>(result[offset]) & 0xff);
 		}
 
 		return number_1 + number_2;
@@ -73,6 +91,30 @@ namespace scls
 			number_2 = ((static_cast<int>(result[offset + 2]) << 16) & 0x00ff0000);
 			number_3 = ((static_cast<int>(result[offset + 1]) << 8) & 0x0000ff00);
 			number_4 = (static_cast<int>(result[offset]) & 0x000000ff);
+		}
+
+		return number_1 + number_2 + number_3 + number_4;
+	};
+
+	// Extract a 4 bytes unsigned variable from a char array
+	inline unsigned int extract_u4bytes_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
+		unsigned int number_1 = 0;
+		unsigned int number_2 = 0;
+		unsigned int number_3 = 0;
+		unsigned int number_4 = 0;
+		if (inverse)
+		{
+			number_1 = ((static_cast<unsigned int>(result[offset + 0]) << 24) & 0xff000000);
+			number_2 = ((static_cast<unsigned int>(result[offset + 1]) << 16) & 0x00ff0000);
+			number_3 = ((static_cast<unsigned int>(result[offset + 2]) << 8) & 0x0000ff00);
+			number_4 = (static_cast<unsigned int>(result[offset + 3]) & 0x000000ff);
+		}
+		else
+		{
+			number_1 = ((static_cast<unsigned int>(result[offset + 3]) << 24) & 0xff000000);
+			number_2 = ((static_cast<unsigned int>(result[offset + 2]) << 16) & 0x00ff0000);
+			number_3 = ((static_cast<unsigned int>(result[offset + 1]) << 8) & 0x0000ff00);
+			number_4 = (static_cast<unsigned int>(result[offset]) & 0x000000ff);
 		}
 
 		return number_1 + number_2 + number_3 + number_4;
@@ -114,13 +156,6 @@ namespace scls
 		return number_1 + number_2 + number_3 + number_4 + number_5 + number_6 + number_7 + number_8;
 	};
 
-	// Extract a char array variable from a char array
-	inline char* extract_char_array_from_char_array(char* result, unsigned int size, unsigned int offset = 0) {
-		char* to_return = new char[size];
-		for (unsigned int i = 0; i < size; i++) to_return[i] = result[offset + i];
-		return to_return;
-	};
-
 	// Extract a double variable from a char array
 	inline double extract_double_from_char_array(char* result, unsigned int offset = 0, bool inverse = false) {
 		int64_t number_1 = extract_8bytes_from_char_array(result, offset, inverse);
@@ -128,22 +163,6 @@ namespace scls
 		double number = (*d);
 
 		return number;
-	};
-
-	// Put a char array into an other char array
-	inline void put_bytes_to_char_array(char* to_put, char* result, unsigned int size, unsigned int offset = 0) {
-		for (unsigned int i = 0; i < size; i++)
-		{
-			result[offset + i] = to_put[i];
-		}
-	};
-
-	// Put a string into an other char array
-	inline void put_string_to_char_array(std::string to_put, char* result, unsigned int offset = 0) {
-		for (int i = 0; i < static_cast<int>(to_put.size()); i++)
-		{
-			result[offset + i] = to_put[i];
-		}
 	};
 
 	// Convert an integer to a char array and put it in the char array
@@ -161,7 +180,39 @@ namespace scls
 	}
 
 	// Convert an integer to a char array and put it in the char array
+	inline void put_2bytes_to_char_array(unsigned short n, char* result, unsigned int offset = 0, bool inverse = false) {
+		if (inverse)
+		{
+			result[offset + 1] = (n & 0x000000ff);
+			result[offset] = (n & 0x0000ff00) >> 8;
+		}
+		else
+		{
+			result[offset] = (n & 0x000000ff);
+			result[offset + 1] = (n & 0x0000ff00) >> 8;
+		}
+	}
+
+	// Convert an integer to a char array and put it in the char array
 	inline void put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool inverse = false) {
+		if (inverse)
+		{
+			result[offset + 3] = (n & 0x000000ff);
+			result[offset + 2] = (n & 0x0000ff00) >> 8;
+			result[offset + 1] = (n & 0x00ff0000) >> 16;
+			result[offset] = (n & 0xff000000) >> 24;
+		}
+		else
+		{
+			result[offset] = (n & 0x000000ff);
+			result[offset + 1] = (n & 0x0000ff00) >> 8;
+			result[offset + 2] = (n & 0x00ff0000) >> 16;
+			result[offset + 3] = (n & 0xff000000) >> 24;
+		}
+	}
+
+	// Convert an unsigned integer to a char array and put it in the char array
+	inline void put_4bytes_to_char_array(unsigned int n, char* result, unsigned int offset = 0, bool inverse = false) {
 		if (inverse)
 		{
 			result[offset + 3] = (n & 0x000000ff);
@@ -210,24 +261,11 @@ namespace scls
 		put_8bytes_to_char_array(*n_p, result, offset, inverse);
 	}
 
-	// Return the content of a file in binary with vector of char
-	inline void read_file_binary(std::string path, std::vector<char*>& datas, std::vector<unsigned int> size, unsigned int start_pos = 0) {
-		std::string file_content;
-		std::ifstream file;
-		// ensure ifstream objects can throw exceptions:
-		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-		try
-		{
-			file.open(path, std::ios::binary);
-			file.seekg(start_pos, file.beg);
-			for (int i = 0; i < static_cast<int>(datas.size()); i++)
-			{
-				file.read(datas[i], size[i]);
-			}
-			file.close();
-		}
-		catch (std::ifstream::failure e) { print("Error", "System", "The file \"" + path + "\" can't be opened, error -> " + e.what() + "."); }
-	};
+	//*********
+	//
+	// Binary file handling
+	//
+	//*********
 
 	// Return the content of a file in binary with a char array
 	inline void read_file_binary(std::string path, char* datas, unsigned int size, unsigned int start_pos = 0) {
@@ -246,41 +284,13 @@ namespace scls
 	};
 
 	// Read and return the content of all a binary file
-	inline char* read_entire_file_binary(std::string path) {
-		unsigned int total_size = file_size(path);
+	inline char* read_entire_file_binary(std::string path, unsigned int& total_size) {
+		total_size = file_size(path);
 		char* file = new char[total_size];
 		read_file_binary(path, file, total_size);
 
 		return file;
 	};
-
-	// Swap an unsigned int with his binary
-	inline unsigned int swap_unsigned_int(unsigned int n) {
-		char* bytes = new char[4];
-		put_4bytes_to_char_array(n, bytes, 0, true);
-		unsigned int result = extract_4bytes_from_char_array(bytes);
-		delete[] bytes; bytes = 0;
-		return result;
-	};
-
-	// Write binary data in a file from a char vector
-	inline void write_in_file_binary(std::string path, std::vector<char*> to_write, std::ios::openmode opening_mode = std::ios::out | std::ios::binary) {
-		std::ofstream file;
-		file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-		try
-		{
-			file.open(path, opening_mode);
-			for (int i = 0; i < static_cast<int>(to_write.size()); i++)
-			{
-				file.write(to_write[i], sizeof(i));
-			}
-			file.close();
-		}
-		catch (std::ofstream::failure e)
-		{
-			print("Error", "System", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
-		}
-	}
 
 	// Write binary data in a file from a char array
 	inline void write_in_file_binary(std::string path, char* to_write, unsigned int size, std::ios::openmode opening_mode = std::ios::out | std::ios::binary) {
@@ -297,6 +307,194 @@ namespace scls
 			print("Error", "System", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
 		}
 	}
+
+    //*********
+	//
+	// The Binary class
+	//
+	//*********
+
+	class Binary {
+	    // Very easy way to handle binary with C++
+    public:
+        // Binary constructor
+        Binary() {};
+        // Binary constructor taking existing datas
+        Binary(char* new_datas, unsigned int new_datas_size) : Binary() {
+            a_datas = new_datas;
+            a_datas_size = new_datas_size;
+        };
+        // Binary copy constructor
+        Binary(const Binary& binary) : Binary() {
+            add_datas(binary.datas(), binary.datas_size());
+        };
+        // Binary destructor
+        ~Binary() {free_memory();};
+
+        // Add datas to the object (with differents types)
+        inline void add_datas(char* datas_to_add, unsigned int datas_to_add_size) {
+            unsigned int final_size = datas_size() + datas_to_add_size;
+            char* final_datas = new char[final_size];
+            for(unsigned int i = 0;i<datas_size();i++) {
+                final_datas[i] = datas()[i];
+            }
+            for(unsigned int i = 0; i < datas_to_add_size;i++) {
+                final_datas[i + datas_size()] = datas_to_add[i];
+            }
+            free_memory();
+            a_datas = final_datas;
+            a_datas_size = final_size;
+        };
+        inline void add_datas(const char* datas_to_add, unsigned int datas_to_add_size) {
+            unsigned int final_size = datas_size() + datas_to_add_size;
+            char* final_datas = new char[final_size];
+            for(unsigned int i = 0;i<datas_size();i++) {
+                final_datas[i] = datas()[i];
+            }
+            for(unsigned int i = 0; i < datas_to_add_size;i++) {
+                final_datas[i + datas_size()] = datas_to_add[i];
+            }
+            free_memory();
+            a_datas = final_datas;
+            a_datas_size = final_size;
+        };
+        inline void add_data(char data) {
+            add_datas(&data, 1);
+        };
+        inline void add_double(double data, bool big_endian = false) {
+            char* final_datas = new char[8];
+            put_8bytes_double_to_char_array(data, final_datas, 0, big_endian);
+            add_datas(final_datas, 8);
+            delete[] final_datas; final_datas = 0;
+        };
+        inline void add_float(float data, bool big_endian = false) {
+            add_double(static_cast<double>(data), big_endian);
+        };
+        inline void add_short(short data, bool big_endian = false) {
+            char* final_datas = new char[2];
+            put_2bytes_to_char_array(data, final_datas, 0, big_endian);
+            add_datas(final_datas, 2);
+            delete[] final_datas; final_datas = 0;
+        };
+        inline void add_ushort(unsigned short data, bool big_endian = false) {
+            char* final_datas = new char[2];
+            put_2bytes_to_char_array(data, final_datas, 0, big_endian);
+            add_datas(final_datas, 2);
+            delete[] final_datas; final_datas = 0;
+        };
+        inline void add_int(int data, bool big_endian = false) {
+            char* final_datas = new char[4];
+            put_4bytes_to_char_array(data, final_datas, 0, big_endian);
+            add_datas(final_datas, 4);
+            delete[] final_datas; final_datas = 0;
+        };
+        inline void add_int64(int64_t data, bool big_endian = false) {
+            char* final_datas = new char[8];
+            put_8bytes_to_char_array(data, final_datas, 0, big_endian);
+            add_datas(final_datas, 8);
+            delete[] final_datas; final_datas = 0;
+        };
+        inline void add_uint(unsigned int data, bool big_endian = false) {
+            char* final_datas = new char[4];
+            put_4bytes_to_char_array(data, final_datas, 0, big_endian);
+            add_datas(final_datas, 4);
+            delete[] final_datas; final_datas = 0;
+        };
+        inline void add_string(std::string data) {
+            add_datas(data.c_str(), static_cast<unsigned int>(data.size()));
+        };
+
+        // Return the char at a certain position
+        inline char data_at(unsigned int position) {
+             if(position < 0 || position >= datas_size()) {
+                scls::print("Error", "SCLS", "Datas \"" + std::to_string(position) + "\" out of range in the Binary object.");
+                return 0;
+            }
+            return a_datas[position];
+        }
+
+        // Extract datas from the object (with differents types)
+        inline char* extract_datas(unsigned int extract_size, unsigned int offset = 0, bool inverse = false) {
+            char* extracted_datas = new char[extract_size];
+            for(int i = 0;i<extract_size;i++) {
+                extracted_datas[i] = data_at(offset + i);
+            }
+            if(inverse) {scls::swap_char_array(extracted_datas, extract_size);}
+            return extracted_datas;
+        }
+        inline char extract_data(unsigned int offset = 0) {
+            return data_at(offset);
+        };
+        inline double extract_double(unsigned int offset = 0, bool big_endian = false) {
+            return extract_double_from_char_array(a_datas, offset, big_endian);
+        };
+        inline float extract_float(unsigned int offset = 0, bool big_endian = false) {
+            return static_cast<float>(extract_double(offset, big_endian));
+        };
+        inline int extract_int(unsigned int offset = 0, bool big_endian = false) {
+            return extract_4bytes_from_char_array(a_datas, offset, big_endian);
+        };
+        inline int64_t extract_int64(unsigned int offset = 0, bool big_endian = false) {
+            return extract_8bytes_from_char_array(a_datas, offset, big_endian);
+        };
+        inline short extract_short(unsigned int offset = 0, bool big_endian = false) {
+            return extract_2bytes_from_char_array(a_datas, offset, big_endian);
+        }
+        inline std::string extract_string(unsigned int extract_size, unsigned int offset = 0) {
+            std::string extracted_datas = "";
+            for(int i = 0;i<extract_size;i++) {
+                extracted_datas += data_at(offset + i);
+            }
+            return extracted_datas;
+        }
+        inline unsigned int extract_uint(unsigned int offset = 0, bool big_endian = false) {
+            return extract_u4bytes_from_char_array(a_datas, offset, big_endian);
+        }
+        inline unsigned short extract_ushort(unsigned int offset = 0, bool big_endian = false) {
+            return extract_u2bytes_from_char_array(a_datas, offset, big_endian);
+        }
+
+        // Free the memory of the datas
+        inline void free_memory() {
+            if(datas() != 0) {
+                delete[] a_datas;
+                a_datas = 0; a_datas_size = 0;
+            }
+        };
+
+        // File manipulation
+        // Read the datas from a file
+        inline bool load_from_file(std::string path) {
+            if(scls::file_exists(path)) {
+                free_memory();
+                unsigned int total_size = 0;
+                a_datas = read_entire_file_binary(path, total_size);
+                a_datas_size = total_size;
+                return true;
+            }
+            scls::print("Error", "SCLS", "The path \"" + path + "\" you want to open does not exist.");
+            return false;
+        };
+        // Save the datas in a file
+        inline void save(std::string path) {
+            write_in_file_binary(path, datas(), datas_size());
+        };
+
+        // Operator overloading
+        // Operator to access to a char
+        char operator[] (unsigned int position) {
+            return data_at(position);
+        };
+
+        // Getters and setters (ONLY WITH ATTRIBUTES)
+        inline char* datas() const {return a_datas;};
+        inline unsigned int datas_size() const {return a_datas_size;};
+    private:
+        // Binary datas in the object
+        char* a_datas = 0;
+        // Size of the entire datas in the object
+        unsigned int a_datas_size = 0;
+	};
 }
 
 #endif // SCLS_FOUNDATION_BINARY
