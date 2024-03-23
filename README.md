@@ -1,2 +1,2 @@
-# matix-basix
-Basix is a little librairie containing very basic C++ functionnality, used in Matix.
+# SCLS Foundation
+SCLS is a set of libraries made to make C++ development easier for beginners.
