@@ -1,27 +1,29 @@
 //******************
 //
-// basix_core.h
+// scls_foundation_core.h
 //
 //******************
 // Presentation :
 //
-// Basix is a little project containing base functions for Matix.
+// SCLS is a project containing base functions for C++.
 // It can also be use in any projects.
+//
+// The Foundation "Leonhard" part represents the foundation of SCLS.
+// It is named after the "Father of modern mathematics", Leonhard Euler.
+//
 // This file contains the core of the library.
 //
 
-#ifndef BASIX_CORE
-#define BASIX_CORE
-
-#define BASIX_NAME "Basix"
+#ifndef SCLS_FOUNDATION_CORE
+#define SCLS_FOUNDATION_CORE
 
 #include <iostream>
 #include <math.h>
 #include <string>
 #include <vector>
 
-// The namespace "basix" is used to simplify the all.
-namespace basix
+// The namespace "scls" is used to simplify the all.
+namespace scls
 {
     //*********
 	//
@@ -34,7 +36,7 @@ namespace basix
 	// Static vector of each authorized type to be printed
 	static std::vector<std::string> _authorized_type = std::vector<std::string>();
 
-	// Static bool, usefull in debugging to tell to Basix if the "print" function is enable or not
+	// Static bool, usefull in debugging to tell to SCLS if the "print" function is enable or not
 	static bool _can_print = true;
 
 	// Static string, separation between the sender and the message in the "print" function
@@ -334,4 +336,4 @@ namespace basix
     };
 }
 
-#endif
+#endif // SCLS_FOUNDATION_CORE

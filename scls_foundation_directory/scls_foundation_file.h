@@ -1,17 +1,21 @@
 //******************
 //
-// basix_file.h
+// scls_foundation_file.h
 //
 //******************
 // Presentation :
 //
-// Basix is a little project containing base functions for Matix.
+// SCLS is a project containing base functions for C++.
 // It can also be use in any projects.
+//
+// The Foundation "Leonhard" part represents the foundation of SCLS.
+// It is named after the "Father of modern mathematics", Leonhard Euler.
+//
 // This file contains things to do some file manipulation.
 //
 
-#ifndef BASIX_FILE
-#define BASIX_FILE
+#ifndef SCLS_FOUNDATION_FILE
+#define SCLS_FOUNDATION_FILE
 
 #include <codecvt>
 #include <filesystem>
@@ -19,10 +23,10 @@
 #include <locale>
 #include <sstream>
 
-#include "basix_core.h"
+#include "scls_foundation_core.h"
 
-// The namespace "basix" is used to simplify the all.
-namespace basix
+// The namespace "scls" is used to simplify the all.
+namespace scls
 {
     // Returns the extension of a file (assuming the file exists).
     inline std::string file_extension(std::string path)
@@ -79,7 +83,7 @@ namespace basix
 			file.close();
 			file_content = stream.str();
 		}
-		catch (std::ifstream::failure e) { print("Error", "System", "The file \"" + path + "\" can't be opened."); }
+		catch (std::ifstream::failure e) { print("Error", "SCLS", "The file \"" + path + "\" can't be opened."); }
 
 		return file_content;
 	};
@@ -97,7 +101,7 @@ namespace basix
 		}
 		catch (std::ofstream::failure e)
 		{
-			print("Error", "System", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
+			print("Error", "SCLS", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
 		}
 	}
 
@@ -122,4 +126,4 @@ namespace basix
 	};
 }
 
-#endif // BASIX_FILE
+#endif // SCLS_FOUNDATION_FILE

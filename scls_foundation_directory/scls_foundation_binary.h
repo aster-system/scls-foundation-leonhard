@@ -1,12 +1,16 @@
 //******************
 //
-// basix_binary.h
+// scls_foundation_binary.h
 //
 //******************
 // Presentation :
 //
-// Basix is a little project containing base functions for Matix.
+// SCLS is a project containing base functions for C++.
 // It can also be use in any projects.
+//
+// The Foundation "Leonhard" part represents the foundation of SCLS.
+// It is named after the "Father of modern mathematics", Leonhard Euler.
+//
 // This file contains stuff used to do some binary manipulation.
 //
 //******************
@@ -16,15 +20,15 @@
 // Be very careful with that.
 //
 
-#ifndef BASIX_BINARY
-#define BASIX_BINARY
+#ifndef SCLS_FOUNDATION_BINARY
+#define SCLS_FOUNDATION_BINARY
 
-#include "basix_core.h"
-#include "basix_file.h"
-#include "basix_math.h"
+#include "scls_foundation_core.h"
+#include "scls_foundation_file.h"
+#include "scls_foundation_math.h"
 
-// The namespace "basix" is used to simplify the all.
-namespace basix
+// The namespace "scls" is used to simplify the all.
+namespace scls
 {
 	// Delete each element into an unused binary list
 	inline void delete_binary(std::vector<char*>& datas) {
@@ -295,4 +299,4 @@ namespace basix
 	}
 }
 
-#endif
+#endif // SCLS_FOUNDATION_BINARY

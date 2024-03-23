@@ -1,12 +1,16 @@
 //******************
 //
-// basix_image.h
+// scls_foundation_image.h
 //
 //******************
 // Presentation :
 //
-// Basix is a little project containing base functions for Matix.
+// SCLS is a project containing base functions for C++.
 // It can also be use in any projects.
+//
+// The Foundation "Leonhard" part represents the foundation of SCLS.
+// It is named after the "Father of modern mathematics", Leonhard Euler.
+//
 // This file contains usefull things to manipulate image.
 //
 //******************
@@ -19,8 +23,8 @@
 // See : https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix.
 //
 
-#ifndef BASIX_IMAGE
-#define BASIX_IMAGE
+#ifndef SCLS_FOUNDATION_IMAGE
+#define SCLS_FOUNDATION_IMAGE
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -45,8 +49,8 @@
 #  define SET_BINARY_MODE(file)
 #endif
 
-// The namespace "basix" is used to simplify the all.
-namespace basix
+// The namespace "scls" is used to simplify the all.
+namespace scls
 {
     static FT_Library  _freetype_library;
     static bool _free_type_library_inited = false;
@@ -1380,8 +1384,8 @@ namespace basix
             if(it->second.condensed) {command_parameter += "true"; if(it->second.light) command_parameter += ", "; }
             else if(it->second.light) command_parameter += "false, ";
             if(it->second.light) command_parameter += "true";
-            message += " Use \"basix::get_system_font(" + command_parameter + ")\" to get it.";
-            print("Information", BASIX_NAME, message);
+            message += " Use \"scls::get_system_font(" + command_parameter + ")\" to get it.";
+            print("Information", "SCLS Fonts", message);
         }
 	};
 
@@ -1451,7 +1455,7 @@ namespace basix
             FT_Error error = FT_Init_FreeType(&_freetype_library);
             if ( error )
             {
-                print("Error", "Basix", "Unable to load the FreeType engine.");
+                print("Error", "SCLS", "Unable to load the FreeType engine.");
                 return 0;
             }
             _free_type_library_inited = true;
@@ -1460,12 +1464,12 @@ namespace basix
         FT_Error error = FT_New_Face(_freetype_library, path.c_str(), 0, &face);
         if (!file_exists(path))
         {
-            print("Error", "Basix", "Unable to load the \"" + path + "\" font, it does not exist.");
+            print("Error", "SCLS", "Unable to load the \"" + path + "\" font, it does not exist.");
             return 0;
         }
         else if ( error )
         {
-            print("Error", "Basix", "Unable to load the \"" + path + "\" font.");
+            print("Error", "SCLS", "Unable to load the \"" + path + "\" font.");
             return 0;
         }
 
@@ -1571,4 +1575,4 @@ namespace basix
     }
 }
 
-#endif
+#endif // SCLS_FOUNDATION_IMAGE

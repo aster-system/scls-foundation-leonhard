@@ -1,20 +1,24 @@
 //******************
 //
-// basix_file.h
+// scls_foundation_math.h
 //
 //******************
 // Presentation :
 //
-// Basix is a little project containing base functions for Matix.
+// SCLS is a project containing base functions for C++.
 // It can also be use in any projects.
+//
+// The Foundation "Leonhard" part represents the foundation of SCLS.
+// It is named after the "Father of modern mathematics", Leonhard Euler.
+//
 // This file contains some mathematical functions.
 //
 
-#ifndef BASIX_MATH
-#define BASIX_MATH
+#ifndef SCLS_FOUNDATION_MATH
+#define SCLS_FOUNDATION_MATH
 
-// The namespace "basix" is used to simplify the all.
-namespace basix
+// The namespace "scls" is used to simplify the all.
+namespace scls
 {
 	// Apply the Paeth function to a left, above and upper left values
 	inline float paeth_function(float left, float above, float upper_left)
@@ -41,4 +45,4 @@ namespace basix
 	inline int sign(float number) { return number < 0 ? -1 : (number == 0 ? 0 : 1); };
 }
 
-#endif
+#endif // SCLS_FOUNDATION_MATH
