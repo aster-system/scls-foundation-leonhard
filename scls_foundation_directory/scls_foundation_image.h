@@ -293,48 +293,40 @@ namespace scls
 			return datas;
 		};
 		// Returns the data of the image under the PNG format
-		inline char* data_png(unsigned int& total_size) {
-			char* for_chunk = 0;
-			total_size = 8;
+		inline Binary* data_png() {
+			Binary* datas = new Binary();
+			unsigned int total_size = 8;
+
+			// Add the signature
+			std::vector<unsigned char> signature = get_png_signature();
+			for(int i = 0;i<static_cast<int>(signature.size());i++) { datas->add_data(signature[i]); }
 
 			// Create the IDHR chunk
 			std::string name = "IHDR";
 			unsigned int idhr_size = 13;
 			unsigned int idhr_total_size = 25;
-			char* idhr = new char[idhr_total_size];
-			char* chunk_size = new char[4]; put_4bytes_to_char_array(idhr_size, chunk_size, 0, true);
-			for (int i = 0; i < 4; i++) idhr[i] = chunk_size[i];
-			for (int i = 0; i < static_cast<int>(name.size()); i++) idhr[4 + i] = name[i];
-			put_4bytes_to_char_array(get_width(), idhr, 8, true);
-			put_4bytes_to_char_array(get_height(), idhr, 12, true);
-			idhr[16] = static_cast<unsigned char>(get_bit_depht());
-			idhr[17] = static_cast<unsigned char>(get_color_type());
-			idhr[18] = static_cast<unsigned char>(get_compression_method());
-			idhr[19] = static_cast<unsigned char>(get_filter_method());
-			idhr[20] = 0;// (unsigned char)get_interlace_method();
-			for_chunk = extract_char_array_from_char_array(idhr, idhr_total_size - 8, 4);
-			unsigned int chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), idhr_total_size - 8);
-			delete[] for_chunk; for_chunk = 0;
-			put_4bytes_to_char_array(chunk_crc, idhr, 21, true);
+			datas->add_uint(idhr_size, true);
+			datas->add_string(name);
+			datas->add_uint(get_width(), true);
+			datas->add_uint(get_height(), true);
+			datas->add_data(get_bit_depht());
+			datas->add_data(get_color_type());
+			datas->add_data(get_compression_method());
+			datas->add_data(get_filter_method());
+			datas->add_data(0);
+			datas->add_uint(crc(reinterpret_cast<unsigned char*>(datas->extract_datas(idhr_total_size - 8, 4)), idhr_total_size - 8), true);
 			total_size += idhr_total_size;
 
 			// Creathe the pHYS chunk
 			name = "pHYS";
 			unsigned int phys_size = 9;
 			unsigned int phys_total_size = 21;
-			char* phys = new char[phys_total_size];
-			put_4bytes_to_char_array(phys_size, chunk_size, 0, true);
-			for (int i = 0; i < 4; i++) phys[i] = chunk_size[i];
-			for (int i = 0; i < static_cast<int>(name.size()); i++) phys[4 + i] = name[i];
-			put_4bytes_to_char_array(get_physical_width_ratio(), chunk_size, 0, true);
-			for (int i = 0; i < 4; i++) phys[8 + i] = chunk_size[i];
-			put_4bytes_to_char_array(get_physical_height_ratio(), chunk_size, 0, true);
-			for (int i = 0; i < 4; i++) phys[12 + i] = chunk_size[i];
-			phys[16] = get_physical_unit();
-			for_chunk = extract_char_array_from_char_array(phys, phys_total_size - 8, 4);
-			chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), phys_total_size - 8);
-			delete[] for_chunk; for_chunk = 0;
-			put_4bytes_to_char_array(chunk_crc, phys, 17, true);
+			datas->add_uint(phys_size, true);
+			datas->add_string(name);
+			datas->add_uint(get_physical_width_ratio(), true);
+			datas->add_uint(get_physical_height_ratio(), true);
+			datas->add_data(get_physical_unit());
+			datas->add_uint(crc(reinterpret_cast<unsigned char*>(datas->extract_datas(phys_total_size - 8, total_size + 4)), phys_total_size - 8), true);
 			total_size += phys_total_size;
 
 			// Create the IDAT chunk
@@ -344,55 +336,20 @@ namespace scls
 			char* idat_compressed = compress_binary(idat_uncompressed, get_height() * get_width() * get_components() + get_height() * 2, idat_size, 9);
 			delete[] idat_uncompressed;
 			unsigned int idat_total_size = idat_size + 12;
-			char* idat = new char[idat_total_size];
-			put_4bytes_to_char_array(idat_size, idat, 0, true);
-			for (unsigned int i = 0; i < 4; i++) idat[4 + i] = name[i];
-			for (unsigned int i = 0; i < idat_size; i++) idat[8 + i] = idat_compressed[i];
-			for_chunk = extract_char_array_from_char_array(idat, idat_total_size - 8, 4);
-			chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), idat_total_size - 8);
-			delete[] for_chunk; for_chunk = 0;
-			put_4bytes_to_char_array(chunk_crc, idat, idat_total_size - 4, true);
+			datas->add_uint(idat_size, true);
+			datas->add_string(name);
+			datas->add_datas(idat_compressed, idat_size);
+			datas->add_uint(crc(reinterpret_cast<unsigned char*>(datas->extract_datas(idat_total_size - 8, total_size + 4)), idat_total_size - 8), true);
 			delete[] idat_compressed;
 			total_size += idat_total_size;
 
 			// Create the IEND chunk
 			name = "IEND";
 			unsigned int iend_total_size = 12;
-			char* iend = new char[iend_total_size];
-			for (unsigned int i = 0; i < 4; i++) iend[i] = 0;
-			for (unsigned int i = 0; i < name.size(); i++) iend[4 + i] = name[i];
-			for_chunk = extract_char_array_from_char_array(iend, iend_total_size - 8, 4);
-			chunk_crc = crc(reinterpret_cast<unsigned char*>(for_chunk), iend_total_size - 8);
-			delete[] for_chunk; for_chunk = 0;
-			put_4bytes_to_char_array(chunk_crc, iend, 8, true);
+			datas->add_uint(0, true);
+			datas->add_string(name);
+			datas->add_uint(crc(reinterpret_cast<unsigned char*>(datas->extract_datas(iend_total_size - 8, total_size + 4)), iend_total_size - 8), true);
 			total_size += iend_total_size;
-
-			// Create the datas
-			// Create the signature
-			unsigned int pos = 0;
-			char* datas = new char[total_size];
-			std::vector<float> signature = get_png_signature();
-			for (unsigned int i = 0; i < signature.size(); i++) datas[i] = static_cast<char>(signature[i]);
-			pos += static_cast<unsigned int>(signature.size());
-			// Create the IDHR chunk
-			for (unsigned int i = 0; i < idhr_total_size; i++) datas[pos + i] = idhr[i];
-			pos += idhr_total_size;
-			// Create the pHYS chunk
-			for (unsigned int i = 0; i < phys_total_size; i++) datas[pos + i] = phys[i];
-			pos += phys_total_size;
-			// Create the IDAT chunk
-			for (unsigned int i = 0; i < idat_total_size; i++) datas[pos + i] = idat[i];
-			pos += idat_total_size;
-			// Create the IEND chunk
-			for (unsigned int i = 0; i < iend_total_size; i++) datas[pos + i] = iend[i];
-			pos += iend_total_size;
-
-			// Free the memory
-			delete[] chunk_size;
-			delete[] idat;
-			delete[] idhr;
-			delete[] iend;
-			delete[] phys;
 
 			return datas;
 		}
@@ -626,37 +583,21 @@ namespace scls
 			if (file_exists(path) && !path_is_directory(path))
 			{
 				// Create the necessary things to read the PNG file
-				std::vector<char*> header = std::vector<char*>();
+				Binary file = Binary();
+				file.load_from_file(path);
 				a_idat_chunk.clear();
 				std::string name = "";
-				std::vector<unsigned int> size = std::vector<unsigned int>();
-				unsigned int size_offset = 0;
+				unsigned int size_offset = 33;
 
 				unsigned int iter = 0;
 
 				// Check each chunks in the file
-				while (name != "IEND")
-				{
-					header.clear();
-					size.clear();
-					name = "";
-					header.push_back((char*)(new unsigned int(0)));
-					size.push_back(sizeof(unsigned int));
-					for (int i = 0; i < 4; i++)
-					{
-						header.push_back((new char(0)));
-						size.push_back(sizeof(char));
-					}
-					read_file_binary(path, header, size, 8 + size_offset);
-					unsigned int chunk_size = *((int*)header[0]);
-					chunk_size = swap_unsigned_int(chunk_size);
-					for (int i = 0; i < 4; i++)
-					{
-						name += *header[i + 1];
-					}
-					delete_binary(header);
+				while (name != "IEND") {
+                    unsigned int chunk_size = file.extract_uint(size_offset, true);
+					name = file.extract_string(4, size_offset + 4);
+
 					PNG_Chunk chunk;
-					chunk.position = size_offset + 16;
+					chunk.position = size_offset + 8;
 					chunk.name = name;
 					chunk.size = chunk_size;
 					size_offset += chunk_size + 12;
@@ -711,57 +652,27 @@ namespace scls
 			if (file_exists(path) && !path_is_directory(path))
 			{
 				// Create the necessary things to read the PNG file
-				std::vector<char*> header = std::vector<char*>();
-				std::vector<unsigned int> size = std::vector<unsigned int>();
-				for (int i = 0; i < 8; i++)
-				{
-					header.push_back((char*)(new unsigned char(0)));
-					size.push_back(sizeof(unsigned char));
-				}
-				read_file_binary(path, header, size);
+				Binary file = Binary();
+				file.load_from_file(path);
 
 				// Check if the signature is correct (137 80 78 71 13 10 26 10 for png files)
-				std::vector<float> signature = get_png_signature();
+				std::string file_signature = file.extract_string(8);
+				std::vector<unsigned char> signature = get_png_signature();
 				for (int i = 0; i < static_cast<int>(signature.size()); i++)
 				{
-					if (signature[i] != *((unsigned char*)header[i])) return false;
+				    if (signature[i] != static_cast<unsigned char>(file_signature[i])) return false;
 				}
-				delete_binary(header);
 
 				// Check the first chunk of the file
-				// Get the size of the chunk
-				size.clear();
-				header.push_back((char*)(new unsigned int(0)));
-				size.push_back(sizeof(unsigned int));
-				read_file_binary(path, header, size, 8);
-				unsigned int chunk_size = *((int*)header[0]);
-				chunk_size = swap_unsigned_int(chunk_size);
-				delete_binary(header);
-				if (chunk_size != 13) return false;
-				// Get the datas of the chunk
-				size.clear();
-				for (int i = 0; i < 2; i++)
-				{
-					header.push_back((char*)(new unsigned int(0)));
-					size.push_back(sizeof(unsigned int));
-				}
-				for (int i = 0; i < 5; i++)
-				{
-					header.push_back((char*)(new unsigned char(0)));
-					size.push_back(sizeof(unsigned char));
-				}
-				read_file_binary(path, header, size, 16);
-				unsigned int chunk_height = *((int*)header[1]);
-				a_height = swap_unsigned_int(chunk_height);
-				unsigned int chunk_width = *((int*)header[0]);
-				a_width = swap_unsigned_int(chunk_width);
-				a_bit_depth = *(header[2]);
-				a_color_type = *(header[3]);
-				a_compression_method = *(header[4]);
-				a_filter_method = *(header[5]);
-				a_interlace_method = *(header[6]);
-				delete_binary(header);
+				a_width = file.extract_uint(16, true);
+				a_height = file.extract_uint(20, true);
+				a_bit_depth = file.extract_data(24);
+				a_color_type = file.extract_data(25);
+				a_compression_method = file.extract_data(26);
+				a_filter_method = file.extract_data(27);
+				a_interlace_method = file.extract_data(28);
 				fill(0, 0, 0, 0);
+
 				return true;
 			}
 			return false;
@@ -839,7 +750,7 @@ namespace scls
 				delete[] header_part;
 				header_part = 0;
 
-				// Set binary mode
+                // Set binary mode
 				SET_BINARY_MODE(stdin);
 				SET_BINARY_MODE(stdout);
 
@@ -864,8 +775,7 @@ namespace scls
 				unsigned int current_line = -1;
 				PNG_Pixel last_pixel;
 				unsigned int part = -1;
-				for (unsigned int i = 0; i < out_size; i++)
-				{
+				for (unsigned int i = 0; i < out_size; i++) {
 					if (part >= 0 && part < get_width() * component_size)
 					{
 						unsigned char component = part % component_size;
@@ -975,8 +885,7 @@ namespace scls
 					}
 				}
 
-				if (a_processed_data > 0)
-				{
+				if (a_processed_data > 0) {
 					if (a_filter_type == 1) // Apply sub filtering
 					{
 						for (unsigned int i = 1; i < get_width(); i++)
@@ -1067,24 +976,14 @@ namespace scls
 			if (file_exists(path) && !path_is_directory(path) && chunk.name == "pHYs" && chunk.size == 9)
 			{
 				// Create the necessary things to read the PNG file
-				std::vector<char*> header = std::vector<char*>();
-				std::vector<unsigned int> size = std::vector<unsigned int>();
+				Binary file = Binary();
+				file.load_from_file(path);
 
 				// Read into the chunk
-				for (int i = 0; i < 2; i++)
-				{
-					header.push_back((char*)(new unsigned int(0)));
-					size.push_back(sizeof(unsigned int));
-				}
-				header.push_back((new char(0)));
-				size.push_back(sizeof(char));
-				read_file_binary(path, header, size, chunk.position);
-				unsigned int physical_height = *((unsigned int*)header[1]);
-				a_physical_height_ratio = swap_unsigned_int(physical_height);
-				unsigned int physical_width = *((unsigned int*)header[0]);
-				a_physical_width_ratio = swap_unsigned_int(physical_width);
-				a_physical_unit = *header[2];
-				delete_binary(header);
+				a_physical_height_ratio = file.extract_uint(chunk.position + 4, true);
+				a_physical_width_ratio = file.extract_uint(chunk.position, true);
+				a_physical_unit = file.extract_data(chunk.position + 8);
+
 				return true;
 			}
 			return false;
@@ -1093,15 +992,10 @@ namespace scls
 		bool _load_sRGB_from_path(std::string path, PNG_Chunk chunk) {
 			if (file_exists(path) && !path_is_directory(path) && chunk.name == "sRGB" && chunk.size == 1)
 			{
-				// Create the necessary things to read the PNG file
-				std::vector<char*> header = std::vector<char*>();
-				std::vector<unsigned int> size = std::vector<unsigned int>();
-
 				// Read into the chunk
-				header.push_back((new char(0)));
-				size.push_back(sizeof(char));
-				read_file_binary(path, header, size, chunk.position);
-				a_srgb_value = (*header[0]);
+				Binary file = Binary();
+				file.load_from_file(path);
+				a_srgb_value = file.extract_data(chunk.position);
 
 				return true;
 			}
@@ -1149,10 +1043,9 @@ namespace scls
 		};
 		// Save the image into the PNG format
 		inline void save_png(std::string path) {
-			unsigned int size = 0;
-			char* datas = data_png(size);
-			write_in_file_binary(path, datas, size);
-			delete datas;
+			Binary* datas = data_png();
+			datas->save(path);
+			delete datas; datas = 0;
 		}
 		// PNG_Image destructor
 		~Image() { free_memory(); };
@@ -1164,8 +1057,8 @@ namespace scls
 		inline unsigned int _get_current_x_processing(unsigned int offset = 0) { return ((a_processed_data - 1) - offset) % get_width(); };
 		inline unsigned int _get_current_y_processing(unsigned int offset = 0) { return static_cast<unsigned int>(floor(static_cast<float>(a_processed_data - 1) - static_cast<float>(offset) / static_cast<float>(get_width()))); };
 		inline unsigned int get_compression_method() { return a_compression_method; };
-		inline std::vector<float> get_png_signature() {
-			std::vector<float> signature;
+		inline std::vector<unsigned char> get_png_signature() {
+			std::vector<unsigned char> signature;
 			signature.push_back(137);
 			signature.push_back(80);
 			signature.push_back(78);
@@ -1307,7 +1200,7 @@ namespace scls
         std::vector<std::string> font_files = std::vector<std::string>();
         std::vector<std::string> subpaths = directory_content(BASE_FONT_PATH, true);
 
-        for(int i = 0;i<subpaths.size();i++)
+        for(int i = 0;i<static_cast<int>(subpaths.size());i++)
         {
             if(file_extension(subpaths[i]) == "ttf")
             {
@@ -1315,7 +1208,7 @@ namespace scls
             }
         }
 
-        for(int i = 0;i<font_files.size();i++)
+        for(int i = 0;i<static_cast<int>(font_files.size());i++)
         {
             Font font; font.font_path = font_files[i];
             std::string font_name = "";
@@ -1506,7 +1399,6 @@ namespace scls
             total_width += image->get_width() + cursor_position;
         }
 
-        int y_position = 0;
         for(int i = 0;i<static_cast<int>(characters.size());i++)
         {
             if(characters[i] != 0)
@@ -1534,6 +1426,10 @@ namespace scls
     inline Image* text_image(std::string content, Text_Image_Data datas) {
         // Construct each text parts
         std::vector<std::string> parts = cut_string(content, "\n");
+
+        // Load the font if necessary
+        if(_system_fonts.size() <= 0) load_system_font();
+        if(datas.font.font_family == "") datas.font = get_system_font("arial");
 
         // Create each lines
         std::vector<Image*> image_parts = std::vector<Image*>();

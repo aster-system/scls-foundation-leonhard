@@ -50,7 +50,7 @@ void test_data_structure() {
     unsigned int number_of_test = 10;
     char* test_char_array = new char[number_of_test];
     std::vector<int> test_vector = std::vector<int>();
-    for(int i = 0;i<number_of_test;i++) {
+    for(int i = 0;i<static_cast<int>(number_of_test);i++) {
         test_char_array[i] = i;
         test_vector.push_back(i);
     }
@@ -183,6 +183,10 @@ void test_binary_object() {
 int main()
 {
     test_binary_object();
+
+    scls::Image* img = scls::text_image("Test");
+    img->save_png("test.png");
+    delete img; img = 0;
 
 	return 0;
 }
