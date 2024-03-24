@@ -184,7 +184,7 @@ int main()
 {
     test_binary_object();
 
-    scls::Image* img = scls::text_image("Test");
+    scls::Image* img = scls::text_image(scls::to_utf_8("Test"));
     img->save_png("test.png");
     delete img; img = 0;
 

@@ -35,9 +35,11 @@
 // Base path to the fonts in the system
 #ifdef __WIN32__ // With Windows
 #define BASE_FONT_PATH std::string("C:\\Windows\\Fonts\\")
+#define DEFAULT_FONT std::string("arial")
 #endif
 #ifdef __linux__ // With Linux
 #define BASE_FONT_PATH std::string("/usr/share/fonts/truetype/")
+#define DEFAULT_FONT std::string("FreeMono")
 #endif
 
 // ZLib mandatory stuff
@@ -314,7 +316,7 @@ namespace scls
 			datas->add_data(get_compression_method());
 			datas->add_data(get_filter_method());
 			datas->add_data(0);
-			datas->add_uint(crc(reinterpret_cast<unsigned char*>(datas->extract_datas(idhr_total_size - 8, 4)), idhr_total_size - 8), true);
+			datas->add_uint(crc(reinterpret_cast<unsigned char*>(datas->extract_datas(idhr_total_size - 8, total_size + 4)), idhr_total_size - 8), true);
 			total_size += idhr_total_size;
 
 			// Creathe the pHYS chunk
@@ -1429,7 +1431,9 @@ namespace scls
 
         // Load the font if necessary
         if(_system_fonts.size() <= 0) load_system_font();
-        if(datas.font.font_family == "") datas.font = get_system_font("arial");
+
+
+        if(datas.font.font_family == "") datas.font = get_system_font(DEFAULT_FONT);
 
         // Create each lines
         std::vector<Image*> image_parts = std::vector<Image*>();
