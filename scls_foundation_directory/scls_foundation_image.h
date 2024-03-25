@@ -1443,12 +1443,18 @@ namespace scls
         unsigned int total_height = 0;
         for(int i = 0;i<static_cast<int>(parts.size());i++)
         {
-            Image* image = _line_image(parts[i], datas);
-            if(image != 0)
-            {
-                image_parts.push_back(image);
-                total_height += image->get_height();
-                if(image->get_width() > max_width) max_width = image->get_width();
+            if(parts[i] == "") {
+                image_parts.push_back(0);
+                total_height += datas.font_size;
+            }
+            else {
+                Image* image = _line_image(parts[i], datas);
+                if(image != 0)
+                {
+                    image_parts.push_back(image);
+                    total_height += image->get_height();
+                    if(image->get_width() > max_width) max_width = image->get_width();
+                }
             }
         }
 
@@ -1457,7 +1463,7 @@ namespace scls
         unsigned int y_position = min_y;
         for(int i = 0;i<static_cast<int>(image_parts.size());i++)
         {
-            Image* image = image_parts[i]; if(image == 0) continue;
+            Image* image = image_parts[i]; if(image == 0) { y_position += datas.font_size; continue; }
             unsigned int x = min_x;
             if(datas.alignment == Center)x = min_x + static_cast<int>(static_cast<float>(max_width - image->get_width()) / 2.0);
             else if(datas.alignment == Right) x = min_x + max_width - image->get_width();

@@ -184,7 +184,9 @@ int main()
 {
     test_binary_object();
 
-    scls::Image* img = scls::text_image(scls::to_utf_8("Test"));
+    scls::Text_Image_Data datas; datas.background_red = 255; datas.background_green = 255; datas.background_blue = 255; datas.background_alpha = 255;
+    datas.alignment = scls::Text_Alignment::Center;
+    scls::Image* img = scls::text_image(scls::to_utf_8("Le char Leclerc\n\nC'est cun MBT français."), datas);
     img->save_png("test.png");
     delete img; img = 0;
 
