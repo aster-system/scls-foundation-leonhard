@@ -17,8 +17,13 @@
 #ifndef SCLS_FOUNDATION_CORE
 #define SCLS_FOUNDATION_CORE
 
+#include <cstdint>
+#include <cstdio>
+#include <filesystem>
 #include <iostream>
+#include <fstream>
 #include <math.h>
+#include <sstream>
 #include <string>
 #include <vector>
 

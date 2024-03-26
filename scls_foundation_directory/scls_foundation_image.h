@@ -582,7 +582,7 @@ namespace scls
 		// Get every chunks into a PNG image
 		std::vector<PNG_Chunk> _get_all_chunks_from_path(std::string path) {
 			std::vector<PNG_Chunk> to_return = std::vector<PNG_Chunk>();
-			if (file_exists(path) && !path_is_directory(path))
+			if (std::filesystem::exists(path) && !std::filesystem::is_directory(path))
 			{
 				// Create the necessary things to read the PNG file
 				Binary file = Binary();
@@ -651,7 +651,7 @@ namespace scls
 		}
 		// Load the base data of an image from a path
 		bool _load_base_from_path(std::string path) {
-			if (file_exists(path) && !path_is_directory(path))
+			if (std::filesystem::exists(path) && !std::filesystem::is_directory(path))
 			{
 				// Create the necessary things to read the PNG file
 				Binary file = Binary();
@@ -718,7 +718,7 @@ namespace scls
 		// Load a IDAT chunk grom a path
 		char _load_IDAT_from_path(std::string path) {
 			std::vector<PNG_Chunk>& chunk = a_idat_chunk;
-			if (file_exists(path) && !path_is_directory(path))
+			if (std::filesystem::exists(path) && !std::filesystem::is_directory(path))
 			{
 				if (a_pixels == 0) return -1;
 
@@ -975,7 +975,7 @@ namespace scls
 		};
 		// Load the pHYS chunk from a path
 		bool _load_pHYS_from_path(std::string path, PNG_Chunk chunk) {
-			if (file_exists(path) && !path_is_directory(path) && chunk.name == "pHYs" && chunk.size == 9)
+			if (std::filesystem::exists(path) && !std::filesystem::is_directory(path) && chunk.name == "pHYs" && chunk.size == 9)
 			{
 				// Create the necessary things to read the PNG file
 				Binary file = Binary();
@@ -992,7 +992,7 @@ namespace scls
 		};
 		// Load the sRGB chunk from a path
 		bool _load_sRGB_from_path(std::string path, PNG_Chunk chunk) {
-			if (file_exists(path) && !path_is_directory(path) && chunk.name == "sRGB" && chunk.size == 1)
+			if (std::filesystem::exists(path) && !std::filesystem::is_directory(path) && chunk.name == "sRGB" && chunk.size == 1)
 			{
 				// Read into the chunk
 				Binary file = Binary();
@@ -1357,7 +1357,7 @@ namespace scls
         }
         FT_Face face;
         FT_Error error = FT_New_Face(_freetype_library, path.c_str(), 0, &face);
-        if (!file_exists(path))
+        if (!std::filesystem::exists(path))
         {
             print("Error", "SCLS", "Unable to load the \"" + path + "\" font, it does not exist.");
             return 0;
@@ -1417,7 +1417,7 @@ namespace scls
             {
                 unsigned int x = cursor_pos[i];
                 final_image->paste(characters[i], x, y_pos[i]);
-                characters[i]; characters[i] = 0;
+                delete characters[i]; characters[i] = 0;
             }
         }
 

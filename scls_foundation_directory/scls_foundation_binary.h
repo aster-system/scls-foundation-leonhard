@@ -24,7 +24,6 @@
 #define SCLS_FOUNDATION_BINARY
 
 #include "scls_foundation_core.h"
-#include "scls_foundation_file.h"
 #include "scls_foundation_math.h"
 
 // The namespace "scls" is used to simplify the all.
@@ -285,7 +284,11 @@ namespace scls
 
 	// Read and return the content of all a binary file
 	inline char* read_entire_file_binary(std::string path, unsigned int& total_size) {
-		total_size = file_size(path);
+	    // Get the size of the file
+	    if(!std::filesystem::exists(path)) return 0;
+		total_size = static_cast<unsigned int>(std::filesystem::file_size(path));
+
+		// Get the content of the file
 		char* file = new char[total_size];
 		read_file_binary(path, file, total_size);
 
@@ -416,7 +419,7 @@ namespace scls
         // Extract datas from the object (with differents types)
         inline char* extract_datas(unsigned int extract_size, unsigned int offset = 0, bool inverse = false) {
             char* extracted_datas = new char[extract_size];
-            for(int i = 0;i<extract_size;i++) {
+            for(unsigned int i = 0;i<extract_size;i++) {
                 extracted_datas[i] = data_at(offset + i);
             }
             if(inverse) {scls::swap_char_array(extracted_datas, extract_size);}
@@ -442,7 +445,7 @@ namespace scls
         }
         inline std::string extract_string(unsigned int extract_size, unsigned int offset = 0) {
             std::string extracted_datas = "";
-            for(int i = 0;i<extract_size;i++) {
+            for(unsigned int i = 0;i<extract_size;i++) {
                 extracted_datas += data_at(offset + i);
             }
             return extracted_datas;
@@ -465,7 +468,7 @@ namespace scls
         // File manipulation
         // Read the datas from a file
         inline bool load_from_file(std::string path) {
-            if(scls::file_exists(path)) {
+            if(std::filesystem::exists(path)) {
                 free_memory();
                 unsigned int total_size = 0;
                 a_datas = read_entire_file_binary(path, total_size);

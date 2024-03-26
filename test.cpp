@@ -180,9 +180,35 @@ void test_binary_object() {
     scls::print("Debug", "Char (50)", static_cast<int>(binary_read.extract_data(current_size + 50)));
 }
 
+// Test scls_foundation_file.h
+void test_file() {
+    std::string path_1 = "C://Programs/Aster System/data.txt";
+    std::string path_2 = "C://Programs/Aster System/datas";
+
+    scls::print("Test", "SCLS Path 1 extension", scls::file_extension(path_1));
+    scls::print("Test", "SCLS Path 1 name", scls::file_name(path_1));
+
+    scls::print("Test", "SCLS Path 2 extension", scls::file_extension(path_2));
+    scls::print("Test", "SCLS Path 2 name", scls::file_name(path_2));
+
+    std::string path_5 = "scls_foundation_directory/";
+    std::string path_6 = "C:\\Users\\Public\\Desktop";
+
+    std::vector<std::string> content = scls::directory_content(path_5);
+    for(int i = 0;i<static_cast<int>(content.size());i++) {
+        scls::print("Test", "SCLS Path 5 file " + std::to_string(i), content[i]);
+    }
+
+    content = scls::directory_content(path_6, true);
+    for(int i = 0;i<static_cast<int>(content.size());i++) {
+        scls::print("Test", "SCLS Path 6 file " + std::to_string(i), content[i]);
+    }
+
+    scls::write_in_file("test.txt", scls::to_utf_8("Le char Leclerc à Paris"));
+    scls::print("Test", "SCLS File", scls::read_file("test.txt"));
+}
+
 int main()
 {
-    test_data_structure();
-
-	return 0;
+    return 0;
 }
