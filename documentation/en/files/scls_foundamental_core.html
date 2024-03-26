@@ -183,11 +183,12 @@
                         Return the number of occurence of the std::string "part" in the std::string "str".
                     </div>
                     <h5>
-                        std::vector&lt;std::string&gt; cut_string(std::string string, std::string cut, bool erase_blank = false)
+                        std::vector&lt;std::string&gt; cut_string(std::string string, std::string cut, bool erase_blank = false, bool erase_last_if_blank = true)
                     </h5>
                     <div>
                         Split the std::string "string" at each "cut" occurence in "string", and return it in a std::vector.</br>
-                        If "erase_blank" is true, each empty part cutted are deleted.
+                        If "erase_blank" is true, each empty part cutted are deleted.</br>
+                        If "erase_last_if_blank" is false and the last part of "string" is exactly "cut", the function adds an empty std::string in the returned std::vector.
                     </div>
                     <h5>
                         std::string lowercase_string(std::string str)

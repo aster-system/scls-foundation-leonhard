@@ -168,7 +168,7 @@ namespace scls
 	};
 
 	// Cut a string in a vector where there are the "cut" part
-	inline std::vector<std::string> cut_string(std::string string, std::string cut, bool erase_blank = false) {
+	inline std::vector<std::string> cut_string(std::string string, std::string cut, bool erase_blank = false, bool erase_last_if_blank = true) {
 		std::string last_string = ""; // String since the last cut
 		std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
 		std::vector<std::string> result = std::vector<std::string>();
@@ -203,7 +203,7 @@ namespace scls
 			}
 		}
 
-		if (last_string.size() > 0) { result.push_back(last_string); } // Add the last non-cutted element
+		if (last_string.size() > 0 || !erase_last_if_blank) { result.push_back(last_string); } // Add the last non-cutted element
 		return result;
 	};
 
@@ -236,7 +236,7 @@ namespace scls
 
 	// Replace a string in an another string.
 	inline std::string replace(std::string str, std::string to_replace, std::string new_str) {
-		return join_string(cut_string(str, to_replace), new_str);
+		return join_string(cut_string(str, to_replace, false, false), new_str);
 	};
 
 	// Convert a string to a double
