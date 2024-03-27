@@ -227,7 +227,18 @@ void test_math() {
 
 int main()
 {
+    scls::print("Test", "SCLS", scls::to_utf_8("Début du test de SCLS Foundation Leonhard :\n"));
+    scls::print("Test", "SCLS", scls::to_utf_8("Test des structure des données."));
+    test_data_structure();
+    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\nTest du système de debug."));
+    test_debugging_helper();
+    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système binaire."));
+    test_binary_object();
+    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système de fichier."));
+    test_file();
+    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système mathématique."));
     test_math();
+    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTout les tests ont été réalisé."));
 
     return 0;
 }
