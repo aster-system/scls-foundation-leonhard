@@ -103,7 +103,7 @@ void test_debugging_helper() {
 
 // Test scls_foundation_binary.h
 void test_binary_object() {
-    scls::Binary binary_number = scls::Binary();
+    scls::Bytes_Set binary_number = scls::Bytes_Set();
 
     int to_add_size = 250;
     for(int i = 0;i<to_add_size;i++) {
@@ -146,20 +146,20 @@ void test_binary_object() {
         binary_number.add_data(static_cast<char>(-128 + i));
     }
 
-    scls::print("Test", "Binary good", binary_number[15]);
-    scls::print("Test", "Binary not good", binary_number[1500000000]);
+    scls::print("Test", "Bytes_Set good", binary_number[15]);
+    scls::print("Test", "Bytes_Set not good", binary_number[1500000000]);
 
     binary_number.save("binary_number.binary");
 
-    scls::Binary binary_text = scls::Binary();
-    std::string to_write = "Le char Leclerc est un char de combat français de 4ème génération, conçu dans les années 90.";
+    scls::Bytes_Set binary_text = scls::Bytes_Set();
+    std::string to_write = scls::to_utf_8("Le char Leclerc est un char de combat français de 4ème génération, conçu dans les années 90.");
     binary_text.add_string(to_write);
 
     binary_text.save("binary_text.binary");
 
-    scls::Binary _binary_read = scls::Binary();
+    scls::Bytes_Set _binary_read = scls::Bytes_Set();
     _binary_read.load_from_file("binary_text.binary");
-    scls::Binary binary_read = scls::Binary(_binary_read);
+    scls::Bytes_Set binary_read = scls::Bytes_Set(_binary_read);
 
     std::string all = binary_read.extract_string(to_write.size());
     scls::print("Debug", "Base", to_write);

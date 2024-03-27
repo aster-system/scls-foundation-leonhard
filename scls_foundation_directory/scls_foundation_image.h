@@ -295,8 +295,8 @@ namespace scls
 			return datas;
 		};
 		// Returns the data of the image under the PNG format
-		inline Binary* data_png() {
-			Binary* datas = new Binary();
+		inline Bytes_Set* data_png() {
+			Bytes_Set* datas = new Bytes_Set();
 			unsigned int total_size = 8;
 
 			// Add the signature
@@ -585,7 +585,7 @@ namespace scls
 			if (std::filesystem::exists(path) && !std::filesystem::is_directory(path))
 			{
 				// Create the necessary things to read the PNG file
-				Binary file = Binary();
+				Bytes_Set file = Bytes_Set();
 				file.load_from_file(path);
 				a_idat_chunk.clear();
 				std::string name = "";
@@ -654,7 +654,7 @@ namespace scls
 			if (std::filesystem::exists(path) && !std::filesystem::is_directory(path))
 			{
 				// Create the necessary things to read the PNG file
-				Binary file = Binary();
+				Bytes_Set file = Bytes_Set();
 				file.load_from_file(path);
 
 				// Check if the signature is correct (137 80 78 71 13 10 26 10 for png files)
@@ -978,7 +978,7 @@ namespace scls
 			if (std::filesystem::exists(path) && !std::filesystem::is_directory(path) && chunk.name == "pHYs" && chunk.size == 9)
 			{
 				// Create the necessary things to read the PNG file
-				Binary file = Binary();
+				Bytes_Set file = Bytes_Set();
 				file.load_from_file(path);
 
 				// Read into the chunk
@@ -995,7 +995,7 @@ namespace scls
 			if (std::filesystem::exists(path) && !std::filesystem::is_directory(path) && chunk.name == "sRGB" && chunk.size == 1)
 			{
 				// Read into the chunk
-				Binary file = Binary();
+				Bytes_Set file = Bytes_Set();
 				file.load_from_file(path);
 				a_srgb_value = file.extract_data(chunk.position);
 
@@ -1045,7 +1045,7 @@ namespace scls
 		};
 		// Save the image into the PNG format
 		inline void save_png(std::string path) {
-			Binary* datas = data_png();
+			Bytes_Set* datas = data_png();
 			datas->save(path);
 			delete datas; datas = 0;
 		}

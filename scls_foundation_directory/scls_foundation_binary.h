@@ -313,26 +313,26 @@ namespace scls
 
     //*********
 	//
-	// The Binary class
+	// The Bytes_Set class
 	//
 	//*********
 
-	class Binary {
+	class Bytes_Set {
 	    // Very easy way to handle binary with C++
     public:
-        // Binary constructor
-        Binary() {};
-        // Binary constructor taking existing datas
-        Binary(char* new_datas, unsigned int new_datas_size) : Binary() {
+        // Bytes_Set constructor
+        Bytes_Set() {};
+        // Bytes_Set constructor taking existing datas
+        Bytes_Set(char* new_datas, unsigned int new_datas_size) : Bytes_Set() {
             a_datas = new_datas;
             a_datas_size = new_datas_size;
         };
-        // Binary copy constructor
-        Binary(const Binary& binary) : Binary() {
+        // Bytes_Set copy constructor
+        Bytes_Set(const Bytes_Set& binary) : Bytes_Set() {
             add_datas(binary.datas(), binary.datas_size());
         };
-        // Binary destructor
-        ~Binary() {free_memory();};
+        // Bytes_Set destructor
+        ~Bytes_Set() {free_memory();};
 
         // Add datas to the object (with differents types)
         inline void add_datas(char* datas_to_add, unsigned int datas_to_add_size) {

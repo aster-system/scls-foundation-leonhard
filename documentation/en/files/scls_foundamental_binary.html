@@ -18,10 +18,10 @@
         <div>
             SCLS Foundamental Binary has a lot of differents features, presented here.
             <h3>
-                The "Binary" class
+                The "Bytes_Set" class
             </h3>
             <div>
-                The main thing about this part of SCLS Foundamental is the "Binary" class. It represents a class allowing to do some binary manipulation very easily.</br>
+                The main thing about this part of SCLS Foundamental is the "Bytes_Set" class. It represents a class allowing to do some binary manipulation very easily.</br>
                 To be simple, it is a char array enhanced in all points.
                 It can manipulate bytes, convert others types to bytes, extract bytes datas to other types datas, do binary file manipulation...
                 It provides a protection against buffer overflow error (if you use it correctly) and against data loss.
@@ -35,22 +35,22 @@
                     The methods are documented in alphabetical order, which may not be their place in the code.</br>
                     Excepting the constructors, which is at the start, and the destructor, at the end.
                     <h5>
-                        Binary()
+                        Bytes_Set()
                     </h5>
                     <div>
-                        Most simple Binary constructor, which does not allocate datas in the memory.
+                        Most simple Bytes_Set constructor, which does not allocate datas in the memory.
                     </div>
                     <h5>
-                        Binary(char* new_datas, unsigned int new_datas_size)
+                        Bytes_Set(char* new_datas, unsigned int new_datas_size)
                     </h5>
                     <div>
-                        Advanced Binary constructor, putting the datas of the object to "new_datas" and the size of the datas to "new_datas_size".
+                        Advanced Bytes_Set constructor, putting the datas of the object to "new_datas" and the size of the datas to "new_datas_size".
                     </div>
                     <h5>
-                        Binary(const Binary& binary)
+                        Bytes_Set(const Bytes_Set& byte_set)
                     </h5>
                     <div>
-                        Binary copy constructor, putting the datas of the object to copied "binary" datas, same for the size of the datas.
+                        Bytes_Set copy constructor, putting the datas of the object to copied "byte_set" datas, same for the size of the datas.
                     </div>
                     <h5>
                         void add_data(char data)
@@ -221,10 +221,10 @@
                         Save the datas of the object in a file at the path "path".
                     </div>
                     <h5>
-                        ~Binary()
+                        ~Bytes_Set()
                     </h5>
                     <div>
-                        Binary class destructor, calling the "free_memory" function.
+                        Bytes_Set class destructor, calling the "free_memory" function.
                     </div>
                 </div>
             </div>
@@ -232,9 +232,9 @@
                 Binary manipulation
             </h3>
             <div>
-                Even if the Binary class exists, there are some char array manipulation functions.
-                They do the same things that in the Binary class, but in a less optimized way (even if they are used in the class).
-                Excluding if you have no choice, it is recommended to use the Binary class instead of this functions.
+                Even if the Bytes_Set class exists, there are some binary manipulation functions.
+                They do the same things that in the Bytes_Set class, but in a less optimized way (even if they are used in the class).
+                Excluding if you have no choice, it is recommended to use the Bytes_Set class instead of this functions.
                 <h4>
                     Functions
                 </h4>
@@ -317,9 +317,9 @@
                 Binary file manipulation
             </h3>
             <div>
-                Even if the Binary class exists, there are some binary file manipulation functions.
-                They do the same things that in the Binary class, but in a less optimized way (even if they are used in the class).
-                Excluding if you have no choice, it is recommended to use the Binary class instead of this functions.
+                Even if the Bytes_Set class exists, there are some binary file manipulation functions.
+                They do the same things that in the Bytes_Set class, but in a less optimized way (even if they are used in the class).
+                Excluding if you have no choice, it is recommended to use the Bytes_Set class instead of this functions.
                 <h4>
                     Functions
                 </h4>
