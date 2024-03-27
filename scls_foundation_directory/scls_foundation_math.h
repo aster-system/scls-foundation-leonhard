@@ -44,7 +44,7 @@ namespace scls
 	//*********
 
 	// Normalize a value between "min" and "max" included
-	inline double normalize_value(double number, double min, double max) { if(max == min) return 0; else if(max < min) std::swap(min, max); double t = (max - min); while (number < min) number += t; while (number >= max) number -= t; return number; }
+	inline double normalize_value(double number, double min, double max) { if(max == min) return 0; else if(max < min) std::swap(min, max); double t = (max - min) + 1; while (number < min) number += t; while (number > max) number -= t; return number; }
 
 	// Return the size of a number
 	inline int sign(double number) { return number < 0 ? -1 : (number == 0 ? 0 : 1); };
