@@ -31,6 +31,15 @@ namespace scls
 	// Return the content of a directory in a vector of string.
 	inline std::vector<std::string> directory_content(std::string path, bool sub_directory = false) {
 		std::vector<std::string> result;
+		if(!std::filesystem::exists(path)) {
+            print("Error", "SCLS", "The path \"" + path + "\" you want to get the directory content does not exists.");
+            return result;
+		}
+		else if(!std::filesystem::is_directory(path)) {
+            print("Error", "SCLS", "The path \"" + path + "\" you want to get the directory content is not a directory.");
+            return result;
+		}
+
 		for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(path))
 		{
 			std::string path = entry.path().string();

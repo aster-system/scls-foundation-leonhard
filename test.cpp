@@ -191,7 +191,7 @@ void test_file() {
     scls::print("Test", "SCLS Path 2 extension", scls::file_extension(path_2));
     scls::print("Test", "SCLS Path 2 name", scls::file_name(path_2));
 
-    std::string path_5 = "scls_foundation_directory/";
+    std::string path_5 = "scls_foundation_directory/scls_foundation_file.h";
     std::string path_6 = "C:\\Users\\Public\\Desktop";
 
     std::vector<std::string> content = scls::directory_content(path_5);
