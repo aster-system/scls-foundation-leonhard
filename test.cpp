@@ -208,7 +208,26 @@ void test_file() {
     scls::print("Test", "SCLS File", scls::read_file("test.txt"));
 }
 
+// Test scls_foundation_math.h
+void test_math() {
+    scls::print("Test", "SCLS Math", scls::normalize_value(145, 0, 256));
+    scls::print("Test", "SCLS Math", scls::normalize_value(256 + 145, 0, 256));
+    scls::print("Test", "SCLS Math", scls::normalize_value(256 * 1547 + 145, 0, 256));
+    scls::print("Test", "SCLS Math", scls::normalize_value(-111, 0, 256));
+
+    scls::print("Test", "SCLS Math", scls::normalize_value(-111, 256, 0));
+    scls::print("Test", "SCLS Math", scls::normalize_value(-111, 256, 256));
+
+    scls::print("Test", "SCLS Math", scls::normalize_value(-129, -128, 128));
+    scls::print("Test", "SCLS Math", scls::normalize_value(128, -128, 128));
+
+    scls::print("Test", "SCLS Math", scls::sign(1546754));
+    scls::print("Test", "SCLS Math", scls::sign(-7647597));
+}
+
 int main()
 {
+    test_math();
+
     return 0;
 }
