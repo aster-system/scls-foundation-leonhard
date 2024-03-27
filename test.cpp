@@ -240,5 +240,8 @@ int main()
     test_math();
     scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTout les tests ont été réalisé."));
 
+    std::string a = "";
+    std::cin >> a;
+
     return 0;
 }
