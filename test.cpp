@@ -179,6 +179,24 @@ void test_binary_object() {
     current_size += 500 * 2;
     scls::print("Debug", "Char (50)", static_cast<int>(binary_read.extract_data(current_size + 50)));
 }
+void test_crc() {
+    // Test "reflect" also
+
+    char* c = "Salut les gens !";
+    char* check = "123456789";
+
+    scls::make_crc_32b_table("d", 0xa833982b, true, true, 0xffffffff, 0xffffffff);
+    scls::make_crc_32b_table("q", 0x814141ab, false, false, 0x00000000, 0x00000000);
+
+    scls::print("Test", "CRC PNG Check 123456789 (3421780262)", scls::crc_32b(reinterpret_cast<unsigned char*>(check), 9, "png"));
+    scls::print("Test", "CRC PNG (1979803623)", scls::crc_32b(reinterpret_cast<unsigned char*>(c), 16, "png"));
+
+    scls::print("Test", "CRC D Check 123456789 (2268157302)", scls::crc_32b(reinterpret_cast<unsigned char*>(check), 9, "d"));
+    scls::print("Test", "CRC D (3556475088)", scls::crc_32b(reinterpret_cast<unsigned char*>(c), 16, "d"));
+
+    scls::print("Test", "CRC Q Check 123456789 (806403967)", scls::crc_32b(reinterpret_cast<unsigned char*>(check), 9, "q"));
+    scls::print("Test", "CRC Q (683298828)", scls::crc_32b(reinterpret_cast<unsigned char*>(c), 16, "q"));
+}
 
 // Test scls_foundation_file.h
 void test_file() {
@@ -225,8 +243,7 @@ void test_math() {
     scls::print("Test", "SCLS Math", scls::sign(-7647597));
 }
 
-int main()
-{
+int main() {
     scls::print("Test", "SCLS", scls::to_utf_8("Début du test de SCLS Foundation Leonhard :\n"));
     scls::print("Test", "SCLS", scls::to_utf_8("Test des structure des données."));
     test_data_structure();
@@ -234,6 +251,8 @@ int main()
     test_debugging_helper();
     scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système binaire."));
     test_binary_object();
+    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\nTest des algorithmes CRC."));
+    test_crc();
     scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système de fichier."));
     test_file();
     scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système mathématique."));
@@ -241,7 +260,7 @@ int main()
     scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTout les tests ont été réalisé."));
 
     std::string a = "";
-    std::cin >> a;
+    std::cin >> a;//*/
 
     return 0;
 }

@@ -23,8 +23,11 @@
 #ifndef SCLS_FOUNDATION_BINARY
 #define SCLS_FOUNDATION_BINARY
 
+#include <map>
 #include "scls_foundation_core.h"
 #include "scls_foundation_math.h"
+
+#define PNG_CRC_POLYMONIAL 0x04c11db7
 
 // The namespace "scls" is used to simplify the all.
 namespace scls
@@ -260,6 +263,74 @@ namespace scls
 		put_8bytes_to_char_array(*n_p, result, offset, big_endian);
 	}
 
+	// Reflect the bits into a char and return it
+	inline char reflect_char(char x) {
+        for(int i = 0;i<4;i++) {
+            char n1 = (x >> i) & 1;
+            char n2 = (x >> (7 - i)) & 1;
+
+            x -= (n1 << i) + (n2 << (7 - i));
+
+            n1 = (n1 << (7 - i));
+            n2 = (n2 << i);
+
+            x += n1 + n2;
+        }
+
+        return x;
+    }
+
+    // Reflect the bits into an unsigned char and return it
+	inline unsigned char reflect_char(unsigned char x) {
+        for(int i = 0;i<4;i++) {
+            unsigned char n1 = (x >> i) & 1;
+            unsigned char n2 = (x >> (7 - i)) & 1;
+
+            x -= (n1 << i) + (n2 << (7 - i));
+
+            n1 = (n1 << (7 - i));
+            n2 = (n2 << i);
+
+            x += n1 + n2;
+        }
+
+        return x;
+    }
+
+    // Reflect the bits into an unsigned int and return it
+	inline int reflect_int(int x) {
+        for(int i = 0;i<16;i++) {
+            int n1 = (x >> i) & 1;
+            int n2 = (x >> (31 - i)) & 1;
+
+            x -= (n1 << i) + (n2 << (31 - i));
+
+            n1 = (n1 << (31 - i));
+            n2 = (n2 << i);
+
+            x += n1 + n2;
+        }
+
+        return x;
+    }
+
+    // Reflect the bits into an unsigned int and return it
+	inline unsigned int reflect_int(unsigned int x) {
+        for(int i = 0;i<16;i++) {
+            unsigned int n1 = (x >> i) & 1;
+            unsigned int n2 = (x >> (31 - i)) & 1;
+
+            x -= (n1 << i) + (n2 << (31 - i));
+
+            n1 = (n1 << (31 - i));
+            n2 = (n2 << i);
+
+            x += n1 + n2;
+        }
+
+        return x;
+    }
+
 	//*********
 	//
 	// Binary file handling
@@ -310,6 +381,141 @@ namespace scls
 			print("Error", "System", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
 		}
 	}
+
+	//*********
+	//
+	// CRC calculation
+	//
+	//*********
+
+	struct CRC_32B_Datas {
+	    // Struct representing datas about a CRC table
+
+	    // All values generated for this CRC
+	    unsigned int crc_values[256];
+	    // Value of the polymonial of the CRC
+	    unsigned int polymonial = PNG_CRC_POLYMONIAL;
+	    // If the input datas is reflected or not
+	    bool reflect_input = true;
+	    // If the output datas is reflected or not
+	    bool reflect_output = true;
+	    // Starting value of the CRC
+	    unsigned int starting_value = 0xffffffff;
+	    // Value of the final XOR applied to the CRC
+	    unsigned int xor_final = 0xffffffff;
+	};
+
+	// Map of each loaded CRC table
+	static std::map<std::string, CRC_32B_Datas> _loaded_crc_32b_algorithms = std::map<std::string, CRC_32B_Datas>();
+
+	// Return if a CRC 32 bits table is loaded or not
+	inline bool contains_crc_32b(std::string name) {
+        for(std::map<std::string, CRC_32B_Datas>::iterator it = _loaded_crc_32b_algorithms.begin();it != _loaded_crc_32b_algorithms.end();it++) {
+            if(it->first == name) return true;
+        }
+	    return false;
+	};
+
+	// Make the entire CRC table of a 32 bits CRC algorithm
+	inline void make_crc_32b_table(std::string name, unsigned int polymonial, bool reflect_input, bool reflect_output, unsigned int starting_value, unsigned int xor_final) {
+		if(contains_crc_32b(name)) {
+            print("Warning", "SCLS CRC generator", "The CRC 32 bits algorithm \"" + name + "\" you want to create already exist.");
+            return;
+		}
+
+		// Create the CRC_32B_Datas
+		CRC_32B_Datas datas; datas.polymonial = polymonial; datas.reflect_input = reflect_input; datas.reflect_output = reflect_output;
+		datas.starting_value = starting_value; datas.xor_final = xor_final;
+
+		// Create the CRC values
+		unsigned int c = 0;
+		for (int n = 0; n < 256; n++)
+		{
+			c = static_cast<unsigned int>(n);
+			for (int k = 0; k < 8; k++)
+			{
+				if (c & 1) c = static_cast<unsigned int>(reflect_int(datas.polymonial)) ^ (c >> 1);
+				else c = c >> 1;
+			}
+			datas.crc_values[n] = static_cast<unsigned int>(c);
+		}
+
+		// Set the datas
+		_loaded_crc_32b_algorithms[name] = datas;
+	};
+
+	// Returns a reference to the CRC 32 bits algorithm with the name
+	inline CRC_32B_Datas* get_crc_32b_data(std::string name) {
+        if(contains_crc_32b(name)) return &_loaded_crc_32b_algorithms[name];
+        print("Warning", "SCLS CRC handler", "The \"" + name + "\" CRC 32 bits algorithm you want to get does not exist.");
+        return 0;
+	};
+
+	// Return the CRC of the char array
+	inline unsigned int crc_32b(char* buf, int len, std::string crc_name) {
+	    // Check if the CRC algorithm exists
+	    if (!contains_crc_32b(crc_name)) {
+            if(crc_name != "png") {
+                print("Warning", "SCLS CRC handler", "The \"" + crc_name + "\" CRC 32 bits algorithm you want to process does not exist.");
+                return 0;
+            }
+            make_crc_32b_table(crc_name, PNG_CRC_POLYMONIAL, true, true, 0xffffffff, 0xffffffff);
+	    }
+
+	    // Create the CRC
+	    CRC_32B_Datas* datas = get_crc_32b_data(crc_name);
+	    unsigned int c = datas->starting_value;
+	    if(datas->reflect_input)
+        {
+            for (int n = 0; n < len; n++)
+            {
+                c = datas->crc_values[(c ^ buf[n]) & 0xff] ^ (c >> 8);
+            }
+        }
+        else
+        {
+            for (int n = 0; n < len; n++)
+            {
+                c = datas->crc_values[(c ^ reflect_char(buf[n])) & 0xff] ^ (c >> 8);
+            }
+        }
+        if(!datas->reflect_output) c = reflect_int(c);
+
+		return c ^ datas->xor_final;
+	};
+
+    // Return the CRC of the char array
+	inline unsigned int crc_32b(unsigned char* buf, int len, std::string crc_name) {
+	    // Check if the CRC algorithm exists
+	    if (!contains_crc_32b(crc_name)) {
+            if(crc_name != "png") {
+                print("Warning", "SCLS CRC handler", "The \"" + crc_name + "\" CRC 32 bits algorithm you want to process does not exist.");
+                return 0;
+            }
+            make_crc_32b_table(crc_name, PNG_CRC_POLYMONIAL, true, true, 0xffffffff, 0xffffffff);
+	    }
+
+	    // Create the CRC
+	    CRC_32B_Datas* datas = get_crc_32b_data(crc_name);
+	    unsigned int c = datas->starting_value;
+	    if(datas->reflect_input)
+        {
+            for (int n = 0; n < len; n++)
+            {
+                c = datas->crc_values[(c ^ buf[n]) & 0xff] ^ (c >> 8);
+            }
+        }
+        else
+        {
+            for (int n = 0; n < len; n++)
+            {
+                c = datas->crc_values[(c ^ reflect_char(buf[n])) & 0xff] ^ (c >> 8);
+            }
+        }
+        if(!datas->reflect_output) c = reflect_int(c);
+
+		return c ^ datas->xor_final;
+	};
 
     //*********
 	//

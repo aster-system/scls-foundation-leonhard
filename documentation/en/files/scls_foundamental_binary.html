@@ -229,12 +229,135 @@
                 </div>
             </div>
             <h3>
+                CRC manipulation
+            </h3>
+            <div>
+                This file contains a way to handle simple CRC manipulation.
+                CRC is an algorithm allowing to check datas, to know if their transmission was successfull or not.</br>
+                The only sized algorithm handled is 32 bits for now. Each algorithm has a name, made to easily use them.</br>
+                If you want more information about CRC, see <a href="https://github.com/gentooinit/crc/blob/master/crc.txt">A PAINLESS GUIDE TO CRC ERROR DETECTION ALGORITHMS</a>.
+                <h4>
+                    Built-in algorithms
+                </h4>
+                <div>
+                    <h5>
+                        PNG CRC algorithm
+                    </h5>
+                    <div>
+                        The file has a built-in CRC, called "png", made to use the CRC algorithm of the PNG format.
+                    </div>
+                </div>
+                <h4>
+                    Functions
+                </h4>
+                <div>
+                    <h5>
+                        bool contains_crc_32b(std::string name)
+                    </h5>
+                    <div>
+                        Returns if the CRC 32 bits algorithm "name" is loaded or not.
+                    </div>
+                    <h5>
+                        unsigned int crc_32b(char* buf, int len, std::string crc_name)
+                    </h5>
+                    <div>
+                        Return the CRC value of the char* "buf" of size "len", with the datas of the loaded CRC_32B_Datas named "name". 
+                    </div>
+                    <h5>
+                        unsigned int crc_32b(unsigned char* buf, int len, std::string crc_name)
+                    </h5>
+                    <div>
+                        Return the CRC value of the unsigned char* "buf" of size "len", with the datas of the loaded CRC_32B_Datas named "name". 
+                    </div>
+                    <h5>
+                        CRC_32B_Datas* get_crc_32b_data(std::string name)
+                    </h5>
+                    <div>
+                        Returns a pointer to the CRC_32B_Datas named "name".</br>
+                        If is does not exists, it returns 0 or it creates it if the name is built-in.
+                    </div>
+                    <h5>
+                        void make_crc_32b_table(std::string name, unsigned int polymonial, bool reflect_input, bool reflect_output, unsigned int starting_value, unsigned int xor_final)
+                    </h5>
+                    <div>
+                        Create a CRC 32 bits algorithm with the passed values.</br>
+                        Each values directly goes into the same named CRC_32B_Datas attribute.
+                    </div>
+                </div>
+                <h4>
+                    Hidden things
+                </h4>
+                <div>
+                    <h5>
+                        std::map&lt;std::string, CRC_32B_Datas&gt; _loaded_crc32_algorithms
+                    </h5>
+                    <div>
+                        This variable stores the loaded CRC 32 bits algorithms.</br>
+                        It's not recommended to use it directly. Use "get_crc_32b_data" instead.
+                    </div>
+                </div>
+                <h4>
+                    Macros
+                </h4>
+                <div>
+                    <h5>
+                        #define PNG_CRC_POLYMONIAL 0x04c11db7
+                    </h5>
+                    <div>
+                        Polymonial of the PNG CRC algorithm.
+                    </div>
+                </div>
+                <h4>
+                    Struct CRC_32B_Datas
+                </h4> 
+                <div>
+                    By default, all the values permit to load the CRC datas of the PNG CRC algorithm.
+                    <h5>
+                        unsigned int crc_values[256]
+                    </h5>
+                    <div>
+                        All 256 CRC values possible for this algorithm.
+                    </div>
+                    <h5>
+                        unsigned int polymonial
+                    </h5>
+                    <div>
+                        Value of the polymonial of the CRC, by default to PNG_CRC_POLYMONIAL.
+                    </div>
+                    <h5>
+                        bool reflect_input = true
+                    </h5>
+                    <div>
+                        If the input should be reflected by the algorithm or not.
+                    </div>
+                    <h5>
+                        bool reflect_output = true
+                    </h5>
+                    <div>
+                        If the output should be reflected by the algorithm or not.
+                    </div>
+                    <h5>
+                        unsigned int starting_value = 0xffffffff
+                    </h5>
+                    <div>
+                        Starting value of the CRC algorithm calculation, by default to a binary full of "1", or an hexadecimal full of "f".
+                    </div>
+                    <h5>
+                        unsigned int xor_final = 0xffffffff
+                    </h5>
+                    <div>
+                        Value which the is apply by XOR to the final CRC, by default to a binary full of "1", or an hexadecimal full of "f".
+                    </div>
+                </div>
+            </div>
+            <h3>
                 Binary manipulation
             </h3>
             <div>
                 Even if the Bytes_Set class exists, there are some binary manipulation functions.
                 They do the same things that in the Bytes_Set class, but in a less optimized way (even if they are used in the class).
-                Excluding if you have no choice, it is recommended to use the Bytes_Set class instead of this functions.
+                Excluding if you have no choice, it is recommended to use the Bytes_Set class instead of this functions.</br>
+                The only thing added only by this part is the reflection feature, allowing to reflect bits into a char, an int, an unsigned char or an unsigned int.
                 <h4>
                     Functions
                 </h4>
@@ -310,6 +433,30 @@
                     </h5>
                     <div>
                         Put the double "n" in the char array "result", with a position offset of "offset", in big_endian or not depending to "big_endian".
+                    </div>
+                    <h5>
+                        char reflect_char(char x)
+                    </h5>
+                    <div>
+                        Reflect the char "x" and return it.
+                    </div>
+                    <h5>
+                        unsigned char reflect_char(unsigned char x)
+                    </h5>
+                    <div>
+                        Reflect the unsigned char "x" and return it.
+                    </div>
+                    <h5>
+                        int reflect_int(int x)
+                    </h5>
+                    <div>
+                        Reflect the int "x" and return it.
+                    </div>
+                    <h5>
+                        int reflect_int(unsigned int x)
+                    </h5>
+                    <div>
+                        Reflect the unsigned int "x" and return it.
                     </div>
                 </div>
             </div>
