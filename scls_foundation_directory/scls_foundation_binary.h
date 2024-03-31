@@ -621,6 +621,14 @@ namespace scls
             }
             return a_datas[position];
         }
+        // Set the char at a certain position
+        inline void set_data_at(unsigned int position, char new_data) {
+             if(position < 0 || position >= datas_size()) {
+                scls::print("Error", "SCLS", "Datas \"" + std::to_string(position) + "\" out of range in the Binary object.");
+                return;
+            }
+            a_datas[position] = new_data;
+        }
 
         // Extract datas from the object (with differents types)
         inline char* extract_datas(unsigned int extract_size, unsigned int offset = 0, bool inverse = false) {
