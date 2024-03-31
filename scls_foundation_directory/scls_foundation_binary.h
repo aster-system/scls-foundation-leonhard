@@ -528,6 +528,11 @@ namespace scls
     public:
         // Bytes_Set constructor
         Bytes_Set() {};
+        // Bytes_Set constructor creating empty datas
+        Bytes_Set(unsigned int new_datas_size) : Bytes_Set() {
+            a_datas = new char[new_datas_size];
+            a_datas_size = new_datas_size;
+        };
         // Bytes_Set constructor taking existing datas
         Bytes_Set(char* new_datas, unsigned int new_datas_size) : Bytes_Set() {
             a_datas = new_datas;
