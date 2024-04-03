@@ -27,6 +27,8 @@ void test_data_structure() {
     scls::print("Test", "Joined", scls::join_string(cutted, "-"));
 
     cutted = scls::cut_string(parts, "<*>");
+    scls::print("Test 2", "Contains Leclerc", scls::contains(cutted, std::string("Leclerc")));
+    scls::print("Test 2", "Contains Challenger 2", scls::contains(cutted, std::string("Challenger 2")));
     for(int i = 0;i<static_cast<int>(cutted.size());i++) {
         scls::print("Test 2", "Part " + std::to_string(i), cutted[i]);
     }
@@ -34,6 +36,8 @@ void test_data_structure() {
     scls::print("Test", "Joined", scls::join_string(cutted, "/-\\"));
 
     cutted = scls::cut_string(parts, "<*>", true);
+    scls::print("Test 3", "Count M1A2 Abrams", scls::count(cutted, std::string("M1A2 Abrams")));
+    scls::print("Test 3", "Count Ariete", scls::count(cutted, std::string("Ariete")));
     for(int i = 0;i<static_cast<int>(cutted.size());i++) {
         scls::print("Test 3", "Part " + std::to_string(i), cutted[i]);
     }

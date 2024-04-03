@@ -151,7 +151,17 @@ namespace scls
 	    return false;
 	};
 
-	// Return the number occurence of a string in an another string
+	// Return if a vector contains an element
+	template<typename T>
+	inline bool contains(std::vector<T> vec, T element) {
+		for (int i = 0; i < static_cast<int>(vec.size()); i++) // Browse the vector element by element
+		{
+			if (vec[i] == element) return true; // If the vector contains the element, return true
+		}
+	    return false;
+	};
+
+	// Return the number occurrence of a string in an another string
 	inline unsigned int count(std::string str, std::string part) {
 	    std::string last_string = ""; // String since the last cut
 	    unsigned int occurence = 0;
@@ -170,6 +180,17 @@ namespace scls
 			}
 		}
 	    return occurence;
+	};
+
+	// Return the number occurrence of an element in a std::vector
+	template<typename T>
+	inline unsigned int count(std::vector<T> vec, T element) {
+	    unsigned int occurrence = 0;
+		for (int i = 0; i < static_cast<int>(vec.size()); i++) // Browse the vector element by element
+		{
+			if (vec[i] == element) occurrence++; // If the vector contains the element, add an occurrence
+		}
+	    return occurrence;
 	};
 
 	// Cut a string in a vector where there are the "cut" part

@@ -177,16 +177,30 @@
                         Return if the std::string "str" contains at least one occurence of "part" in it.
                     </div>
                     <h5>
-                        bool count(std::string str, std::string part)
+                        template&lt;typename T&gt;
+                        bool contains(std::vector&lt;T&gt; vec, T element)
                     </h5>
                     <div>
-                        Return the number of occurence of the std::string "part" in the std::string "str".
+                        Returns if the std::vector "vec" contains the element "T".
+                    </div>
+                    <h5>
+                        unsigned int count(std::string str, std::string part)
+                    </h5>
+                    <div>
+                        Return the number of occurrence of the std::string "part" in the std::string "str".
+                    </div>
+                    <h5>
+                        template&lt;typename T&gt;
+                        unsigned int count(std::vector&lt;T&gt; vec, T element)
+                    </h5>
+                    <div>
+                        Return the number of occurrence of "T" in the std::vector "vec".
                     </div>
                     <h5>
                         std::vector&lt;std::string&gt; cut_string(std::string string, std::string cut, bool erase_blank = false, bool erase_last_if_blank = true)
                     </h5>
                     <div>
-                        Split the std::string "string" at each "cut" occurence in "string", and return it in a std::vector.</br>
+                        Split the std::string "string" at each "cut" occurrence in "string", and return it in a std::vector.</br>
                         If "erase_blank" is true, each empty part cutted are deleted.</br>
                         If "erase_last_if_blank" is false and the last part of "string" is exactly "cut", the function adds an empty std::string in the returned std::vector.
                     </div>
