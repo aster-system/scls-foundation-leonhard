@@ -1,3 +1,30 @@
+//******************
+//
+// test.cpp
+//
+//******************
+// Presentation :
+//
+// SCLS is a project containing base functions for C++.
+// It can also be use in any projects.
+//
+// The Foundation "Leonhard" part represents the foundation of SCLS.
+// It is named after the "Father of modern mathematics", Leonhard Euler.
+//
+// This file allows to test SCLS Foundation easily.
+// You may ignore it, it is only made for SCLS developer.
+//
+//******************
+//
+// License (LGPL V3.0) :
+//
+// Copyright (C) 2024 by Aster System, Inc. <https://aster-system.github.io/aster-system/>
+// This file is part of SCLS.
+// SCLS is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+// SCLS is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+// You should have received a copy of the GNU General Public License along with SCLS. If not, see <https://www.gnu.org/licenses/>.
+//
+
 #include "scls_foundation.h"
 
 #include <map>
@@ -232,19 +259,19 @@ void test_file() {
 
 // Test scls_foundation_math.h
 void test_math() {
-    scls::print("Test", "SCLS Math", scls::normalize_value(145, 0, 255));
-    scls::print("Test", "SCLS Math", scls::normalize_value(256 + 145, 0, 255));
-    scls::print("Test", "SCLS Math", scls::normalize_value(256 * 1547 + 145, 0, 255));
-    scls::print("Test", "SCLS Math", scls::normalize_value(-111, 0, 255));
+    scls::print("Test", "SCLS Math (145)", scls::normalize_value(145, 0, 255));
+    scls::print("Test", "SCLS Math (145)", scls::normalize_value(256 + 145, 0, 255));
+    scls::print("Test", "SCLS Math (145)", scls::normalize_value(256 * 1547 + 145, 0, 255));
+    scls::print("Test", "SCLS Math (145)", scls::normalize_value(-111, 0, 255));
 
-    scls::print("Test", "SCLS Math", scls::normalize_value(-111, 255, 0));
-    scls::print("Test", "SCLS Math", scls::normalize_value(-111, 255, 255));
+    scls::print("Test", "SCLS Math (145)", scls::normalize_value(-111, 255, 0));
+    scls::print("Test", "SCLS Math (145)", scls::normalize_value(-111, 255, 255));
 
-    scls::print("Test", "SCLS Math", scls::normalize_value(-129, -128, 127));
-    scls::print("Test", "SCLS Math", scls::normalize_value(128, -128, 127));
+    scls::print("Test", "SCLS Math (127)", scls::normalize_value(-129, -128, 127));
+    scls::print("Test", "SCLS Math (-128)", scls::normalize_value(128, -128, 127));
 
-    scls::print("Test", "SCLS Math", scls::sign(1546754));
-    scls::print("Test", "SCLS Math", scls::sign(-7647597));
+    scls::print("Test", "SCLS Math (+)", scls::sign(1546754));
+    scls::print("Test", "SCLS Math (-)", scls::sign(-7647597));
 }
 
 int main() {
