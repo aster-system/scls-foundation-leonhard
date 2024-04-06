@@ -80,6 +80,23 @@ namespace scls
 	    return name.substr(0, name.size() - file_extension(path, true).size());
     };
 
+    // Format a path to the SCLS format
+    static std::string format_path(std::string path) {
+        std::vector<std::string> cutted = cut_string(join_string(cut_string(path, "/", true), "\\"), "\\", true);
+        std::vector<std::string> cutted_final = std::vector<std::string>();
+
+        for(int i = 0;i<static_cast<int>(cutted.size());i++) {
+            if(cutted[i] == ".." && i > 0) {
+                cutted_final.pop_back();
+                continue;
+            }
+            else if(cutted[i] == ".") continue;
+            cutted_final.push_back(cutted[i]);
+        }
+
+        return join_string(cutted_final, "/");
+    }
+
     // Return the way to got to the second path from the first path, assuming they are in the same disk, and (even better), the same set of directory, starting from the same path
     static std::string go_from_path_to_path(std::string first_path, std::string second_path) {
         std::vector<std::string> cutted_1 = cut_string(join_string(cut_string(first_path, "/", true), "\\"), "\\", true); if(contains(cutted_1[cutted_1.size() - 1], ".")) cutted_1.pop_back();
@@ -104,7 +121,7 @@ namespace scls
                 final_path += cutted_2[i] + "/";
             }
         }
-        else final_path = "./";
+        else final_path = "";
         #define TO_FINISH_HERE
 
         return final_path;

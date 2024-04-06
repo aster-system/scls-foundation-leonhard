@@ -255,9 +255,11 @@ void test_file() {
 
     scls::write_in_file("test.txt", scls::to_utf_8("Le char Leclerc à Paris"));
     scls::print("Test", "SCLS File", scls::read_file("test.txt"));
-    scls::print("Test", "SCLS Way (./)", scls::go_from_path_to_path(path_1, path_2));
+    scls::print("Test", "SCLS Way (nothing)", scls::go_from_path_to_path(path_1, path_2));
     scls::print("Test", "SCLS Way (../)", scls::go_from_path_to_path("C:/File/OtherFile/Photos/Images", "C:/File/OtherFile/Photos/image.png"));
     scls::print("Test", "SCLS Way (../../../OtherFile/Photos/)", scls::go_from_path_to_path("C:/File/AnotherFile/Photos/Images/image.png", "C:/File/OtherFile/Photos"));
+    scls::print("Test", "SCLS Format (Directory//Images/photo.png)", scls::format_path("Directory/Photos/../Images/photo.png"));
+    scls::print("Test", "SCLS Format (User/photo.png)", scls::format_path("Directory/Photos/../../User/photo.png"));
 }
 
 // Test scls_foundation_math.h
