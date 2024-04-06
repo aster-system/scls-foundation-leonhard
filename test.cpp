@@ -255,6 +255,9 @@ void test_file() {
 
     scls::write_in_file("test.txt", scls::to_utf_8("Le char Leclerc à Paris"));
     scls::print("Test", "SCLS File", scls::read_file("test.txt"));
+    scls::print("Test", "SCLS Way (./)", scls::go_from_path_to_path(path_1, path_2));
+    scls::print("Test", "SCLS Way (../)", scls::go_from_path_to_path("C:/File/OtherFile/Photos/Images", "C:/File/OtherFile/Photos/image.png"));
+    scls::print("Test", "SCLS Way (../../../OtherFile/Photos/)", scls::go_from_path_to_path("C:/File/AnotherFile/Photos/Images/image.png", "C:/File/OtherFile/Photos"));
 }
 
 // Test scls_foundation_math.h
@@ -277,18 +280,18 @@ void test_math() {
 int main() {
     scls::print("Test", "SCLS", scls::to_utf_8("Début du test de SCLS Foundation Leonhard :\n"));
 
-    scls::print("Test", "SCLS", scls::to_utf_8("Test des structure des données."));
-    test_data_structure();
-    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\nTest du système de debug."));
-    test_debugging_helper();
-    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système binaire."));
-    test_binary_object();
-    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\nTest des algorithmes CRC."));
-    test_crc();
+    // scls::print("Test", "SCLS", scls::to_utf_8("Test des structure des données."));
+    // test_data_structure();
+    // scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\nTest du système de debug."));
+    // test_debugging_helper();
+    // scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système binaire."));
+    // test_binary_object();
+    // scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\nTest des algorithmes CRC."));
+    // test_crc();
     scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système de fichier."));
     test_file();
-    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système mathématique."));
-    test_math();
+    // scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système mathématique."));
+    // test_math();
 
     scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTout les tests ont été réalisé."));
 

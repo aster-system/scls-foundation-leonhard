@@ -80,6 +80,36 @@ namespace scls
 	    return name.substr(0, name.size() - file_extension(path, true).size());
     };
 
+    // Return the way to got to the second path from the first path, assuming they are in the same disk, and (even better), the same set of directory, starting from the same path
+    static std::string go_from_path_to_path(std::string first_path, std::string second_path) {
+        std::vector<std::string> cutted_1 = cut_string(join_string(cut_string(first_path, "/", true), "\\"), "\\", true); if(contains(cutted_1[cutted_1.size() - 1], ".")) cutted_1.pop_back();
+        std::vector<std::string> cutted_2 = cut_string(join_string(cut_string(second_path, "/", true), "\\"), "\\", true); if(contains(cutted_2[cutted_2.size() - 1], ".")) cutted_2.pop_back();
+
+        std::string final_path = "";
+
+        if(cutted_1.size() > cutted_2.size()) {
+            for(int i = 0;i<cutted_1.size()-cutted_2.size();i++) final_path += "../";
+
+            int level = 0;
+            for(int i = 0;i<cutted_2.size();i++) {
+                if(cutted_2[i] != cutted_1[i]) break;
+                level++;
+            }
+
+            for(int i = 0;i<cutted_2.size() - level;i++) {
+                final_path += "../";
+            }
+
+            for(int i = level;i<cutted_2.size();i++) {
+                final_path += cutted_2[i] + "/";
+            }
+        }
+        else final_path = "./";
+        #define TO_FINISH_HERE
+
+        return final_path;
+    }
+
     //*********
 	//
 	// Read and write in files
