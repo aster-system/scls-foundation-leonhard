@@ -29,6 +29,7 @@
 
 #include "scls_foundation_directory/scls_foundation_binary.h"
 #include "scls_foundation_directory/scls_foundation_core.h"
+#include "scls_foundation_directory/scls_foundation_compression.h"
 #include "scls_foundation_directory/scls_foundation_file.h"
 #include "scls_foundation_directory/scls_foundation_math.h"
 

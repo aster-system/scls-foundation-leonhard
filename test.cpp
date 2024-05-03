@@ -229,6 +229,13 @@ void test_crc() {
     scls::print("Test", "CRC Q (683298828)", scls::crc_32b(reinterpret_cast<unsigned char*>(c), 16, "q"));
 }
 
+// Test scls_foundation_compression.h
+void test_huffman_compression() {
+    scls::Bytes_Set bs;
+    bs.add_string("Hello world !");
+    scls::Huffman_Tree ht = scls::compress_huffman(&bs);
+}
+
 // Test scls_foundation_file.h
 void test_file() {
     std::string path_1 = "C://Programs/Aster System/data.txt";
@@ -288,10 +295,12 @@ int main() {
     // test_debugging_helper();
     // scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système binaire."));
     // test_binary_object();
+    scls::print("Test", "SCLS", scls::to_utf_8("Test du système de compression Huffman."));
+    test_huffman_compression();
     // scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\nTest des algorithmes CRC."));
     // test_crc();
-    scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système de fichier."));
-    test_file();
+    // scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système de fichier."));
+    // test_file();
     // scls::print("Test", "SCLS", scls::to_utf_8("Test terminé.\n\nTest du système mathématique."));
     // test_math();
 
