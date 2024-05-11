@@ -45,12 +45,12 @@ namespace scls {
         scls::print("Test", "Double with .", scls::string_to_double(double_1));
         scls::print("Test", "Double with ,", scls::string_to_double(double_2));
 
-        scls::print("Test", "Contains .", scls::contains(double_1, "."));
-        scls::print("Test", "Contains ,", scls::contains(double_1, ","));
+        scls::print("Test", "Contains .", scls::contains_string(double_1, "."));
+        scls::print("Test", "Contains ,", scls::contains_string(double_1, ","));
 
-        scls::print("Test", "Count 2", scls::count(double_1, "2"));
-        scls::print("Test", "Count 5", scls::count(double_1, "5"));
-        scls::print("Test", "Count 8", scls::count(double_1, "8"));
+        scls::print("Test", "Count 2", scls::count_string(double_1, "2"));
+        scls::print("Test", "Count 5", scls::count_string(double_1, "5"));
+        scls::print("Test", "Count 8", scls::count_string(double_1, "8"));
 
         std::vector<std::string> cutted = scls::cut_string(parts, "*");
         for(int i = 0;i<static_cast<int>(cutted.size());i++) {
@@ -294,12 +294,34 @@ namespace scls {
 
     // Test scls_foundation_string.h
     inline void test_string() {
-        String str = "<d>Test</d></e>Test<e>";
+        String str = "<d>Test</d<d>d></e>Test<e>;ea;h";
         std::vector<_Text_Balise_Part> balises = str.cut_by_balise();
 
         for(int i = 0;i<static_cast<int>(balises.size());i++) {
-            scls::print("Balise cut test", "Part " + std::to_string(i), balises[i].content);
+            scls::print("Cut by balise test", "Part " + std::to_string(i), balises[i].content);
         }
+
+        std::vector<std::string> cutted = str.cut_out_of("e", ";");
+        for(int i = 0;i<static_cast<int>(cutted.size());i++) {
+            scls::print("Cut by e out of ; test", "Part " + std::to_string(i), cutted[i]);
+        }
+
+        cutted = str.cut_out_of_2("e", "<", ">");
+        for(int i = 0;i<static_cast<int>(cutted.size());i++) {
+            scls::print("Cut by e out of < and > test", "Part " + std::to_string(i), cutted[i]);
+        }
+
+        scls::print("Contains", "a (true)", str.contains("e"));
+        scls::print("Contains out of ;", "a (false)", str.contains("a", ";"));
+        scls::print("Contains out of ;", "d (true)", str.contains("d", ";"));
+        scls::print("Contains out of < and >", "a (true)", str.contains("a", "<", ">"));
+        scls::print("Contains out of < and >", "d (false)", str.contains("d", "<", ">"));
+        scls::print("Count", "e (5)", str.count("e"));
+        scls::print("Count out of ;", "e (4)", str.count("e", ";"));
+        scls::print("Count out of ;", "d (4)", str.count("d", ";"));
+        scls::print("Count out of < and >", "e (3)", str.count("e", "<", ">"));
+        scls::print("Count out of < and >", "d (0)", str.count("d", "<", ">"));
+        scls::print("Count out of < and >", "h (1)", str.count("h", "<", ">"));
     };
 
     // Test all the library

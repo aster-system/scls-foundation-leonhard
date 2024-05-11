@@ -62,7 +62,7 @@ namespace scls {
 	}
 
 	// Return if a string contains an another string
-	inline bool contains(std::string str, std::string part) {
+	inline bool contains_string(std::string str, std::string part) {
 	    std::string last_string = ""; // String since the last cut
 		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
 		{
@@ -81,7 +81,8 @@ namespace scls {
 	};
 
 	// Returns if a string contains an another string out of a string
-    inline bool contains(std::string str, std::string part, std::string out_of) {
+    inline bool contains_string(std::string str, std::string part, std::string out_of) {
+        // If the loop is out of the string or not
 	    bool in_out_of = false;
 	    // Last sequence of string for check with part
 	    std::string last_string = "";
@@ -92,14 +93,14 @@ namespace scls {
 		    // Check the last string with out of offset start
 		    last_string_out_of_offset += str[i];
 		    if(last_string_out_of_offset.size() > out_of.size()) {
-                last_string_out_of_offset = last_string_out_of_offset.substr(1, last_string_out_of_offset.size() - 1);
+                last_string_out_of_offset = last_string_out_of_offset.substr(last_string_out_of_offset.size() - out_of.size(), out_of.size());
 		    }
 
 		    // Check the last string
 		    last_string += str[i];
 			if (last_string.size() > part.size())
 			{
-				last_string = last_string.substr(1, part.size() - 1);
+				last_string = last_string.substr(last_string.size() - part.size(), part.size());
 			}
 
 			if(last_string_out_of_offset == out_of) {
@@ -117,7 +118,8 @@ namespace scls {
 	};
 
 	// Returns if a string contains an another string out of 2 different string
-    inline bool contains(std::string str, std::string part, std::string out_of_start, std::string out_of_end) {
+    inline bool contains_string(std::string str, std::string part, std::string out_of_start, std::string out_of_end) {
+	    // If the loop is out of the string or not
 	    int in_out_of = 0;
 	    // Last sequence of string for check with part
 	    std::string last_string = "";
@@ -125,24 +127,22 @@ namespace scls {
 	    std::string last_string_out_of_offset_e = "";
 	    // Last sequence of string for check with out offset start
 	    std::string last_string_out_of_offset_s = "";
-		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
-		{
-		    // Check the last string with out of offset start
+		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+            // Check the last string with out of offset start
 		    last_string_out_of_offset_e += str[i];
 		    if(last_string_out_of_offset_e.size() > out_of_end.size()) {
-                last_string_out_of_offset_e = last_string_out_of_offset_e.substr(1, last_string_out_of_offset_e.size() - 1);
+                last_string_out_of_offset_e = last_string_out_of_offset_e.substr(last_string_out_of_offset_e.size() - out_of_end.size(), out_of_end.size());
 		    }
 		    // Check the last string with out of offset start
 		    last_string_out_of_offset_s += str[i];
 		    if(last_string_out_of_offset_s.size() > out_of_start.size()) {
-                last_string_out_of_offset_s = last_string_out_of_offset_s.substr(1, last_string_out_of_offset_s.size() - 1);
+                last_string_out_of_offset_s = last_string_out_of_offset_s.substr(last_string_out_of_offset_s.size() - out_of_start.size(), out_of_start.size());
 		    }
 
 		    // Check the last string
 		    last_string += str[i];
-			if (last_string.size() > part.size())
-			{
-				last_string = last_string.substr(1, part.size() - 1);
+			if (last_string.size() > part.size()) {
+				last_string = last_string.substr(last_string.size() - part.size(), part.size());
 			}
 
 			if(last_string_out_of_offset_s == out_of_start) {
@@ -166,12 +166,11 @@ namespace scls {
 	    return false;
 	};
 
-	// Return the number occurrence of a string in an another string
-	inline unsigned int count(std::string str, std::string part) {
+	// Returns the number occurrence of a string in an another string
+	inline unsigned int count_string(std::string str, std::string part) {
 	    std::string last_string = ""; // String since the last cut
 	    unsigned int occurence = 0;
-		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
-		{
+		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
 			last_string += str[i];
 			if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
 			{
@@ -179,6 +178,94 @@ namespace scls {
 			}
 
 			if (last_string == part) // If the string which allows to know where to find the equality is true, return true
+			{
+			    last_string = "";
+				occurence++;
+			}
+		}
+	    return occurence;
+	};
+
+	// Returns the number occurrence of a string in an another string out of a string
+	inline unsigned int count_string(std::string str, std::string part, std::string out_of) {
+	    // If the loop is out of the string or not
+	    bool in_out_of = false;
+	    // Last sequence of string for check with part
+	    std::string last_string = "";
+	    // Last sequence of string for check with out offset
+	    std::string last_string_out_of_offset = "";
+	    unsigned int occurence = 0;
+		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+            // Check the last string with out of offset start
+		    last_string_out_of_offset += str[i];
+		    if(last_string_out_of_offset.size() > out_of.size()) {
+                last_string_out_of_offset = last_string_out_of_offset.substr(last_string_out_of_offset.size() - out_of.size(), out_of.size());
+		    }
+
+			last_string += str[i];
+			if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
+			{
+				last_string = last_string.substr(1, part.size());
+			}
+
+            if(last_string_out_of_offset == out_of) {
+                last_string = "";
+                last_string_out_of_offset = "";
+                in_out_of = !in_out_of;
+			}
+
+			if (last_string == part && !in_out_of) // If the string which allows to know where to find the equality is true, return true
+			{
+			    last_string = "";
+				occurence++;
+			}
+		}
+	    return occurence;
+	};
+
+	// Returns the number occurrence of a string in an another string out of 2 different string
+	inline unsigned int count_string(std::string str, std::string part, std::string out_of_start, std::string out_of_end) {
+	    // If the loop is out of the string or not
+	    int in_out_of = 0;
+	    // Last sequence of string for check with part
+	    std::string last_string = "";
+	    // Last sequence of string for check with out offset end
+	    std::string last_string_out_of_offset_e = "";
+	    // Last sequence of string for check with out offset start
+	    std::string last_string_out_of_offset_s = "";
+	    unsigned int occurence = 0;
+		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+            // Check the last string with out of offset start
+		    last_string_out_of_offset_e += str[i];
+		    if(last_string_out_of_offset_e.size() > out_of_end.size()) {
+                last_string_out_of_offset_e = last_string_out_of_offset_e.substr(last_string_out_of_offset_e.size() - out_of_end.size(), out_of_end.size());
+		    }
+		    // Check the last string with out of offset start
+		    last_string_out_of_offset_s += str[i];
+		    if(last_string_out_of_offset_s.size() > out_of_start.size()) {
+                last_string_out_of_offset_s = last_string_out_of_offset_s.substr(last_string_out_of_offset_s.size() - out_of_start.size(), out_of_start.size());
+		    }
+
+			last_string += str[i];
+			if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
+			{
+				last_string = last_string.substr(1, part.size());
+			}
+
+            if(last_string_out_of_offset_s == out_of_start) {
+                last_string = "";
+                last_string_out_of_offset_e = "";
+                last_string_out_of_offset_s = "";
+                in_out_of++;
+			}
+			else if(last_string_out_of_offset_e == out_of_end) {
+			    last_string = "";
+			    last_string_out_of_offset_e = "";
+			    last_string_out_of_offset_s = "";
+                if(in_out_of > 0) in_out_of--;
+			}
+
+			if (last_string == part && in_out_of == 0) // If the string which allows to know where to find the equality is true, return true
 			{
 			    last_string = "";
 				occurence++;
@@ -220,6 +307,130 @@ namespace scls {
 			else
 			{
 				last_string += string[i];
+			}
+		}
+
+		if (last_string.size() > 0 || !erase_last_if_blank) { result.push_back(last_string); } // Add the last non-cutted element
+		return result;
+	};
+
+	// Cut a string in a vector where there are the "cut" part out of a string
+	inline std::vector<std::string> cut_string_out_of(std::string str, std::string cut, std::string out_of, bool erase_blank = false, bool erase_last_if_blank = true) {
+		// If the loop is out of the string or not
+	    bool in_out_of = false;
+		std::string last_string = ""; // String since the last cut
+		// Last sequence of string for check with out offset
+	    std::string last_string_out_of_offset = "";
+		std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
+		std::vector<std::string> result = std::vector<std::string>();
+		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+            // Check the last string with out of offset start
+		    last_string_out_of_offset += str[i];
+		    if(last_string_out_of_offset.size() > out_of.size()) {
+                last_string_out_of_offset = last_string_out_of_offset.substr(last_string_out_of_offset.size() - out_of.size(), out_of.size());
+		    }
+
+			last_string_cut += str[i];
+			if (last_string_cut.size() > cut.size()) // If the string which allows to know where to cut is too long, cut him
+			{
+				last_string_cut = last_string_cut.substr(1, cut.size());
+			}
+
+            if(last_string_out_of_offset == out_of) {
+                last_string_cut = "";
+                last_string_out_of_offset = "";
+                in_out_of = !in_out_of;
+			}
+
+			if (last_string_cut == cut && !in_out_of) // If the string which allows to know where to cut is equal to the part to cut, do a cut
+			{
+				std::string final_string = last_string.substr(0, last_string.size() - (cut.size() - 1));
+				if (erase_blank)
+				{
+					if (final_string != "")
+					{
+						result.push_back(final_string);
+					}
+				}
+				else
+				{
+					result.push_back(final_string);
+				}
+				last_string = "";
+				last_string_cut = "";
+			}
+			else
+			{
+				last_string += str[i];
+			}
+		}
+
+		if (last_string.size() > 0 || !erase_last_if_blank) { result.push_back(last_string); } // Add the last non-cutted element
+		return result;
+	};
+
+	// Cut a string in a vector where there are the "cut" part out of 2 different string
+	inline std::vector<std::string> cut_string_out_of_2(std::string str, std::string cut, std::string out_of_start, std::string out_of_end, bool erase_blank = false, bool erase_last_if_blank = true) {
+		// If the loop is out of the string or not
+	    int in_out_of = 0;
+		std::string last_string = ""; // String since the last cut
+		// Last sequence of string for check with out offset end
+	    std::string last_string_out_of_offset_e = "";
+	    // Last sequence of string for check with out offset start
+	    std::string last_string_out_of_offset_s = "";
+		std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
+		std::vector<std::string> result = std::vector<std::string>();
+		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+            // Check the last string with out of offset start
+		    last_string_out_of_offset_e += str[i];
+		    if(last_string_out_of_offset_e.size() > out_of_end.size()) {
+                last_string_out_of_offset_e = last_string_out_of_offset_e.substr(last_string_out_of_offset_e.size() - out_of_end.size(), out_of_end.size());
+		    }
+		    // Check the last string with out of offset start
+		    last_string_out_of_offset_s += str[i];
+		    if(last_string_out_of_offset_s.size() > out_of_start.size()) {
+                last_string_out_of_offset_s = last_string_out_of_offset_s.substr(last_string_out_of_offset_s.size() - out_of_start.size(), out_of_start.size());
+		    }
+
+			last_string_cut += str[i];
+			if (last_string_cut.size() > cut.size()) // If the string which allows to know where to cut is too long, cut him
+			{
+				last_string_cut = last_string_cut.substr(1, cut.size());
+			}
+
+            if(last_string_out_of_offset_s == out_of_start) {
+                last_string_cut = "";
+                last_string_out_of_offset_e = "";
+                last_string_out_of_offset_s = "";
+                in_out_of++;
+			}
+			else if(last_string_out_of_offset_e == out_of_end) {
+			    last_string_cut = "";
+			    last_string_out_of_offset_e = "";
+			    last_string_out_of_offset_s = "";
+                if(in_out_of > 0) in_out_of--;
+			}
+
+			if (last_string_cut == cut && in_out_of == 0) // If the string which allows to know where to cut is equal to the part to cut, do a cut
+			{
+				std::string final_string = last_string.substr(0, last_string.size() - (cut.size() - 1));
+				if (erase_blank)
+				{
+					if (final_string != "")
+					{
+						result.push_back(final_string);
+					}
+				}
+				else
+				{
+					result.push_back(final_string);
+				}
+				last_string = "";
+				last_string_cut = "";
+			}
+			else
+			{
+				last_string += str[i];
 			}
 		}
 
@@ -385,9 +596,14 @@ namespace scls {
                 else result.push_back(part_to_add);
                 last_string = "";
 
+                int balise_level = 1;
                 i++;
-                while(str[i] != '>') {
-                    if(i >= static_cast<int>(str.size())) break;
+                while(i < static_cast<int>(str.size())) {
+                    if(str[i] == '<') balise_level++;
+                    else if(str[i] == '>') {
+                        balise_level--;
+                        if(balise_level <= 0) break;
+                    }
                     last_string += str[i];
                     i++;
                 }
@@ -463,15 +679,27 @@ namespace scls {
         // Most simple String constructor with "std::string"
         String(std::string content) : a_content(content) {};
 
+        // Return if the String contains an another string
+        inline bool contains(std::string part) { return contains_string(a_content, part); };
+        // Returns if a string contains an another string out of a string
+        inline bool contains(std::string part, std::string out_of) {return contains_string(a_content, part, out_of);};
+        // Returns if a string contains an another string out of 2 different string
+        inline bool contains(std::string part, std::string out_of_start, std::string out_of_end) {return contains_string(a_content, part, out_of_start, out_of_end);};
+        // Returns the number occurrence of a string in an another string
+        inline unsigned int count(std::string part) {return count_string(a_content, part);};
+        // Returns the number occurrence of a string in an another string out of a string
+        inline unsigned int count(std::string part, std::string out_of) {return count_string(a_content, part, out_of);};
+        // Returns the number occurrence of a string in an another string out of 2 different string
+        inline unsigned int count(std::string part, std::string out_of_start, std::string out_of_end) {return count_string(a_content, part, out_of_start, out_of_end);};
         // Cuts the String by an another string
-        inline std::vector<std::string> cut(std::string part_to_cut, bool erase_blank = false, bool erase_last_if_blank = true) {
-            return cut_string(a_content, part_to_cut, erase_blank, erase_last_if_blank);
-        };
-        // Cut the String by balises (including the balises in the vector)
-        inline std::vector<_Text_Balise_Part> cut_by_balise(bool erase_blank = false, bool erase_last_if_blank = true){
-            return cut_string_by_balise(a_content, erase_blank, erase_last_if_blank);
-        };
-        // Format the string
+        inline std::vector<std::string> cut(std::string part_to_cut, bool erase_blank = false, bool erase_last_if_blank = true) { return cut_string(a_content, part_to_cut, erase_blank, erase_last_if_blank); };
+        // Cuts the String by an another string out of a string
+        inline std::vector<std::string> cut_out_of(std::string part_to_cut, std::string out_of, bool erase_blank = false, bool erase_last_if_blank = true) { return cut_string_out_of(a_content, part_to_cut, out_of, erase_blank, erase_last_if_blank); };
+        // Cuts the String by an another string out of 2 different string
+        inline std::vector<std::string> cut_out_of_2(std::string part_to_cut, std::string out_of_start, std::string out_of_end, bool erase_blank = false, bool erase_last_if_blank = true) { return cut_string_out_of_2(a_content, part_to_cut, out_of_start, out_of_end, erase_blank, erase_last_if_blank); };
+        // Cuts the String by balises (including the balises in the vector)
+        inline std::vector<_Text_Balise_Part> cut_by_balise(bool erase_blank = false, bool erase_last_if_blank = true){ return cut_string_by_balise(a_content, erase_blank, erase_last_if_blank); };
+        // Formats the string
         inline void format() {a_content = format_string(a_content);};
         // Returns the String formatted
         inline String formatted() {return String(format_string(a_content));};
