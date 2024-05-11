@@ -294,7 +294,12 @@ namespace scls {
 
     // Test scls_foundation_string.h
     inline void test_string() {
-        String str = "Test";
+        String str = "<d>Test</d></e>Test<e>";
+        std::vector<_Text_Balise_Part> balises = str.cut_by_balise();
+
+        for(int i = 0;i<static_cast<int>(balises.size());i++) {
+            scls::print("Balise cut test", "Part " + std::to_string(i), balises[i].content);
+        }
     };
 
     // Test all the library
