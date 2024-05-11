@@ -80,6 +80,92 @@ namespace scls {
 	    return false;
 	};
 
+	// Returns if a string contains an another string out of a string
+    inline bool contains(std::string str, std::string part, std::string out_of) {
+	    bool in_out_of = false;
+	    // Last sequence of string for check with part
+	    std::string last_string = "";
+	    // Last sequence of string for check with out offset
+	    std::string last_string_out_of_offset = "";
+		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
+		{
+		    // Check the last string with out of offset start
+		    last_string_out_of_offset += str[i];
+		    if(last_string_out_of_offset.size() > out_of.size()) {
+                last_string_out_of_offset = last_string_out_of_offset.substr(1, last_string_out_of_offset.size() - 1);
+		    }
+
+		    // Check the last string
+		    last_string += str[i];
+			if (last_string.size() > part.size())
+			{
+				last_string = last_string.substr(1, part.size() - 1);
+			}
+
+			if(last_string_out_of_offset == out_of) {
+                last_string = "";
+                last_string_out_of_offset = "";
+                in_out_of = !in_out_of;
+			}
+
+			if (last_string == part && !in_out_of) // If the string which allows to know where to find the equality is true, return true
+			{
+				return true;
+			}
+		}
+	    return false;
+	};
+
+	// Returns if a string contains an another string out of 2 different string
+    inline bool contains(std::string str, std::string part, std::string out_of_start, std::string out_of_end) {
+	    int in_out_of = 0;
+	    // Last sequence of string for check with part
+	    std::string last_string = "";
+	    // Last sequence of string for check with out offset end
+	    std::string last_string_out_of_offset_e = "";
+	    // Last sequence of string for check with out offset start
+	    std::string last_string_out_of_offset_s = "";
+		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
+		{
+		    // Check the last string with out of offset start
+		    last_string_out_of_offset_e += str[i];
+		    if(last_string_out_of_offset_e.size() > out_of_end.size()) {
+                last_string_out_of_offset_e = last_string_out_of_offset_e.substr(1, last_string_out_of_offset_e.size() - 1);
+		    }
+		    // Check the last string with out of offset start
+		    last_string_out_of_offset_s += str[i];
+		    if(last_string_out_of_offset_s.size() > out_of_start.size()) {
+                last_string_out_of_offset_s = last_string_out_of_offset_s.substr(1, last_string_out_of_offset_s.size() - 1);
+		    }
+
+		    // Check the last string
+		    last_string += str[i];
+			if (last_string.size() > part.size())
+			{
+				last_string = last_string.substr(1, part.size() - 1);
+			}
+
+			if(last_string_out_of_offset_s == out_of_start) {
+                last_string = "";
+                last_string_out_of_offset_e = "";
+                last_string_out_of_offset_s = "";
+                in_out_of++;
+			}
+			else if(last_string_out_of_offset_e == out_of_end) {
+			    last_string = "";
+			    last_string_out_of_offset_e = "";
+			    last_string_out_of_offset_s = "";
+                if(in_out_of > 0) in_out_of--;
+			}
+
+			if (last_string == part && in_out_of == 0) // If the string which allows to know where to find the equality is true, return true
+			{
+				return true;
+			}
+		}
+	    return false;
+	};
+
 	// Return the number occurrence of a string in an another string
 	inline unsigned int count(std::string str, std::string part) {
 	    std::string last_string = ""; // String since the last cut
@@ -416,7 +502,7 @@ namespace scls {
 	};
 
 	// Flux output operator of String
-	std::ostream& operator<<(std::ostream& strm, const String& str) {
+	inline std::ostream& operator<<(std::ostream& strm, const String& str) {
 	    const char* to_out = str.to_char_array();
         strm << to_out;
         return strm;
