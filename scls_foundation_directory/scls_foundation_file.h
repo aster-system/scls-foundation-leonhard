@@ -28,6 +28,7 @@
 #define SCLS_FOUNDATION_FILE
 
 #include "scls_foundation_binary.h"
+#include "scls_foundation_string.h"
 
 // The namespace "scls" is used to simplify the all.
 namespace scls

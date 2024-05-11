@@ -32,6 +32,7 @@
 #include "scls_foundation_directory/scls_foundation_compression.h"
 #include "scls_foundation_directory/scls_foundation_file.h"
 #include "scls_foundation_directory/scls_foundation_math.h"
+#include "scls_foundation_directory/scls_foundation_string.h"
 
 namespace scls {
     // Test scls_foundation_core.h
@@ -291,6 +292,11 @@ namespace scls {
         scls::print("Test", "SCLS Math (-)", scls::sign(-7647597));
     }
 
+    // Test scls_foundation_string.h
+    inline void test_string() {
+        String str = "Test";
+    };
+
     // Test all the library
     inline void test_all() {
         scls::print("Test", "SCLS Foundation", scls::to_utf_8("Début du test de SCLS Foundation Leonhard :\n"));
@@ -316,6 +322,9 @@ namespace scls {
         scls::print("Test maths", "SCLS Foundation", scls::to_utf_8("Test du système mathématique."));
         test_math();
         scls::print("Test maths", "SCLS Foundation", scls::to_utf_8("Test terminé.\n"));
+        scls::print("Test String", "SCLS Foundation", scls::to_utf_8("Test du système de String."));
+        test_string();
+        scls::print("Test String", "SCLS Foundation", scls::to_utf_8("Test terminé.\n"));
 
         scls::print("Test", "SCLS Foundation", scls::to_utf_8("Tout les tests ont été réalisé."));
     }
