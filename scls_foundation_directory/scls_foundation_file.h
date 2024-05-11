@@ -106,19 +106,19 @@ namespace scls
         std::string final_path = "";
 
         if(cutted_1.size() > cutted_2.size()) {
-            for(int i = 0;i<cutted_1.size()-cutted_2.size();i++) final_path += "../";
+            for(int i = 0;i<static_cast<int>(cutted_1.size())-static_cast<int>(cutted_2.size());i++) final_path += "../";
 
             int level = 0;
-            for(int i = 0;i<cutted_2.size();i++) {
+            for(int i = 0;i<static_cast<int>(cutted_2.size());i++) {
                 if(cutted_2[i] != cutted_1[i]) break;
                 level++;
             }
 
-            for(int i = 0;i<cutted_2.size() - level;i++) {
+            for(int i = 0;i<static_cast<int>(cutted_2.size()) - level;i++) {
                 final_path += "../";
             }
 
-            for(int i = level;i<cutted_2.size();i++) {
+            for(int i = level;i<static_cast<int>(cutted_2.size());i++) {
                 final_path += cutted_2[i] + "/";
             }
         }

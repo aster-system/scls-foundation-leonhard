@@ -56,7 +56,7 @@ namespace scls {
         Huffman_Tree to_return = Huffman_Tree();
 
         std::map<char, unsigned int> occurences = std::map<char, unsigned int>();
-        for(int i = 0;i<to_compress->datas_size();i++) {
+        for(int i = 0;i<static_cast<int>(to_compress->datas_size());i++) {
             char chr = to_compress->data_at(i);
             bool defined = false;
             for(std::map<char, unsigned int>::iterator it = occurences.begin();it!=occurences.end();it++) {
@@ -72,7 +72,7 @@ namespace scls {
         std::vector<_Huffman_Pair> pairs = std::vector<_Huffman_Pair>();
         unsigned int total_size = occurences.size();
 
-        for(int i = 0;i<total_size;i++) {
+        for(unsigned int i = 0;i<total_size;i++) {
             unsigned int j = 0;
             char minimum_1 = 0;
             unsigned int minimum_occurences_1 = -1;

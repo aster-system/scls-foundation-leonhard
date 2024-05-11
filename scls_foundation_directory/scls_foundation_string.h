@@ -246,6 +246,122 @@ namespace scls {
         return result;
     };
 
+    // Format a text
+	inline std::string format_string(std::string str) {
+	    std::string nl = ""; nl += static_cast<char>(10);
+	    std::string np = ""; np += static_cast<char>(13);
+	    str = replace(str, nl, "");
+	    str = replace(str, np, "");
+	    return str;
+	};
+
+	//*********
+	//
+	// Balise system
+	//
+	//*********
+
+	// Part of a text gotten by a balising cut
+    struct _Text_Balise_Part {
+        // Content of the part
+        std::string content = "";
+        // Position of the start of the balise (of the first char of the content)
+        unsigned int start_position = 0;
+    };
+
+	// Return the name of a formatted balise
+	inline std::string balise_name(std::string balise_formatted) {
+	    if(balise_formatted[0] == '<') balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
+	    if(balise_formatted[0] == '/') balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
+	    if(balise_formatted[balise_formatted.size() - 1] == '>') balise_formatted = balise_formatted.substr(0, balise_formatted.size() - 1);
+	    // Remove useless spaces
+	    while(balise_formatted.size() > 0 && balise_formatted[0] == ' ') {
+            balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
+	    }
+
+	    return cut_string(balise_formatted, " ")[0];
+	};
+
+	// Cut a string by its balises (including the balises in the vector)
+	inline std::vector<_Text_Balise_Part> cut_string_by_balise(std::string str, bool erase_blank = false, bool erase_last_if_blank = true) {
+	    bool last_is_balise = false;
+		std::string last_string = ""; // String since the last cut
+		std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
+		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
+		{
+		    if(str[i] == '<') {
+                _Text_Balise_Part part_to_add;
+                part_to_add.content = last_string;
+                part_to_add.start_position = i;
+                if(!last_is_balise && last_string == "") {
+                    if(!erase_blank && result.size() > 0)result.push_back(part_to_add);
+                }
+                else result.push_back(part_to_add);
+                last_string = "";
+
+                i++;
+                while(str[i] != '>') {
+                    if(i >= static_cast<int>(str.size())) break;
+                    last_string += str[i];
+                    i++;
+                }
+
+                part_to_add.content = "<" + last_string + ">";
+                result.push_back(part_to_add);
+                last_is_balise = true;
+                last_string = "";
+                continue;
+		    }
+
+		    last_is_balise = false;
+			last_string += str[i];
+		}
+
+		if (last_string.size() > 0 || !erase_last_if_blank) {
+            _Text_Balise_Part part_to_add;
+            part_to_add.content = last_string;
+            result.push_back(part_to_add);
+        } // Add the last non-cutted element
+		return result;
+	};
+
+	// Format a balise and return it
+	inline std::string formatted_balise(std::string str) {
+	    // Remove useless spaces
+	    while(str.size() > 0 && str[0] == ' ') {
+            str = str.substr(1, str.size() - 1);
+	    }
+	    while(str.size() > 0 && str[str.size() - 1] == ' ') {
+            str = str.substr(0, str.size() - 1);
+	    }
+
+	    // Get the position of the / if there is one
+        int slash_position = 0;
+        bool slash_position_founded = false;
+        while(str[slash_position] < static_cast<int>(str.size())) {
+            if(str[slash_position] == '/') {
+                slash_position_founded = true;
+                break;
+            }
+            slash_position++;
+        }
+
+        // Format the balise
+        std::string final_balise = "";
+        if(slash_position_founded) final_balise = "</" + str.substr(slash_position + 1, str.size() - (2 + slash_position)) + ">";
+        else final_balise = "<" + str.substr(1, str.size() - 2) + ">";
+
+        // Format the formatted balise (help)
+	    while(final_balise.size() > 0 && final_balise[0] == ' ') {
+            final_balise = final_balise.substr(1, final_balise.size() - 1);
+	    }
+	    while(final_balise.size() > 0 && final_balise[final_balise.size() - 1] == ' ') {
+            final_balise = final_balise.substr(0, final_balise.size() - 1);
+	    }
+
+        return final_balise;
+	};
+
     //*********
 	//
 	// The String class
@@ -265,6 +381,14 @@ namespace scls {
         inline std::vector<std::string> cut(std::string part_to_cut, bool erase_blank = false, bool erase_last_if_blank = true) {
             return cut_string(a_content, part_to_cut, erase_blank, erase_last_if_blank);
         };
+        // Cut the String by balises (including the balises in the vector)
+        inline std::vector<_Text_Balise_Part> cut_by_balise(bool erase_blank = false, bool erase_last_if_blank = true){
+            return cut_string_by_balise(a_content, erase_blank, erase_last_if_blank);
+        };
+        // Format the string
+        inline void format() {a_content = format_string(a_content);};
+        // Returns the String formatted
+        inline String formatted() {return String(format_string(a_content));};
 
         // Returns the String to a char array
         inline const char* to_char_array() const {return a_content.c_str();};
