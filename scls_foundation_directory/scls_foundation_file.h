@@ -162,6 +162,11 @@ namespace scls
 			print("Error", "SCLS", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
 		}
 	}
+
+	// Write something in a file with String
+	inline void write_in_file(std::string path, String to_write, std::ios::openmode opening_mode = std::ios::out) {
+	    write_in_file(path, to_write.to_std_string(), opening_mode);
+	};
 }
 
 #endif // SCLS_FOUNDATION_FILE

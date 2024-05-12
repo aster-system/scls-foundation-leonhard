@@ -27,6 +27,47 @@
 #ifndef SCLS_FOUNDATION_STRING
 #define SCLS_FOUNDATION_STRING
 
+// Define the end of a balise
+#ifndef SCLS_BALISE_END
+#define SCLS_BALISE_END '>'
+#endif // SCLS_BALISE_END
+// Define the end of a balise in a char array
+#ifndef SCLS_BALISE_END_CHAR_ARRAY
+#define SCLS_BALISE_END_CHAR_ARRAY ">"
+#endif // SCLS_BALISE_END_CHAR_ARRAY
+// Define the end of a balise in HTML in a char array
+#ifndef SCLS_BALISE_END_PLAIN_TEXT_CHAR_ARRAY
+#define SCLS_BALISE_END_PLAIN_TEXT_CHAR_ARRAY "&gt;"
+#endif // SCLS_BALISE_END_PLAIN_TEXT_CHAR_ARRAY
+// Define the end of a balise in HTML in a std::string
+#ifndef SCLS_BALISE_END_PLAIN_TEXT_STD_STRING
+#define SCLS_BALISE_END_PLAIN_TEXT_STD_STRING std::string("&gt;")
+#endif // SCLS_BALISE_END_PLAIN_TEXT_STD_STRING
+// Define the end of a balise in a std::string
+#ifndef SCLS_BALISE_END_STD_STRING
+#define SCLS_BALISE_END_STD_STRING std::string(">")
+#endif // SCLS_BALISE_END_STD_STRING
+// Define the start of a balise
+#ifndef SCLS_BALISE_START
+#define SCLS_BALISE_START '<'
+#endif // SCLS_BALISE_START
+// Define the start of a balise in a char array
+#ifndef SCLS_BALISE_START_CHAR_ARRAY
+#define SCLS_BALISE_START_CHAR_ARRAY "<"
+#endif // SCLS_BALISE_START_CHAR_ARRAY
+// Define the start of a balise in HTML in a char array
+#ifndef SCLS_BALISE_START_PLAIN_TEXT_CHAR_ARRAY
+#define SCLS_BALISE_START_PLAIN_TEXT_CHAR_ARRAY "&lt;"
+#endif // SCLS_BALISE_START_PLAIN_TEXT_CHAR_ARRAY
+// Define the start of a balise in HTML in a std::string
+#ifndef SCLS_BALISE_START_PLAIN_TEXT_STD_STRING
+#define SCLS_BALISE_START_PLAIN_TEXT_STD_STRING std::string("&lt;")
+#endif // SCLS_BALISE_START_PLAIN_TEXT_STD_STRING
+// Define the start of a balise in a std::string
+#ifndef SCLS_BALISE_START_STD_STRING
+#define SCLS_BALISE_START_STD_STRING std::string("<")
+#endif // SCLS_BALISE_START_STD_STRING
+
 #include "scls_foundation_binary.h"
 
 // The namespace "scls" is used to simplify the all.
@@ -552,14 +593,21 @@ namespace scls {
 	    return str;
 	};
 
-	// Format a text for a display
+	// Format a text to plain text
 	inline std::string format_string_as_plain_text(std::string str) {
 	    std::string gt = "&gt;";
 	    std::string lt = "&lt;";
 	    std::string sp = "&nbsp;";
-	    str = replace(str, gt, ">");
-	    str = replace(str, lt, "<");
+	    str = replace(str, gt, SCLS_BALISE_END_CHAR_ARRAY);
+	    str = replace(str, lt, SCLS_BALISE_START_CHAR_ARRAY);
 	    str = replace(str, sp, " ");
+	    return str;
+	};
+
+	// Format a text from plain text
+	inline std::string format_string_from_plain_text(std::string str) {
+	    std::string eol = "\n";
+	    str = replace(str, eol, "</br>");
 	    return str;
 	};
 
@@ -579,9 +627,9 @@ namespace scls {
 
 	// Return the name of a formatted balise
 	inline std::string balise_name(std::string balise_formatted) {
-	    if(balise_formatted[0] == '<') balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
+	    if(balise_formatted[0] == SCLS_BALISE_START) balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
 	    if(balise_formatted[0] == '/') balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
-	    if(balise_formatted[balise_formatted.size() - 1] == '>') balise_formatted = balise_formatted.substr(0, balise_formatted.size() - 1);
+	    if(balise_formatted[balise_formatted.size() - 1] == SCLS_BALISE_END) balise_formatted = balise_formatted.substr(0, balise_formatted.size() - 1);
 	    // Remove useless spaces
 	    while(balise_formatted.size() > 0 && balise_formatted[0] == ' ') {
             balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
@@ -597,7 +645,7 @@ namespace scls {
 		std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
 		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
 		{
-		    if(str[i] == '<') {
+		    if(str[i] == SCLS_BALISE_START) {
                 _Text_Balise_Part part_to_add;
                 part_to_add.content = last_string;
                 part_to_add.start_position = i;
@@ -610,8 +658,8 @@ namespace scls {
                 int balise_level = 1;
                 i++;
                 while(i < static_cast<int>(str.size())) {
-                    if(str[i] == '<') balise_level++;
-                    else if(str[i] == '>') {
+                    if(str[i] == SCLS_BALISE_START) balise_level++;
+                    else if(str[i] == SCLS_BALISE_END) {
                         balise_level--;
                         if(balise_level <= 0) break;
                     }
@@ -619,7 +667,7 @@ namespace scls {
                     i++;
                 }
 
-                part_to_add.content = "<" + last_string + ">";
+                part_to_add.content = SCLS_BALISE_START + last_string + SCLS_BALISE_END;
                 result.push_back(part_to_add);
                 last_is_balise = true;
                 last_string = "";
@@ -661,8 +709,8 @@ namespace scls {
 
         // Format the balise
         std::string final_balise = "";
-        if(slash_position_founded) final_balise = "</" + str.substr(slash_position + 1, str.size() - (2 + slash_position)) + ">";
-        else final_balise = "<" + str.substr(1, str.size() - 2) + ">";
+        if(slash_position_founded) final_balise = SCLS_BALISE_START + "/" + str.substr(slash_position + 1, str.size() - (2 + slash_position)) + SCLS_BALISE_END;
+        else final_balise = SCLS_BALISE_START + str.substr(1, str.size() - 2) + SCLS_BALISE_END;
 
         // Format the formatted balise (help)
 	    while(final_balise.size() > 0 && final_balise[0] == ' ') {
@@ -716,6 +764,8 @@ namespace scls {
         inline String formatted() {return String(format_string(a_content));};
         // Returns the String formatted for display
         inline String formatted_as_plain_text() {return String(format_string_as_plain_text(a_content));};
+        // Returns the String formatted from plain text
+        inline String formatted_from_plain_text() {return String(format_string_from_plain_text(a_content));};
 
         // Returns the String to a char array
         inline const char* to_char_array() const {return a_content.c_str();};
@@ -723,20 +773,34 @@ namespace scls {
         inline std::string to_std_string() const {return a_content;};
 
         // Operator = overload with a char*
-        String& operator=(const char* other) {
+        inline String& operator=(const char* other) {
             a_content = other;
             return *this;
         };
         // Operator = overload with a std::string
-        String& operator=(const std::string& other) {
+        inline String& operator=(const std::string& other) {
             a_content = other;
             return *this;
         };
         // Operator = overload with an other String
-        String& operator=(const String& other) {
+        inline String& operator=(const String& other) {
             a_content = other.a_content;
             return *this;
         };
+
+        // Operator += overload with char*
+        inline String& operator+=(const char* second) { a_content += second; return *this; };
+        // Operator += overload with std::string
+        inline String& operator+=(const std::string second) { a_content += second; return *this; };
+        // Operator += overload with String
+        inline String& operator+=(const String second) { a_content += second.a_content; return *this; };
+
+        // Operator == overload with char*
+        inline bool operator==(const char* second) const { return a_content.c_str() == second; };
+        // Operator == overload with std::string
+        inline bool operator==(const std::string& second) const { return a_content == second; };
+        // Operator == overload with String
+        inline bool operator==(const String& second) const { return a_content == second.a_content; };
     private:
         // Content of the string
         std::string a_content = "";
