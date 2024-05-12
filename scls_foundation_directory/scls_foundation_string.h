@@ -552,6 +552,17 @@ namespace scls {
 	    return str;
 	};
 
+	// Format a text for a display
+	inline std::string format_string_as_plain_text(std::string str) {
+	    std::string gt = "&gt;";
+	    std::string lt = "&lt;";
+	    std::string sp = "&nbsp;";
+	    str = replace(str, gt, ">");
+	    str = replace(str, lt, "<");
+	    str = replace(str, sp, " ");
+	    return str;
+	};
+
 	//*********
 	//
 	// Balise system
@@ -703,6 +714,8 @@ namespace scls {
         inline void format() {a_content = format_string(a_content);};
         // Returns the String formatted
         inline String formatted() {return String(format_string(a_content));};
+        // Returns the String formatted for display
+        inline String formatted_as_plain_text() {return String(format_string_as_plain_text(a_content));};
 
         // Returns the String to a char array
         inline const char* to_char_array() const {return a_content.c_str();};

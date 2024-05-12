@@ -294,7 +294,7 @@ namespace scls {
 
     // Test scls_foundation_string.h
     inline void test_string() {
-        String str = "<d>Test</d<d>d></e>Test<e>;ea;h";
+        String str = "<d>Test</d<d>d></e>Test<e>;eah&lt;";
         std::vector<_Text_Balise_Part> balises = str.cut_by_balise();
 
         for(int i = 0;i<static_cast<int>(balises.size());i++) {
@@ -322,6 +322,7 @@ namespace scls {
         scls::print("Count out of < and >", "e (3)", str.count("e", "<", ">"));
         scls::print("Count out of < and >", "d (0)", str.count("d", "<", ">"));
         scls::print("Count out of < and >", "h (1)", str.count("h", "<", ">"));
+        scls::print("Formatted for display", "&lt; -> <", str.formatted_as_plain_text());
     };
 
     // Test all the library
