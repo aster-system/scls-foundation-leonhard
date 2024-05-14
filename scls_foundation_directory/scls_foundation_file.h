@@ -82,7 +82,7 @@ namespace scls
     };
 
     // Format a path to the SCLS format
-    static std::string format_path(std::string path) {
+    inline std::string format_path(std::string path) {
         std::vector<std::string> cutted = cut_string(join_string(cut_string(path, "/", true), "\\"), "\\", true);
         std::vector<std::string> cutted_final = std::vector<std::string>();
 
@@ -99,7 +99,7 @@ namespace scls
     }
 
     // Return the way to got to the second path from the first path, assuming they are in the same disk, and (even better), the same set of directory, starting from the same path
-    static std::string go_from_path_to_path(std::string first_path, std::string second_path) {
+    inline std::string go_from_path_to_path(std::string first_path, std::string second_path) {
         std::vector<std::string> cutted_1 = cut_string(join_string(cut_string(first_path, "/", true), "\\"), "\\", true); if(contains_string(cutted_1[cutted_1.size() - 1], ".")) cutted_1.pop_back();
         std::vector<std::string> cutted_2 = cut_string(join_string(cut_string(second_path, "/", true), "\\"), "\\", true); if(contains_string(cutted_2[cutted_2.size() - 1], ".")) cutted_2.pop_back();
 
@@ -127,6 +127,20 @@ namespace scls
 
         return final_path;
     }
+
+    //*********
+	//
+	// Get specials files
+	//
+	//*********
+
+	// Returns the document path of the user
+	inline std::string current_user_home_directory() {
+	    char* user_ca = getenv("USERPROFILE");
+	    if(user_ca == 0) return "";
+	    std::string user = user_ca;
+	    return user;
+	};
 
     //*********
 	//
