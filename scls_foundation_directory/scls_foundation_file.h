@@ -39,6 +39,21 @@ namespace scls
 	//
 	//*********
 
+	// Cut a path between its parent path
+    inline std::vector<std::string> cut_path(std::string path, bool full_path = false) {
+        std::filesystem::path p = path;
+        std::filesystem::path parent = p.parent_path();
+        std::vector<std::string> to_return = std::vector<std::string>();
+        do {
+            if(full_path) to_return.push_back(p.string());
+            else to_return.push_back(p.filename().string());
+            p = parent;
+            parent = p.parent_path();
+        } while(p != parent);
+        to_return.push_back(p.root_name().string());
+        return to_return;
+    };
+
 	// Return the content of a directory in a vector of string.
 	inline std::vector<std::string> directory_content(std::string path, bool sub_directory = false) {
 		std::vector<std::string> result;
@@ -80,53 +95,6 @@ namespace scls
 	    if(with_extension) return name;
 	    return name.substr(0, name.size() - file_extension(path, true).size());
     };
-
-    // Format a path to the SCLS format
-    inline std::string format_path(std::string path) {
-        std::vector<std::string> cutted = cut_string(join_string(cut_string(path, "/", true), "\\"), "\\", true);
-        std::vector<std::string> cutted_final = std::vector<std::string>();
-
-        for(int i = 0;i<static_cast<int>(cutted.size());i++) {
-            if(cutted[i] == ".." && i > 0) {
-                cutted_final.pop_back();
-                continue;
-            }
-            else if(cutted[i] == ".") continue;
-            cutted_final.push_back(cutted[i]);
-        }
-
-        return join_string(cutted_final, "/");
-    }
-
-    // Return the way to got to the second path from the first path, assuming they are in the same disk, and (even better), the same set of directory, starting from the same path
-    inline std::string go_from_path_to_path(std::string first_path, std::string second_path) {
-        std::vector<std::string> cutted_1 = cut_string(join_string(cut_string(first_path, "/", true), "\\"), "\\", true); if(contains_string(cutted_1[cutted_1.size() - 1], ".")) cutted_1.pop_back();
-        std::vector<std::string> cutted_2 = cut_string(join_string(cut_string(second_path, "/", true), "\\"), "\\", true); if(contains_string(cutted_2[cutted_2.size() - 1], ".")) cutted_2.pop_back();
-
-        std::string final_path = "";
-
-        if(cutted_1.size() > cutted_2.size()) {
-            for(int i = 0;i<static_cast<int>(cutted_1.size())-static_cast<int>(cutted_2.size());i++) final_path += "../";
-
-            int level = 0;
-            for(int i = 0;i<static_cast<int>(cutted_2.size());i++) {
-                if(cutted_2[i] != cutted_1[i]) break;
-                level++;
-            }
-
-            for(int i = 0;i<static_cast<int>(cutted_2.size()) - level;i++) {
-                final_path += "../";
-            }
-
-            for(int i = level;i<static_cast<int>(cutted_2.size());i++) {
-                final_path += cutted_2[i] + "/";
-            }
-        }
-        else final_path = "";
-        #define TO_FINISH_HERE
-
-        return final_path;
-    }
 
     //*********
 	//
