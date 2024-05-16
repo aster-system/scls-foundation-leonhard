@@ -104,10 +104,17 @@ namespace scls
 
 	// Returns the document path of the user
 	inline std::string current_user_home_directory() {
+        #if defined(__WIN32__) || defined(__WIN64__)
 	    char* user_ca = getenv("USERPROFILE");
 	    if(user_ca == 0) return "";
 	    std::string user = user_ca;
 	    return user;
+	    #elif defined(__linux__)
+	    char* user_ca = getenv("HOME");
+	    if(user_ca == 0) return "";
+	    std::string user = user_ca;
+	    return user;
+	    #endif // defined
 	};
 
     //*********
