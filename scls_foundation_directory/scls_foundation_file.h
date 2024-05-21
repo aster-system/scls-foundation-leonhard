@@ -31,8 +31,7 @@
 #include "scls_foundation_string.h"
 
 // The namespace "scls" is used to simplify the all.
-namespace scls
-{
+namespace scls {
     //*********
 	//
 	// Get datas about files
@@ -102,7 +101,7 @@ namespace scls
 	//
 	//*********
 
-	// Returns the document path of the user
+	// Returns the home path of the user
 	inline std::string current_user_home_directory() {
         #if defined(__WIN32__) || defined(__WIN64__)
 	    char* user_ca = getenv("USERPROFILE");
@@ -114,6 +113,15 @@ namespace scls
 	    if(user_ca == 0) return "";
 	    std::string user = user_ca;
 	    return user;
+	    #endif // defined
+	};
+
+	// Returns the document path of the user
+	inline std::string current_user_document_directory() {
+        #if defined(__WIN32__) || defined(__WIN64__)
+	    return current_user_home_directory() + "\\Documents";
+	    #elif defined(__linux__)
+	    return current_user_home_directory() + "/Documents";
 	    #endif // defined
 	};
 
