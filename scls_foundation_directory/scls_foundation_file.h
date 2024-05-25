@@ -103,27 +103,22 @@ namespace scls {
 
 	// Returns the home path of the user
 	inline std::string current_user_home_directory() {
+	    std::string to_return = "";
         #if defined(__WIN32__) || defined(__WIN64__)
 	    char* user_ca = getenv("USERPROFILE");
 	    if(user_ca == 0) return "";
-	    std::string user = user_ca;
-	    return user;
+	    to_return = user_ca;
 	    #elif defined(__linux__)
 	    char* user_ca = getenv("HOME");
 	    if(user_ca == 0) return "";
-	    std::string user = user_ca;
-	    return user;
+	    to_return = user_ca;
 	    #endif // defined
+	    to_return = replace(to_return, "\\", "/");
+	    return to_return;
 	};
 
 	// Returns the document path of the user
-	inline std::string current_user_document_directory() {
-        #if defined(__WIN32__) || defined(__WIN64__)
-	    return current_user_home_directory() + "\\Documents";
-	    #elif defined(__linux__)
-	    return current_user_home_directory() + "/Documents";
-	    #endif // defined
-	};
+	inline std::string current_user_document_directory() { return current_user_home_directory() + "/Documents"; };
 
     //*********
 	//
