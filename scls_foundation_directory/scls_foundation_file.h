@@ -95,6 +95,9 @@ namespace scls {
 	    return name.substr(0, name.size() - file_extension(path, true).size());
     };
 
+    // Returns the parent path of a path
+    inline std::string path_parent(std::string path) { std::filesystem::path p = path; return p.parent_path().string(); };
+
     //*********
 	//
 	// Get specials files
