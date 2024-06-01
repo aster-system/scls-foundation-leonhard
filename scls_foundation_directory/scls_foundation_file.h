@@ -38,6 +38,20 @@ namespace scls {
 	//
 	//*********
 
+	// Get the datas in the clipboard
+	inline std::string clipboard_datas() {
+	    std::string to_return = "";
+	    #if defined(__WIN32__) || defined(__WIN64__)
+	    if(!OpenClipboard(0)) return "";
+	    char* datas = reinterpret_cast<char*>(GetClipboardData(CF_TEXT));
+	    CloseClipboard();
+	    if(datas == 0) return "";
+	    to_return = datas;
+	    #endif // defined*
+
+        return to_return;
+	};
+
 	// Cut a path between its parent path
     inline std::vector<std::string> cut_path(std::string path, bool full_path = false) {
         std::filesystem::path p = path;

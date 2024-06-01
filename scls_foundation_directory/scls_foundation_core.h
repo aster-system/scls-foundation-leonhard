@@ -38,6 +38,10 @@
 #include <sys/time.h>
 #include <vector>
 
+#if defined(__WIN32__) || defined(__WIN64__)
+#include <windows.h>
+#endif // defined
+
 // The namespace "scls" is used to simplify the all.
 namespace scls
 {

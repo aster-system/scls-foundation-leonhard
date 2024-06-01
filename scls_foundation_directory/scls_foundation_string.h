@@ -607,7 +607,9 @@ namespace scls {
 	// Format a text from plain text
 	inline std::string format_string_from_plain_text(std::string str) {
 	    std::string eol = "\n";
+	    std::string np = ""; np += static_cast<char>(13);
 	    str = replace(str, eol, "</br>");
+	    str = replace(str, np, "");
 	    return str;
 	};
 
