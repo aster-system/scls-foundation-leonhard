@@ -643,6 +643,7 @@ namespace scls {
 	    bool last_is_balise = false;
 		std::string last_string = ""; // String since the last cut
 		std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
+
 		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
 		{
 		    if(str[i] == SCLS_BALISE_START) {
@@ -650,7 +651,7 @@ namespace scls {
                 part_to_add.content = last_string;
                 part_to_add.start_position = i;
                 if(!last_is_balise && last_string == "") {
-                    if(!erase_blank && result.size() > 0)result.push_back(part_to_add);
+                    if(!erase_blank && (result.size() > 0 || (i + 1 < static_cast<int>(str.size()) && str[i + 1] == '/')))result.push_back(part_to_add);
                 }
                 else result.push_back(part_to_add);
                 last_string = "";
