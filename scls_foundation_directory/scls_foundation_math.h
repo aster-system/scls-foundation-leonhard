@@ -134,8 +134,8 @@ namespace scls
         // Function to do operations with fractions
         // Adds an another Fraction to this fraction
         void _add(Fraction const& obj) {
-            long first_numerator = obj.a_numerator * a_denominator;
-            long second_numerator = a_numerator * obj.a_denominator;
+            long long first_numerator = obj.a_numerator * a_denominator;
+            long long second_numerator = a_numerator * obj.a_denominator;
             a_denominator = obj.a_denominator * a_denominator;
             a_numerator = first_numerator + second_numerator;
             normalize();
@@ -177,9 +177,9 @@ namespace scls
         };
         // Returns the substracting of this fraction and another function
         Fraction _substract_without_modification(Fraction const& obj) const {
-            long first_numerator = obj.a_numerator * a_denominator;
-            long second_numerator = a_numerator * obj.a_denominator;
-            long denominateur = obj.a_denominator * a_denominator;
+            long long first_numerator = obj.a_numerator * a_denominator;
+            long long second_numerator = a_numerator * obj.a_denominator;
+            long long denominateur = obj.a_denominator * a_denominator;
 
             Fraction new_fraction = Fraction(second_numerator - first_numerator, denominateur);
             return new_fraction;
