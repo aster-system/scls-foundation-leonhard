@@ -34,6 +34,7 @@
 #include <fstream>
 #include <math.h>
 #include <sstream>
+#include <stack>
 #include <string>
 #include <sys/time.h>
 #include <vector>

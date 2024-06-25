@@ -726,6 +726,288 @@ namespace scls {
         return final_balise;
 	};
 
+	// Balise in a text
+    struct Balise_Datas {
+        // If the balise
+        bool has_content = true;
+        // If the balise is a break of line or not
+        bool is_break_line = false;
+        // If the balise is a paragraph or not
+        bool is_paragraph = false;
+        // Name of the balise
+        std::string name = "";
+    };
+
+	class _Balise_Container {
+        // Class faciliting the handle of balises
+    public:
+
+        // Most simple _Balise_Container constructor
+        _Balise_Container() {
+
+        };
+        // _Balise_Container destructor
+        ~_Balise_Container() {
+
+        };
+
+        // Returns the position of the first plain text character in a unformatted text from before a position
+        unsigned int first_plain_text_character_before_position_in_informatted_text(const std::string& text_to_convert, unsigned int position) {
+            if(text_to_convert[position] == '>') {
+                // Remove balises
+                while(text_to_convert[position] != '<' && position > 0) { position--; }
+            }
+            else if(text_to_convert[position] == ';') {
+                // Remove special insertion
+                std::string part_content = "";
+                const unsigned int start_position = position;
+                while(position >= 0 && text_to_convert[position] != '&') {
+                    part_content = text_to_convert[position] + part_content;
+                    position--;
+                } part_content = part_content.substr(0, part_content.size() - 1);
+
+                if(!(part_content == "lt" || part_content == "gt") || position < 0) {
+                    position = start_position;
+                }
+            }
+            return position;
+        };
+        // Returns a html text in plain text
+        std::string plain_text(std::string text_to_convert) {
+            std::string final_text = "";
+            std::stack<std::string> found_balises = std::stack<std::string>();
+            std::string last_balise = "";
+            text_to_convert = replace(format_string(text_to_convert), "</br>", "\n");
+            for(int i = 0;i<static_cast<int>(text_to_convert.size());i++) {
+                if(text_to_convert[i] == '<') {
+                    std::string balise = "";
+                    unsigned int start = i;
+                    while(text_to_convert[i] != '>' && i < static_cast<int>(text_to_convert.size())) {
+                        balise += text_to_convert[i];
+                        i++;
+                    }
+                    balise += ">";
+                    balise = formatted_balise(balise);
+
+                    if(start != 0) {
+                        // Check the balise
+                        std::string current_balise_name = balise_name(balise);
+
+                        if(contains_defined_balise(current_balise_name)) {
+                            if(defined_balise(current_balise_name)->is_paragraph &&
+                               final_text != "" &&
+                               i < static_cast<int>(text_to_convert.size()) - 1 &&
+                               (!contains_defined_balise(last_balise) ||
+                               !defined_balise(last_balise)->is_paragraph)) {
+                                final_text += "\n";
+                            }
+                            else if(defined_balise(current_balise_name)->is_break_line) {
+                                final_text += "\n";
+                            }
+                        }
+
+                        // Check in the balise stack
+                        if(balise[1] == '/') {
+                            if(found_balises.size() > 0 && found_balises.top() == current_balise_name) {
+                                found_balises.pop();
+                            }
+                        }
+                        else found_balises.push(current_balise_name);
+                        last_balise = current_balise_name;
+                    }
+                }
+                else {
+                    final_text += text_to_convert[i];
+                    last_balise = "";
+                }
+            }
+
+            final_text = format_string_as_plain_text(final_text);
+            return final_text;
+        };
+        // Returns a plain text position to unformatted text position
+        unsigned int plain_text_position_to_unformatted_text_position(std::string text_to_convert, unsigned int position) {
+            unsigned int final_position = 0;
+            for(int i = 0;i<static_cast<int>(text_to_convert.size()) && i < position;i++) {
+                if(text_to_convert[final_position] == '<') {
+                    // Remove balises
+                    while(text_to_convert[final_position] != '>' && final_position < static_cast<int>(text_to_convert.size())) final_position++;
+                }
+                else if(text_to_convert[final_position] == '&') {
+                    // Remove special insertion
+                    std::string part_content = "";
+                    const unsigned int start_position = final_position;
+                    while(text_to_convert[final_position] != ';' && final_position < static_cast<int>(text_to_convert.size())) {
+                        part_content += text_to_convert[final_position];
+                        final_position++;
+                    } part_content = part_content.substr(1, part_content.size() - 1);
+
+                    if(!(part_content == "lt" || part_content == "gt") || final_position >= static_cast<int>(text_to_convert.size())) {
+                        final_position = start_position;
+                    }
+                }
+                final_position++;
+            }
+            return final_position;
+        };
+        // Return the size of the text
+        inline unsigned int plain_text_size(std::string text_to_check) { return plain_text(text_to_check).size(); };
+
+        // Returns the balise of the block or a blank string if it is not
+        std::string _block_balise(std::vector<_Text_Balise_Part>& cutted) {
+            if(cutted.size() == 0) return "";
+
+            // Check for the main balise of the block
+            std::string to_return = "";
+            if(cutted[0].content[0] == '<') {
+                std::string block_balise_name = balise_name(cutted[0].content);
+
+                // Check if the block is an entire balise
+                unsigned int level = 0;
+                for(int i = 0;i<static_cast<int>(cutted.size())-1;i++) {
+                    if(cutted[i].content.size() > 2 && cutted[i].content[0] == '<' && cutted[i].content[cutted[i].content.size() - 1] == '>') {
+                        std::string parsed_balise_name = balise_name(cutted[i].content);
+                        if(parsed_balise_name == block_balise_name) {
+                            if(cutted[i].content[1] == '/') {
+                                level--;
+                                if(level == 0) break;
+                            }
+                            else {
+                                level++;
+                            }
+                        }
+                    }
+                }
+
+                // If the block can be an entire balise
+                if(level == 1) {
+                    if(contains_defined_balise(block_balise_name)) {
+                        to_return = block_balise_name;
+                    }
+                }
+            }
+            return to_return;
+        };
+        // If the generator contains the style of a balise
+        inline bool contains_defined_balise(std::string balise_name) {
+            for(std::map<std::string, std::shared_ptr<Balise_Datas>>::iterator it = a_defined_balises.begin();it!=a_defined_balises.end();it++){
+                if(it->first == balise_name) return true;
+            }
+            return false;
+        };
+        // Cut a block by its sub_blocks and spaces
+        std::vector<_Text_Balise_Part> _cut_block(std::string block_text) {
+            std::vector<_Text_Balise_Part> first_cutted = cut_string_by_balise(block_text, false, true);
+            std::vector<_Text_Balise_Part> cutted = std::vector<_Text_Balise_Part>();
+            for(int i = 0;i<static_cast<int>(first_cutted.size());i++) {
+                if(first_cutted[i].content.size() > 0 && first_cutted[i].content[0] == '<') {
+                    // Erase the last blank character if necessary
+                    std::string current_balise_name = balise_name(formatted_balise(first_cutted[i].content));
+                    cutted.push_back(first_cutted[i]);
+                }
+                else if(first_cutted[i].content == "") {
+                    _Text_Balise_Part part_to_add; cutted.push_back(part_to_add);
+                }
+                else {
+                    std::vector<std::string> space_cutted = cut_string(first_cutted[i].content, " ", false, true);
+                    for(int j = 0;j<static_cast<int>(space_cutted.size());j++) {
+                        _Text_Balise_Part part_to_add;
+                        part_to_add.content = space_cutted[j];
+                        cutted.push_back(part_to_add);
+
+                        if(j < static_cast<int>(space_cutted.size()) - 1 || first_cutted[i].content[first_cutted[i].content.size() - 1] == ' ') {
+                            _Text_Balise_Part part_to_add;
+                            part_to_add.content = " ";
+                            cutted.push_back(part_to_add);
+                        }
+                    }
+                }
+            }
+            return cutted;
+        };
+        // Cut a multi-block by sub-blocks
+        std::vector<std::string> _cut_multi_block(std::string block_text) {
+            std::vector<_Text_Balise_Part> first_cutted = cut_string_by_balise(block_text, false, true);
+            std::string last_text = "";
+            std::vector<std::string> to_return = std::vector<std::string>();
+            for(int i = 0;i<static_cast<int>(first_cutted.size());i++) {
+                if(first_cutted[i].content.size() > 0 && first_cutted[i].content[0] == '<') {
+                    // A sub-block is here
+                    std::string current_balise_name = balise_name(formatted_balise(first_cutted[i].content));
+                    if(contains_defined_balise(current_balise_name) && defined_balise(current_balise_name)->is_paragraph) {
+                        // Save the last empty paragraph
+                        to_return.push_back(last_text); last_text = "";
+
+                        i++;
+                        unsigned int level = 1;
+                        std::string total_text = "";
+                        while(i<static_cast<int>(first_cutted.size())) {
+                            if(first_cutted[i].content[0] == '<') {
+                                first_cutted[i].content = formatted_balise(first_cutted[i].content);
+                                std::string next_balise_name = balise_name(first_cutted[i].content);
+                                if(next_balise_name == current_balise_name) {
+                                    if(first_cutted[i].content[1] == '/') {
+                                        level--;
+                                        if(level == 0) break;
+                                    }
+                                    else {
+                                        level++;
+                                    }
+                                }
+                            }
+                            total_text += first_cutted[i].content;
+                            i++;
+                        }
+
+                        // Create the block datas
+                        to_return.push_back(total_text);
+                    }
+                    else {
+                        last_text += first_cutted[i].content;
+                    }
+                }
+                else {
+                    last_text += first_cutted[i].content;
+                }
+            }
+            // Save the last paragraph if necessary
+            if(last_text != "") { to_return.push_back(last_text); last_text = ""; }
+            return to_return;
+        };
+        // Return the style of a balise
+        inline Balise_Datas* defined_balise(std::string balise_name) { return a_defined_balises[balise_name].get(); };
+        // Set a balise to the container
+        template <typename O = Balise_Datas>
+        inline void set_defined_balise(std::string name, const std::shared_ptr<O>& balise_datas) { a_defined_balises[name] = balise_datas; };
+
+        // Load the built-ins balises
+        virtual void _load_built_in_balises() {
+            std::shared_ptr<Balise_Datas> current_balise = std::make_shared<Balise_Datas>();
+            // Create the <br> style
+            current_balise.get()->is_break_line = true;
+            set_defined_balise("br", current_balise);
+            // Create the <div> style
+            current_balise = std::make_shared<Balise_Datas>();
+            current_balise.get()->is_paragraph = true;
+            set_defined_balise("div", current_balise);
+            // Create the <p> style
+            current_balise = std::make_shared<Balise_Datas>();
+            current_balise.get()->is_paragraph = true;
+            set_defined_balise("p", current_balise);
+            // Create the <h1> style
+            current_balise = std::make_shared<Balise_Datas>();
+            current_balise.get()->is_paragraph = true;
+            set_defined_balise("h1", current_balise);
+            // Create the <h2> style
+            current_balise = std::make_shared<Balise_Datas>();
+            current_balise.get()->is_paragraph = true;
+            set_defined_balise("h2", current_balise);
+        }
+    private:
+        // List of each defined balises
+        std::map<std::string, std::shared_ptr<Balise_Datas>> a_defined_balises = std::map<std::string, std::shared_ptr<Balise_Datas>>();
+    };
+
     //*********
 	//
 	// The String class
