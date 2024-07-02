@@ -50,14 +50,18 @@ namespace scls
         long long rest = number_to_partition % number_of_partitions;
         long long rest_to_add = static_cast<long long>(static_cast<double>(rest) / (round_partition_size));
         long long rest_of_rest = rest % round_partition_size;
-        long long current_rest_of_rest = static_cast<long long>(static_cast<double>(rest_of_rest) / 2.0);
+        long long rest_of_rest_to_add = 0;
+        if(rest_of_rest != 0) rest_of_rest_to_add = static_cast<long long>(static_cast<double>(number_of_partitions) / static_cast<double>(rest_of_rest));
+        long long current_rest_of_rest = static_cast<long long>(static_cast<double>(rest_of_rest_to_add) / 2.0);
+        unsigned int current_rest_added = 0;
         for(long long i = 0;i<number_of_partitions;i++) {
             long long to_add = 0;
-            if(current_rest_of_rest >= rest_of_rest) {
+            if(rest_of_rest_to_add != 0 && current_rest_of_rest >= rest_of_rest_to_add && current_rest_added < rest_of_rest) {
                 to_add++;
+                current_rest_added++;
                 current_rest_of_rest = 0;
             }
-            else current_rest_of_rest++;
+            current_rest_of_rest++;
             to_return.push_back(round_partition_size + rest_to_add + to_add);
         }
         return to_return;
