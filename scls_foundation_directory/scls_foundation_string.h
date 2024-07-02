@@ -520,8 +520,96 @@ namespace scls {
 		return std::stod(replace(str, _non_float_character, _float_character));
 	}
 
-    // Convert a char to an UTF-8
-    inline std::string to_utf_8(const char* character, unsigned int text_size) {
+    // Format a text
+	inline std::string format_string(std::string str) {
+	    std::string nl = ""; nl += static_cast<char>(10);
+	    std::string np = ""; np += static_cast<char>(13);
+	    str = replace(str, nl, "");
+	    str = replace(str, np, "");
+	    return str;
+	};
+
+	// Format a text to plain text
+	inline std::string format_string_as_plain_text(std::string str) {
+	    std::string gt = "&gt;";
+	    std::string lt = "&lt;";
+	    std::string sp = "&nbsp;";
+	    str = replace(str, gt, SCLS_BALISE_END_CHAR_ARRAY);
+	    str = replace(str, lt, SCLS_BALISE_START_CHAR_ARRAY);
+	    str = replace(str, sp, " ");
+	    return str;
+	};
+
+	// Format a text from plain text
+	inline std::string format_string_from_plain_text(std::string str) {
+	    std::string eol = "\n";
+	    std::string np = ""; np += static_cast<char>(13);
+	    str = replace(str, eol, "</br>");
+	    str = replace(str, np, "");
+	    return str;
+	};
+
+	//*********
+	//
+	// Text encoding system
+	//
+	//*********
+
+	// Convert a string in UTF-8 code point to an UTF-8
+    inline std::string to_utf_8(std::string str) {
+        std::string result = "";
+        for(int i = 0;i<static_cast<int>(str.size());i++)
+        {
+            unsigned char number = str[i];
+            if(number < 128) {
+                result += number;
+            }
+            else {
+                unsigned char first_part = 0;
+                unsigned char second_part = 0;
+
+                first_part = (number & 0b00111111) | 0b10000000;
+                second_part = ((number & 0b11000000) >> 6) | 0b11000000;
+                result += second_part;
+                result += first_part;
+            }
+        }
+        return result;
+    };
+
+	// Convert a string in UTF-8 to an UTF-8 code point
+    inline std::string to_utf_8_code_point(std::string str) {
+        std::string result = "";
+        for(int i = 0;i<static_cast<int>(str.size());i++)
+        {
+            if(~str[i] & 0b10000000)
+            {
+                result += str[i];
+            }
+            else if((str[i] & 0b11100000) == 0b11100000)
+            {
+                unsigned short final_character_1 = 0;
+                unsigned short final_character_2 = 0;
+                unsigned short final_character_3 = 0;
+                final_character_1 = (str[i]) & 0b00001111; final_character_1 = final_character_1 << 11; i++;
+                final_character_2 = (str[i]) & 0b00011111; final_character_2 = final_character_2 << 6; i++;
+                final_character_3 = str[i] & 0b00111111;
+                result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
+            }
+            else if((str[i] & 0b11000000) == 0b11000000)
+            {
+                unsigned short final_character_1 = 0;
+                unsigned short final_character_2 = 0;
+                final_character_1 = (str[i]) & 0b00011111; final_character_1 = final_character_1 << 6; i++;
+                final_character_2 = str[i] & 0b00111111;
+                result += static_cast<char>(final_character_1 + final_character_2);
+            }
+        }
+        return result;
+    };
+
+	// Convert a char to an UTF-8
+    inline std::string to_utf_8_code_point(const char* character, unsigned int text_size) {
         std::string result = "";
         unsigned int current_pos = 0;
         for(int i = 0;i<static_cast<int>(text_size);i++)
@@ -552,66 +640,6 @@ namespace scls {
         }
         return result;
     };
-
-    // Convert a string to an UTF-8
-    inline std::string to_utf_8(std::string str) {
-        std::string result = "";
-        for(int i = 0;i<static_cast<int>(str.size());i++)
-        {
-            if(~str[i] & 0b10000000)
-            {
-                result += str[i];
-            }
-            else if((str[i] & 0b11100000) == 0b11100000)
-            {
-                unsigned short final_character_1 = 0;
-                unsigned short final_character_2 = 0;
-                unsigned short final_character_3 = 0;
-                final_character_1 = (str[i]) & 0b00001111; final_character_1 = final_character_1 << 11; i++;
-                final_character_2 = (str[i]) & 0b00011111; final_character_2 = final_character_2 << 6; i++;
-                final_character_3 = str[i] & 0b00111111;
-                result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
-            }
-            else if((str[i] & 0b11000000) == 0b11000000)
-            {
-                unsigned short final_character_1 = 0;
-                unsigned short final_character_2 = 0;
-                final_character_1 = (str[i]) & 0b00011111; final_character_1 = final_character_1 << 6; i++;
-                final_character_2 = str[i] & 0b00111111;
-                result += static_cast<char>(final_character_1 + final_character_2);
-            }
-        }
-        return result;
-    };
-
-    // Format a text
-	inline std::string format_string(std::string str) {
-	    std::string nl = ""; nl += static_cast<char>(10);
-	    std::string np = ""; np += static_cast<char>(13);
-	    str = replace(str, nl, "");
-	    str = replace(str, np, "");
-	    return str;
-	};
-
-	// Format a text to plain text
-	inline std::string format_string_as_plain_text(std::string str) {
-	    std::string gt = "&gt;";
-	    std::string lt = "&lt;";
-	    std::string sp = "&nbsp;";
-	    str = replace(str, gt, SCLS_BALISE_END_CHAR_ARRAY);
-	    str = replace(str, lt, SCLS_BALISE_START_CHAR_ARRAY);
-	    str = replace(str, sp, " ");
-	    return str;
-	};
-
-	// Format a text from plain text
-	inline std::string format_string_from_plain_text(std::string str) {
-	    std::string eol = "\n";
-	    std::string np = ""; np += static_cast<char>(13);
-	    str = replace(str, eol, "</br>");
-	    str = replace(str, np, "");
-	    return str;
-	};
 
 	//*********
 	//

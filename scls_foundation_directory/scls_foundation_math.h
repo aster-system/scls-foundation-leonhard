@@ -27,6 +27,13 @@
 #ifndef SCLS_FOUNDATION_MATH
 #define SCLS_FOUNDATION_MATH
 
+#ifndef SCLS_PI
+#define SCLS_PI 3.1415926535
+#endif // SCLS_PI
+#ifndef SCLS_HALP_PI
+#define SCLS_HALF_PI 1.5707963267948966
+#endif // SCLS_HALP_PI
+
 // The namespace "scls" is used to simplify the all.
 namespace scls
 {
@@ -35,6 +42,26 @@ namespace scls
 	// Mathematical functions
 	//
 	//*********
+
+	// Partitions a number and return each numbers of the partition
+	inline std::vector<long long> partition_number(long long number_to_partition, long long number_of_partitions) {
+	    std::vector<long long> to_return = std::vector<long long>();
+        long long round_partition_size = static_cast<long long>(static_cast<double>(number_to_partition) / static_cast<double>(number_of_partitions));
+        long long rest = number_to_partition % number_of_partitions;
+        long long rest_to_add = static_cast<long long>(static_cast<double>(rest) / (round_partition_size));
+        long long rest_of_rest = rest % round_partition_size;
+        long long current_rest_of_rest = static_cast<long long>(static_cast<double>(rest_of_rest) / 2.0);
+        for(long long i = 0;i<number_of_partitions;i++) {
+            long long to_add = 0;
+            if(current_rest_of_rest >= rest_of_rest) {
+                to_add++;
+                current_rest_of_rest = 0;
+            }
+            else current_rest_of_rest++;
+            to_return.push_back(round_partition_size + rest_to_add + to_add);
+        }
+        return to_return;
+	};
 
 	// Apply the Paeth function to a left, above and upper left values
 	inline double paeth_function(double left, double above, double upper_left) {
@@ -186,6 +213,12 @@ namespace scls
         };
 
         // Operator overloading with int
+        // Greater operator
+        bool operator>(const int& obj) { return to_double() > obj; }
+        // Less operator
+        bool operator<(const int& obj) { return to_double() < obj; }
+        // Less or equal operator
+        bool operator<=(const int& obj) { return to_double() < obj || _equal(obj); }
         // Equality operator
         bool operator==(const int& obj) { return _equal(obj); }
         // Multiplication operator
@@ -200,7 +233,7 @@ namespace scls
         Fraction operator/(double const& obj) { return _divide_without_modification(from_double(obj)); };
         // Greater than than operator
         bool operator>(const double& r) { return to_double() > r; }
-        // Lesser than operator
+        // Less than operator
         bool operator<(const double& r) { return to_double() < r; }
         // Minus operator
         Fraction operator-(double const& obj) { return _substract_without_modification(from_double(obj)); }

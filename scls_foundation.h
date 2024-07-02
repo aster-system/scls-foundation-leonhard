@@ -79,7 +79,7 @@ namespace scls {
 
         #ifdef SCLS_FOUNDATION_IMAGE
         scls::Text_Image_Data datas; datas.font = scls::get_system_font("arial");
-        scls::Image* img = scls::text_image(scls::to_utf_8(utf_8), datas);
+        scls::Image* img = scls::text_image(scls::to_utf_8_code_point(utf_8), datas);
         img->save_png("utf_8.png");
         delete img; img = 0;
         #endif // SCLS_FOUNDATION_IMAGE
@@ -114,8 +114,8 @@ namespace scls {
         scls::print("Test", "Tester", "Shouldn't be printed");
 
         scls::set_can_print(true);
-        scls::set_sender_message_separation(scls::to_utf_8(" ==> "));
-        scls::set_type_sender_separation(scls::to_utf_8(" ~~~~} "));
+        scls::set_sender_message_separation(scls::to_utf_8_code_point(" ==> "));
+        scls::set_type_sender_separation(scls::to_utf_8_code_point(" ~~~~} "));
 
         scls::print("Test", "Tester", "Should be printed");
 
@@ -189,7 +189,7 @@ namespace scls {
         binary_number.save("binary_number.binary");
 
         scls::Bytes_Set binary_text = scls::Bytes_Set();
-        std::string to_write = scls::to_utf_8("Le char Leclerc est un char de combat français de 4ème génération, conçu dans les années 90.");
+        std::string to_write = scls::to_utf_8_code_point("Le char Leclerc est un char de combat français de 4ème génération, conçu dans les années 90.");
         binary_text.add_string(to_write);
 
         binary_text.save("binary_text.binary");
@@ -266,7 +266,7 @@ namespace scls {
             scls::print("Test", "SCLS Path 6 file " + std::to_string(i), content[i]);
         }
 
-        scls::write_in_file("test.txt", scls::to_utf_8("Le char Leclerc à Paris"));
+        scls::write_in_file("test.txt", scls::to_utf_8_code_point("Le char Leclerc à Paris"));
 
         content = scls::cut_path("C:/File/OtherFile/Photos/Images");
         for(int i = 0;i<static_cast<int>(content.size());i++) {
@@ -326,34 +326,34 @@ namespace scls {
 
     // Test all the library
     inline void test_all() {
-        scls::print("Test", "SCLS Foundation", scls::to_utf_8("Début du test de SCLS Foundation Leonhard :\n"));
+        scls::print("Test", "SCLS Foundation", scls::to_utf_8_code_point("Début du test de SCLS Foundation Leonhard :\n"));
 
-        scls::print("Test data structure", "SCLS Foundation", scls::to_utf_8("Test des structure des données."));
+        scls::print("Test data structure", "SCLS Foundation", scls::to_utf_8_code_point("Test des structure des données."));
         test_data_structure();
-        scls::print("Test data structure", "SCLS Foundation", scls::to_utf_8("Test terminé."));
-        scls::print("Test debugging", "SCLS Foundation", scls::to_utf_8("Test du système de debug."));
+        scls::print("Test data structure", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé."));
+        scls::print("Test debugging", "SCLS Foundation", scls::to_utf_8_code_point("Test du système de debug."));
         test_debugging_helper();
-        scls::print("Test debugging", "SCLS Foundation", scls::to_utf_8("Test terminé.\n"));
-        scls::print("Test binary", "SCLS Foundation", scls::to_utf_8("Test du système binaire."));
+        scls::print("Test debugging", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé.\n"));
+        scls::print("Test binary", "SCLS Foundation", scls::to_utf_8_code_point("Test du système binaire."));
         test_binary_object();
-        scls::print("Test binary", "SCLS Foundation", scls::to_utf_8("Test terminé."));
-        scls::print("Test compression", "SCLS Foundation", scls::to_utf_8("Test du système de compression Huffman."));
+        scls::print("Test binary", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé."));
+        scls::print("Test compression", "SCLS Foundation", scls::to_utf_8_code_point("Test du système de compression Huffman."));
         test_huffman_compression();
-        scls::print("Test compression", "SCLS Foundation", scls::to_utf_8("Test terminé."));
-        scls::print("Test CRC", "SCLS Foundation", scls::to_utf_8("Test des algorithmes CRC."));
+        scls::print("Test compression", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé."));
+        scls::print("Test CRC", "SCLS Foundation", scls::to_utf_8_code_point("Test des algorithmes CRC."));
         test_crc();
-        scls::print("Test CRC", "SCLS Foundation", scls::to_utf_8("Test des algorithmes CRC.\n"));
-        scls::print("Test files", "SCLS Foundation", scls::to_utf_8("Test du système de fichier."));
+        scls::print("Test CRC", "SCLS Foundation", scls::to_utf_8_code_point("Test des algorithmes CRC.\n"));
+        scls::print("Test files", "SCLS Foundation", scls::to_utf_8_code_point("Test du système de fichier."));
         test_file();
-        scls::print("Test files", "SCLS Foundation", scls::to_utf_8("Test terminé.\n"));
-        scls::print("Test maths", "SCLS Foundation", scls::to_utf_8("Test du système mathématique."));
+        scls::print("Test files", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé.\n"));
+        scls::print("Test maths", "SCLS Foundation", scls::to_utf_8_code_point("Test du système mathématique."));
         test_math();
-        scls::print("Test maths", "SCLS Foundation", scls::to_utf_8("Test terminé.\n"));
-        scls::print("Test String", "SCLS Foundation", scls::to_utf_8("Test du système de String."));
+        scls::print("Test maths", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé.\n"));
+        scls::print("Test String", "SCLS Foundation", scls::to_utf_8_code_point("Test du système de String."));
         test_string();
-        scls::print("Test String", "SCLS Foundation", scls::to_utf_8("Test terminé.\n"));
+        scls::print("Test String", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé.\n"));
 
-        scls::print("Test", "SCLS Foundation", scls::to_utf_8("Tout les tests ont été réalisé."));
+        scls::print("Test", "SCLS Foundation", scls::to_utf_8_code_point("Tout les tests ont été réalisé."));
     }
 }
 
