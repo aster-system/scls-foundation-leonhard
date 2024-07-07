@@ -643,9 +643,32 @@ namespace scls {
 
 	//*********
 	//
-	// Balise system
+	// XML system
 	//
 	//*********
+
+	// Format a text for being usable with XLM
+	inline std::string format_for_xml(std::string content) {
+	    // Erase the first spaces (if there are)
+	    while(static_cast<int>(content.size()) > 0) {
+            if(content[0] == ' ' || content[0] == '\n') {
+                content = content.substr(1, content.size() - 1);
+            }
+            else break;
+	    }
+
+	    // Erase the break line and space before the balises
+	    int i = 0;
+	    while(i < static_cast<int>(content.size())) {
+            if(i > 0) {
+                if(content[i - 1] == '>' && (content[i] == ' ' || content[i] == '\n')) {
+                    content.erase(content.begin() + i); continue;
+                }
+            }
+            i++;
+	    }
+	    return content;
+	};
 
 	// Part of a text gotten by a balising cut
     struct _Text_Balise_Part {
@@ -653,6 +676,26 @@ namespace scls {
         std::string content = "";
         // Position of the start of the balise (of the first char of the content)
         unsigned int start_position = 0;
+    };
+
+    // Returns the name of an attribute of a balise
+    inline std::string attribute_name(std::string attribute) {
+        std::string to_return = "";
+        for(int i = 0;i<static_cast<int>(attribute.size()) && attribute[i] != '=';i++) {
+            to_return += attribute[i];
+        }
+
+        return to_return;
+    };
+
+    // Returns the value of an attribute of a balise
+    inline std::string attribute_value(std::string attribute) {
+        int i = 0;
+        for(;i<static_cast<int>(attribute.size()) && attribute[i] != '=';i++) {} i++;
+        std::string to_return = "";
+        if(i<static_cast<int>(attribute.size())) to_return = attribute.substr(i, attribute.size() - i);
+
+        return to_return;
     };
 
 	// Return the name of a formatted balise
@@ -665,7 +708,21 @@ namespace scls {
             balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
 	    }
 
-	    return cut_string(balise_formatted, " ")[0];
+	    std::vector<std::string> cutted = cut_string(balise_formatted, " ");
+	    if(cutted.size() <= 0) return "";
+	    return cutted[0];
+	};
+
+	// Cut a balise by its attributes
+	inline std::vector<std::string> cut_balise_by_attributes(std::string str) {
+	    // Cut the balise
+	    std::vector<std::string> result = cut_string(str, " ", true);
+	    if(result.size() > 0)result.erase(result.begin());
+
+	    // Erase the last '>' if necessary
+        if(result.size() > 0 && result[result.size() - 1][result[result.size() - 1].size() - 1] == '>') result[result.size() - 1].erase(result[result.size() - 1].end() - 1);
+
+	    return result;
 	};
 
 	// Cut a string by its balises (including the balises in the vector)
@@ -727,10 +784,12 @@ namespace scls {
             str = str.substr(0, str.size() - 1);
 	    }
 
+	    if(str.size() < 2 || str[0] != '<' || str[str.size() - 1] != '>') return "";
+
 	    // Get the position of the / if there is one
         int slash_position = 0;
         bool slash_position_founded = false;
-        while(str[slash_position] < static_cast<int>(str.size())) {
+        while(slash_position < static_cast<int>(str.size())) {
             if(str[slash_position] == '/') {
                 slash_position_founded = true;
                 break;
@@ -740,8 +799,8 @@ namespace scls {
 
         // Format the balise
         std::string final_balise = "";
-        if(slash_position_founded) final_balise = SCLS_BALISE_START + "/" + str.substr(slash_position + 1, str.size() - (2 + slash_position)) + SCLS_BALISE_END;
-        else final_balise = SCLS_BALISE_START + str.substr(1, str.size() - 2) + SCLS_BALISE_END;
+        if(slash_position_founded) final_balise = SCLS_BALISE_START_STD_STRING + "/" + str.substr(slash_position + 1, str.size() - (2 + slash_position)) + SCLS_BALISE_END_STD_STRING;
+        else final_balise = SCLS_BALISE_START_STD_STRING + str.substr(1, str.size() - 2) + SCLS_BALISE_END_STD_STRING;
 
         // Format the formatted balise (help)
 	    while(final_balise.size() > 0 && final_balise[0] == ' ') {

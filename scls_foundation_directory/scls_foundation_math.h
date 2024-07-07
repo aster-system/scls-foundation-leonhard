@@ -46,20 +46,28 @@ namespace scls
 	// Partitions a number and return each numbers of the partition
 	inline std::vector<long long> partition_number(long long number_to_partition, long long number_of_partitions) {
 	    std::vector<long long> to_return = std::vector<long long>();
+
+	    // Calculate the main value to add at each iteration
         long long round_partition_size = static_cast<long long>(static_cast<double>(number_to_partition) / static_cast<double>(number_of_partitions));
         long long rest = number_to_partition % number_of_partitions;
-        long long rest_to_add = static_cast<long long>(static_cast<double>(rest) / (round_partition_size));
-        long long rest_of_rest = rest % round_partition_size;
-        long long rest_of_rest_to_add = 0;
-        if(rest_of_rest != 0) rest_of_rest_to_add = static_cast<long long>(static_cast<double>(number_of_partitions) / static_cast<double>(rest_of_rest));
-        long long current_rest_of_rest = static_cast<long long>(static_cast<double>(rest_of_rest_to_add) / 2.0);
+
+        // Calculate the rest to add at each iterations
+        long long rest_to_add = static_cast<long long>(static_cast<double>(rest) / static_cast<double>(number_of_partitions));
+        long long rest_of_rest = rest % number_of_partitions;
+
+        // Calculate the rest of the rest to add at each iterations
+        double rest_of_rest_to_add = 0;
+        if(rest_of_rest != 0) rest_of_rest_to_add = static_cast<double>(number_of_partitions) / static_cast<double>(rest_of_rest);
+
+        // Create the partition
+        double current_rest_of_rest = static_cast<double>(rest_of_rest_to_add) / 2.0;
         unsigned int current_rest_added = 0;
         for(long long i = 0;i<number_of_partitions;i++) {
             long long to_add = 0;
             if(rest_of_rest_to_add != 0 && current_rest_of_rest >= rest_of_rest_to_add && current_rest_added < rest_of_rest) {
                 to_add++;
                 current_rest_added++;
-                current_rest_of_rest = 0;
+                current_rest_of_rest -= rest_of_rest_to_add;
             }
             current_rest_of_rest++;
             to_return.push_back(round_partition_size + rest_to_add + to_add);
@@ -109,6 +117,8 @@ namespace scls
         Fraction(long long numerator) : a_denominator(1), a_numerator(numerator) {};
         // Simple fraction constructor
         Fraction(long long numerator, long long denominator) : a_denominator(denominator), a_numerator(numerator) {normalize();};
+        // Fraction copy constructor
+        Fraction(const Fraction& to_copy) : a_denominator(to_copy.a_denominator), a_numerator(to_copy.a_numerator) {a_normalized = true;};
 
         // Returns a fraction from a double
         static Fraction from_double(double result) {
@@ -120,6 +130,8 @@ namespace scls
         };
         // Normalize the fraction
         void normalize() {
+            if(a_normalized) return;
+
             const long long base_denominator = a_denominator; const long long base_numerator = a_numerator;
             if(a_denominator < 0) a_denominator = -a_denominator;
             if(a_numerator < 0) a_numerator = -a_numerator;
@@ -142,6 +154,7 @@ namespace scls
 
             // Apply the sign
             if((base_denominator < 0 && base_numerator > 0) || (base_denominator > 0 && base_numerator < 0)) a_numerator = -a_numerator;
+            a_normalized = true;
         };
         // Sets this fraction as a double
         void set_from_double(double result) {
@@ -169,6 +182,7 @@ namespace scls
             long long second_numerator = a_numerator * obj.a_denominator;
             a_denominator = obj.a_denominator * a_denominator;
             a_numerator = first_numerator + second_numerator;
+            a_normalized = false;
             normalize();
         };
         // Returns the adding of this fraction and another function
@@ -181,7 +195,7 @@ namespace scls
             return new_fraction;
         };
         // Divides the fraction with an another fraction
-        void _divide(Fraction const& obj) { _multiply(Fraction(obj.a_denominator, obj.a_numerator)); };
+        void _divide(Fraction const& obj) { _multiply(Fraction(obj.a_denominator, obj.a_numerator)); a_normalized = false; };
         // Divides the fraction with an another fraction
         Fraction _divide_without_modification(Fraction const& obj) const { return _multiply_without_modification(Fraction(obj.a_denominator, obj.a_numerator)); };
         // Returns if this fraction is equal to another
@@ -189,7 +203,7 @@ namespace scls
          // Returns if this fraction is equal to an int
         bool _equal(int const& obj) const {return a_numerator == obj && a_denominator == 1;};
         // Multiplies the fraction with an another Fraction
-        void _multiply(Fraction const& obj) { a_numerator *= obj.a_numerator; a_denominator *= obj.a_denominator; };
+        void _multiply(Fraction const& obj) { a_numerator *= obj.a_numerator; a_denominator *= obj.a_denominator; a_normalized = false; };
         // Multiplies the fraction with an another Fraction
         Fraction _multiply_without_modification(Fraction const& obj) const { return Fraction(a_numerator * obj.a_numerator, a_denominator * obj.a_denominator); };
         // Multiplies the fraction with a double
@@ -204,6 +218,7 @@ namespace scls
             long long second_numerator = a_numerator * obj.a_denominator;
             a_denominator = obj.a_denominator * a_denominator;
             a_numerator = second_numerator - first_numerator;
+            a_normalized = false;
             normalize();
         };
         // Returns the substracting of this fraction and another function
@@ -288,6 +303,8 @@ namespace scls
 
         // Denominator of the fraction
         long long a_denominator = 1;
+        // If the fraction has been normalized or not
+        bool a_normalized = false;
         // Numerator of the fraction
         long long a_numerator = 0;
 
