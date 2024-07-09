@@ -789,13 +789,8 @@ namespace scls {
 	    // Get the position of the / if there is one
         int slash_position = 0;
         bool slash_position_founded = false;
-        while(slash_position < static_cast<int>(str.size())) {
-            if(str[slash_position] == '/') {
-                slash_position_founded = true;
-                break;
-            }
-            slash_position++;
-        }
+        if(str[1] == '/') { slash_position = 1; slash_position_founded = true; }
+        else if(str[str.size() - 2] == '/') { slash_position = str.size() - 2; slash_position_founded = true; }
 
         // Format the balise
         std::string final_balise = "";
