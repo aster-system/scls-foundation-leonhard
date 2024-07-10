@@ -790,7 +790,7 @@ namespace scls {
         int slash_position = 0;
         bool slash_position_founded = false;
         if(str[1] == '/') { slash_position = 1; slash_position_founded = true; }
-        else if(str[str.size() - 2] == '/') { slash_position = str.size() - 2; slash_position_founded = true; }
+        else if(str[str.size() - 2] == '/') { slash_position = str.size() - 2; }
 
         // Format the balise
         std::string final_balise = "";
