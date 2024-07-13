@@ -63,7 +63,7 @@ namespace scls {
 
         //Search each occurences in the Bytes_Set to compress
         std::map<char, unsigned int> occurences = std::map<char, unsigned int>();
-        for(int i = 0;i<to_compress->datas_size();i++) {
+        for(int i = 0;i<static_cast<int>(to_compress->datas_size());i++) {
             char chr = to_compress->data_at(i);
             bool defined = false;
             for(std::map<char, unsigned int>::iterator it = occurences.begin();it!=occurences.end();it++) {

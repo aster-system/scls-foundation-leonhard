@@ -267,6 +267,12 @@ namespace scls
 		}
 	}
 
+	// Convert a float to a char array and put it in the char array
+	inline void put_4bytes_float_to_char_array(float n, char* result, unsigned int offset = 0, bool big_endian = false) {
+		int* n_p = (int*)(&n);
+		put_4bytes_to_char_array(*n_p, result, offset, big_endian);
+	}
+
 	// Convert an double to a char array and put it in the char array
 	inline void put_8bytes_double_to_char_array(double n, char* result, unsigned int offset = 0, bool big_endian = false) {
 		int64_t* n_p = (int64_t*)(&n);
@@ -582,6 +588,9 @@ namespace scls
             a_datas = final_datas;
             a_datas_size = final_size;
         };
+        inline void add_datas(const Bytes_Set& datas_to_add) {
+            add_datas(datas_to_add.datas(), datas_to_add.datas_size());
+        };
         inline void add_data(char data) {
             add_datas(&data, 1);
         };
@@ -592,7 +601,10 @@ namespace scls
             delete[] final_datas; final_datas = 0;
         };
         inline void add_float(float data, bool big_endian = false) {
-            add_double(static_cast<double>(data), big_endian);
+            char* final_datas = new char[4];
+            put_4bytes_float_to_char_array(data, final_datas, 0, big_endian);
+            add_datas(final_datas, 4);
+            delete[] final_datas; final_datas = 0;
         };
         inline void add_short(short data, bool big_endian = false) {
             char* final_datas = new char[2];
@@ -685,6 +697,11 @@ namespace scls
         inline unsigned short extract_ushort(unsigned int offset = 0, bool big_endian = false) {
             return extract_u2bytes_from_char_array(a_datas, offset, big_endian);
         }
+
+        // Put datas in the Bytes_Set
+        inline void put_uint(unsigned int value, unsigned int offset = 0, bool big_endian = false) {
+            if(offset + 4 < datas_size()) put_4bytes_to_char_array(value, a_datas, offset, big_endian);
+        };
 
         // Free the memory of the datas
         inline void free_memory() {
