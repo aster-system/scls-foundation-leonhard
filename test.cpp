@@ -233,7 +233,7 @@ void test_crc() {
 void test_huffman_compression() {
     scls::Bytes_Set bs;
     bs.add_string("Hello world !");
-    scls::Huffman_Tree ht = scls::compress_huffman(&bs);
+    std::shared_ptr<scls::Huffman_Tree> ht = scls::compress_huffman(&bs);
 }
 
 // Test scls_foundation_file.h
