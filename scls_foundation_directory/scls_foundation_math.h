@@ -24,6 +24,8 @@
 // You should have received a copy of the GNU General Public License along with SCLS. If not, see <https://www.gnu.org/licenses/>.
 //
 
+#include "scls_foundation_string.h"
+
 #ifndef SCLS_FOUNDATION_MATH
 #define SCLS_FOUNDATION_MATH
 
@@ -127,6 +129,13 @@ namespace scls
             if(after_decimal_point == 0) return Fraction(result_in_long, 1);
             long long after_decimal_point_in_long = static_cast<long long>(after_decimal_point * 100000);
             return Fraction(result_in_long, 1) + Fraction(after_decimal_point_in_long, 100000);
+        };
+        // Returns a fraction from a std::string
+        static Fraction from_std_string(std::string content) {
+            std::vector<std::string> cutted = cut_string(content, "/");
+            if(cutted.size() <= 0) return Fraction(0);
+            else if(cutted.size() == 1) return Fraction(std::stoi(cutted[0]));
+            else return Fraction(std::stoi(cutted[0]), std::stoi(cutted[1]));
         };
         // Normalize the fraction
         void normalize() {

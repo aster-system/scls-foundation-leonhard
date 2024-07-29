@@ -361,40 +361,28 @@ namespace scls {
 	    bool in_out_of = false;
 		std::string last_string = ""; // String since the last cut
 		// Last sequence of string for check with out offset
-	    std::string last_string_out_of_offset = "";
 		std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
 		std::vector<std::string> result = std::vector<std::string>();
 		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
-            // Check the last string with out of offset start
-		    last_string_out_of_offset += str[i];
-		    if(last_string_out_of_offset.size() > out_of.size()) {
-                last_string_out_of_offset = last_string_out_of_offset.substr(last_string_out_of_offset.size() - out_of.size(), out_of.size());
-		    }
-
-			last_string_cut += str[i];
+            last_string_cut += str[i];
 			if (last_string_cut.size() > cut.size()) // If the string which allows to know where to cut is too long, cut him
 			{
 				last_string_cut = last_string_cut.substr(1, cut.size());
 			}
 
-            if(last_string_out_of_offset == out_of) {
-                last_string_cut = "";
-                last_string_out_of_offset = "";
-                in_out_of = !in_out_of;
-			}
+			// Check the off-part
+            if(i >= out_of.size() && i <= str.size() - out_of.size() && str.substr(i - out_of.size(), out_of.size()) == out_of) { in_out_of = !in_out_of; }
 
 			if (last_string_cut == cut && !in_out_of) // If the string which allows to know where to cut is equal to the part to cut, do a cut
 			{
 				std::string final_string = last_string.substr(0, last_string.size() - (cut.size() - 1));
-				if (erase_blank)
-				{
+				if (erase_blank) {
 					if (final_string != "")
 					{
 						result.push_back(final_string);
 					}
 				}
-				else
-				{
+				else {
 					result.push_back(final_string);
 				}
 				last_string = "";
@@ -526,6 +514,15 @@ namespace scls {
 	    std::string np = ""; np += static_cast<char>(13);
 	    str = replace(str, nl, "");
 	    str = replace(str, np, "");
+	    return str;
+	};
+
+	// Format a std::string and its break lines
+	inline std::string format_string_break_line(std::string str, std::string new_break_line) {
+	    std::string nl = ""; nl += static_cast<char>(10);
+	    std::string np = ""; np += static_cast<char>(13);
+	    if(new_break_line != nl) str = replace(str, nl, new_break_line);
+	    if(new_break_line != np) str = replace(str, np, new_break_line);
 	    return str;
 	};
 
@@ -725,6 +722,20 @@ namespace scls {
 	    return result;
 	};
 
+	// Cut a balise by its attributes out of a certain pattern
+	inline std::vector<std::string> cut_balise_by_attributes_out_of(std::string str, std::string out) {
+	    // Cut the balise
+	    std::vector<std::string> result = cut_string_out_of(str, " ", out, true);
+	    unsigned int result_size = result.size() - 1;
+	    if(result_size >= 0)result.erase(result.begin());
+
+	    // Erase the last '>' if necessary
+	    result_size = result.size() - 1;
+        if(result_size >= 0 && result[result_size][result[result_size].size() - 1] == '>') result[result_size] = result[result_size].substr(0, result[result_size].size() - 1);
+
+	    return result;
+	};
+
 	// Cut a string by its balises (including the balises in the vector)
 	inline std::vector<_Text_Balise_Part> cut_string_by_balise(std::string str, bool erase_blank = false, bool erase_last_if_blank = true) {
 	    bool last_is_balise = false;
@@ -748,6 +759,60 @@ namespace scls {
                 while(i < static_cast<int>(str.size())) {
                     if(str[i] == SCLS_BALISE_START) balise_level++;
                     else if(str[i] == SCLS_BALISE_END) {
+                        balise_level--;
+                        if(balise_level <= 0) break;
+                    }
+                    last_string += str[i];
+                    i++;
+                }
+
+                part_to_add.content = SCLS_BALISE_START + last_string + SCLS_BALISE_END;
+                result.push_back(part_to_add);
+                last_is_balise = true;
+                last_string = "";
+                continue;
+		    }
+
+		    last_is_balise = false;
+			last_string += str[i];
+		}
+
+		if (last_string.size() > 0 || !erase_last_if_blank) {
+            _Text_Balise_Part part_to_add;
+            part_to_add.content = last_string;
+            result.push_back(part_to_add);
+        } // Add the last non-cutted element
+		return result;
+	};
+
+	// Cut a string by its balises (including the balises in the vector) out of a certain pattern
+	inline std::vector<_Text_Balise_Part> cut_string_by_balise_out_of(std::string str, std::string out, bool erase_blank = false, bool erase_last_if_blank = true) {
+	    bool can_cut = true;
+	    bool last_is_balise = false;
+		std::string last_string = ""; // String since the last cut
+		std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
+
+		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+            if(i >= out.size() && i <= str.size() - out.size() && str.substr(i - out.size(), out.size()) == out) can_cut = !can_cut;
+            else if(str[i] == SCLS_BALISE_START && can_cut) {
+                _Text_Balise_Part part_to_add;
+                part_to_add.content = last_string;
+                part_to_add.start_position = i;
+                if(!last_is_balise && last_string == "") {
+                    if(!erase_blank && (result.size() > 0 || (i + 1 < static_cast<int>(str.size()) && str[i + 1] == '/')))result.push_back(part_to_add);
+                }
+                else result.push_back(part_to_add);
+                last_string = "";
+
+                int balise_level = 1;
+                bool can_stop = true;
+                i++;
+                while(i < static_cast<int>(str.size())) {
+                    // Check the "out" character
+                    if(i >= out.size() && i <= str.size() - out.size() && str.substr(i - out.size(), out.size()) == out) can_stop = !can_stop;
+
+                    if(str[i] == SCLS_BALISE_START && can_stop) balise_level++;
+                    else if(str[i] == SCLS_BALISE_END && can_stop) {
                         balise_level--;
                         if(balise_level <= 0) break;
                     }

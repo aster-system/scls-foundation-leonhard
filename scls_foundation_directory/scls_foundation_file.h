@@ -59,7 +59,7 @@ namespace scls {
         std::vector<std::string> to_return = std::vector<std::string>();
         do {
             if(full_path) to_return.push_back(p.string());
-            else to_return.push_back(p.filename().string());
+            else to_return.insert(to_return.begin(), p.filename().string());
             p = parent;
             parent = p.parent_path();
         } while(p != parent);

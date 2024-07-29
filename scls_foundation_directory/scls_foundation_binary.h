@@ -40,16 +40,15 @@
 #define PNG_CRC_POLYMONIAL 0x04c11db7
 
 // The namespace "scls" is used to simplify the all.
-namespace scls
-{
+namespace scls {
     //*********
 	//
-	// Binary handling
+	// Binary handling (hidden functions)
 	//
 	//*********
 
 	// Extract a 2 bytes variable (short) from a char array
-	inline short extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline short __extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		short number_1 = 0;
 		short number_2 = 0;
 		if (big_endian)
@@ -67,7 +66,7 @@ namespace scls
 	};
 
 	// Extract a 2 bytes variable (unsigned short) from a char array
-	inline unsigned short extract_u2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline unsigned short __extract_u2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		unsigned short number_1 = 0;
 		unsigned short number_2 = 0;
 		if (big_endian)
@@ -85,7 +84,7 @@ namespace scls
 	};
 
 	// Extract a 4 bytes variable from a char array
-	inline int extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline int __extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		int number_1 = 0;
 		int number_2 = 0;
 		int number_3 = 0;
@@ -109,7 +108,7 @@ namespace scls
 	};
 
 	// Extract a 4 bytes unsigned variable from a char array
-	inline unsigned int extract_u4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline unsigned int __extract_u4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		unsigned int number_1 = 0;
 		unsigned int number_2 = 0;
 		unsigned int number_3 = 0;
@@ -133,7 +132,7 @@ namespace scls
 	};
 
 	// Extract a 8 bytes variable from a char array
-	inline int64_t extract_8bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline int64_t __extract_8bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		int64_t number_1 = 0;
 		int64_t number_2 = 0;
 		int64_t number_3 = 0;
@@ -169,8 +168,8 @@ namespace scls
 	};
 
 	// Extract a double variable from a char array
-	inline double extract_double_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
-		int64_t number_1 = extract_8bytes_from_char_array(result, offset, big_endian);
+	inline double __extract_double_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
+		int64_t number_1 = __extract_8bytes_from_char_array(result, offset, big_endian);
 		double* d = (double*)(&number_1);
 		double number = (*d);
 
@@ -178,7 +177,7 @@ namespace scls
 	};
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline void __put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool big_endian = false) {
 		if (big_endian)
 		{
 			result[offset + 1] = (n & 0x000000ff);
@@ -192,7 +191,7 @@ namespace scls
 	}
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_2bytes_to_char_array(unsigned short n, char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline void __put_2bytes_to_char_array(unsigned short n, char* result, unsigned int offset = 0, bool big_endian = false) {
 		if (big_endian)
 		{
 			result[offset + 1] = (n & 0x000000ff);
@@ -206,7 +205,7 @@ namespace scls
 	}
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline void __put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool big_endian = false) {
 		if (big_endian)
 		{
 			result[offset + 3] = (n & 0x000000ff);
@@ -224,7 +223,7 @@ namespace scls
 	}
 
 	// Convert an unsigned integer to a char array and put it in the char array
-	inline void put_4bytes_to_char_array(unsigned int n, char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline void __put_4bytes_to_char_array(unsigned int n, char* result, unsigned int offset = 0, bool big_endian = false) {
 		if (big_endian)
 		{
 			result[offset + 3] = (n & 0x000000ff);
@@ -242,7 +241,7 @@ namespace scls
 	}
 
 	// Convert an integer to a char array and put it in the char array
-	inline void put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline void __put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool big_endian = false) {
 		if (big_endian)
 		{
 			result[offset + 7] = static_cast<char>(n & 0x00000000000000ff);
@@ -268,16 +267,22 @@ namespace scls
 	}
 
 	// Convert a float to a char array and put it in the char array
-	inline void put_4bytes_float_to_char_array(float n, char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline void __put_4bytes_float_to_char_array(float n, char* result, unsigned int offset = 0, bool big_endian = false) {
 		int* n_p = (int*)(&n);
-		put_4bytes_to_char_array(*n_p, result, offset, big_endian);
+		__put_4bytes_to_char_array(*n_p, result, offset, big_endian);
 	}
 
 	// Convert an double to a char array and put it in the char array
-	inline void put_8bytes_double_to_char_array(double n, char* result, unsigned int offset = 0, bool big_endian = false) {
+	inline void __put_8bytes_double_to_char_array(double n, char* result, unsigned int offset = 0, bool big_endian = false) {
 		int64_t* n_p = (int64_t*)(&n);
-		put_8bytes_to_char_array(*n_p, result, offset, big_endian);
+		__put_8bytes_to_char_array(*n_p, result, offset, big_endian);
 	}
+
+    //*********
+	//
+	// Binary handling
+	//
+	//*********
 
 	// Reflect the bits into a char and return it
 	inline char reflect_char(char x) {
@@ -359,8 +364,7 @@ namespace scls
 		std::ifstream file;
 		// ensure ifstream objects can throw exceptions:
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-		try
-		{
+		try {
 			file.open(path, std::ios::binary);
 			file.seekg(start_pos, file.beg);
 			file.read(datas, size);
@@ -386,8 +390,7 @@ namespace scls
 	inline void write_in_file_binary(std::string path, char* to_write, unsigned int size, std::ios::openmode opening_mode = std::ios::out | std::ios::binary) {
 		std::ofstream file;
 		file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-		try
-		{
+		try {
 			file.open(path, opening_mode);
 			file.write(to_write, size);
 			file.close();
@@ -542,6 +545,13 @@ namespace scls
 	class Bytes_Set {
 	    // Very easy way to handle binary with C++
     public:
+
+        //*********
+        //
+        // Bytes_Set main members
+        //
+        //*********
+
         // Bytes_Set constructor
         Bytes_Set() {};
         // Bytes_Set constructor creating empty datas
@@ -560,6 +570,12 @@ namespace scls
         };
         // Bytes_Set destructor
         ~Bytes_Set() {free_memory();};
+
+        //*********
+        //
+        // Datas manipulation
+        //
+        //*********
 
         // Add datas to the object (with differents types)
         inline void add_datas(char* datas_to_add, unsigned int datas_to_add_size) {
@@ -596,43 +612,43 @@ namespace scls
         };
         inline void add_double(double data, bool big_endian = false) {
             char* final_datas = new char[8];
-            put_8bytes_double_to_char_array(data, final_datas, 0, big_endian);
+            __put_8bytes_double_to_char_array(data, final_datas, 0, big_endian);
             add_datas(final_datas, 8);
             delete[] final_datas; final_datas = 0;
         };
         inline void add_float(float data, bool big_endian = false) {
             char* final_datas = new char[4];
-            put_4bytes_float_to_char_array(data, final_datas, 0, big_endian);
+            __put_4bytes_float_to_char_array(data, final_datas, 0, big_endian);
             add_datas(final_datas, 4);
             delete[] final_datas; final_datas = 0;
         };
         inline void add_short(short data, bool big_endian = false) {
             char* final_datas = new char[2];
-            put_2bytes_to_char_array(data, final_datas, 0, big_endian);
+            __put_2bytes_to_char_array(data, final_datas, 0, big_endian);
             add_datas(final_datas, 2);
             delete[] final_datas; final_datas = 0;
         };
         inline void add_ushort(unsigned short data, bool big_endian = false) {
             char* final_datas = new char[2];
-            put_2bytes_to_char_array(data, final_datas, 0, big_endian);
+            __put_2bytes_to_char_array(data, final_datas, 0, big_endian);
             add_datas(final_datas, 2);
             delete[] final_datas; final_datas = 0;
         };
         inline void add_int(int data, bool big_endian = false) {
             char* final_datas = new char[4];
-            put_4bytes_to_char_array(data, final_datas, 0, big_endian);
+            __put_4bytes_to_char_array(data, final_datas, 0, big_endian);
             add_datas(final_datas, 4);
             delete[] final_datas; final_datas = 0;
         };
         inline void add_int64(int64_t data, bool big_endian = false) {
             char* final_datas = new char[8];
-            put_8bytes_to_char_array(data, final_datas, 0, big_endian);
+            __put_8bytes_to_char_array(data, final_datas, 0, big_endian);
             add_datas(final_datas, 8);
             delete[] final_datas; final_datas = 0;
         };
         inline void add_uint(unsigned int data, bool big_endian = false) {
             char* final_datas = new char[4];
-            put_4bytes_to_char_array(data, final_datas, 0, big_endian);
+            __put_4bytes_to_char_array(data, final_datas, 0, big_endian);
             add_datas(final_datas, 4);
             delete[] final_datas; final_datas = 0;
         };
@@ -648,14 +664,6 @@ namespace scls
             }
             return a_datas[position];
         }
-        // Set the char at a certain position
-        inline void set_data_at(unsigned int position, char new_data) {
-             if(position < 0 || position >= datas_size()) {
-                scls::print("Error", "SCLS", "Datas \"" + std::to_string(position) + "\" out of range in the Binary object.");
-                return;
-            }
-            a_datas[position] = new_data;
-        }
 
         // Extract datas from the object (with differents types)
         inline char* extract_datas(unsigned int extract_size, unsigned int offset = 0, bool inverse = false) {
@@ -670,19 +678,19 @@ namespace scls
             return data_at(offset);
         };
         inline double extract_double(unsigned int offset = 0, bool big_endian = false) {
-            return extract_double_from_char_array(a_datas, offset, big_endian);
+            return __extract_double_from_char_array(a_datas, offset, big_endian);
         };
         inline float extract_float(unsigned int offset = 0, bool big_endian = false) {
             return static_cast<float>(extract_double(offset, big_endian));
         };
         inline int extract_int(unsigned int offset = 0, bool big_endian = false) {
-            return extract_4bytes_from_char_array(a_datas, offset, big_endian);
+            return __extract_4bytes_from_char_array(a_datas, offset, big_endian);
         };
         inline int64_t extract_int64(unsigned int offset = 0, bool big_endian = false) {
-            return extract_8bytes_from_char_array(a_datas, offset, big_endian);
+            return __extract_8bytes_from_char_array(a_datas, offset, big_endian);
         };
         inline short extract_short(unsigned int offset = 0, bool big_endian = false) {
-            return extract_2bytes_from_char_array(a_datas, offset, big_endian);
+            return __extract_2bytes_from_char_array(a_datas, offset, big_endian);
         }
         inline std::string extract_string(unsigned int extract_size, unsigned int offset = 0) {
             std::string extracted_datas = "";
@@ -692,15 +700,22 @@ namespace scls
             return extracted_datas;
         }
         inline unsigned int extract_uint(unsigned int offset = 0, bool big_endian = false) {
-            return extract_u4bytes_from_char_array(a_datas, offset, big_endian);
+            return __extract_u4bytes_from_char_array(a_datas, offset, big_endian);
         }
         inline unsigned short extract_ushort(unsigned int offset = 0, bool big_endian = false) {
-            return extract_u2bytes_from_char_array(a_datas, offset, big_endian);
+            return __extract_u2bytes_from_char_array(a_datas, offset, big_endian);
         }
 
         // Put datas in the Bytes_Set
+        inline void put_datas(Bytes_Set* datas_to_put, unsigned int offset = 0) {
+            if(offset + datas_to_put->datas_size() <= datas_size()) {
+                for(int i = 0;i<datas_to_put->datas_size();i++) {
+                    a_datas[offset + i] = datas_to_put->a_datas[i];
+                }
+            }
+        };
         inline void put_uint(unsigned int value, unsigned int offset = 0, bool big_endian = false) {
-            if(offset + 4 < datas_size()) put_4bytes_to_char_array(value, a_datas, offset, big_endian);
+            if(offset + 4 < datas_size()) __put_4bytes_to_char_array(value, a_datas, offset, big_endian);
         };
 
         // Free the memory of the datas
@@ -710,6 +725,15 @@ namespace scls
                 a_datas = 0; a_datas_size = 0;
             }
         };
+
+        // Set the char at a certain position
+        inline void set_data_at(unsigned int position, char new_data) {
+             if(position < 0 || position >= datas_size()) {
+                scls::print("Error", "SCLS", "Datas \"" + std::to_string(position) + "\" out of range in the Binary object.");
+                return;
+            }
+            a_datas[position] = new_data;
+        }
 
         // File manipulation
         // Read the datas from a file
@@ -725,15 +749,11 @@ namespace scls
             return false;
         };
         // Save the datas in a file
-        inline void save(std::string path) {
-            write_in_file_binary(path, datas(), datas_size());
-        };
+        inline void save(std::string path) { write_in_file_binary(path, datas(), datas_size()); };
 
         // Operator overloading
         // Operator to access to a char
-        char operator[] (unsigned int position) {
-            return data_at(position);
-        };
+        char operator[] (unsigned int position) { return data_at(position); };
 
         // Getters and setters (ONLY WITH ATTRIBUTES)
         inline char* datas() const {return a_datas;};
