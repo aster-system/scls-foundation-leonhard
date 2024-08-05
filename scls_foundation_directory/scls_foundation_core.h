@@ -27,6 +27,7 @@
 #ifndef SCLS_FOUNDATION_CORE
 #define SCLS_FOUNDATION_CORE
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
