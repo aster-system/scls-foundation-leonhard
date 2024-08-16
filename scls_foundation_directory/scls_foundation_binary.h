@@ -714,6 +714,9 @@ namespace scls {
                 }
             }
         };
+        inline void put_double(double value, unsigned int offset = 0, bool big_endian = false) {
+            if(offset + 8 < datas_size()) __put_8bytes_double_to_char_array(value, a_datas, offset, big_endian);
+        };
         inline void put_uint(unsigned int value, unsigned int offset = 0, bool big_endian = false) {
             if(offset + 4 < datas_size()) __put_4bytes_to_char_array(value, a_datas, offset, big_endian);
         };
