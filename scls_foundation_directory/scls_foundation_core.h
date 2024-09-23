@@ -44,6 +44,10 @@
 #include <windows.h>
 #endif // defined
 
+#ifndef SCLS_FOUNDATION_CORE_INIT
+#define SCLS_FOUNDATION_CORE_INIT bool scls::_can_print = true;
+#endif // SCLS_FOUNDATION_CORE_INIT
+
 // The namespace "scls" is used to simplify the all.
 namespace scls
 {
@@ -59,7 +63,7 @@ namespace scls
 	static std::vector<std::string> _authorized_type = std::vector<std::string>();
 
 	// Static bool, usefull in debugging to tell to SCLS if the "print" function is enable or not
-	static bool _can_print = true;
+	extern bool _can_print;
 
 	// Static string, separation between the sender and the message in the "print" function
 	static std::string _sender_message_separation = " : ";
@@ -113,8 +117,7 @@ namespace scls
 	// Print the message in the console, coming from "sender" of type "type".
 	template <typename Type_To_Print = std::string>
 	inline void print(std::string type, std::string sender, Type_To_Print message) {
-		if (can_print() && is_type_authorized(type) && is_sender_authorized(sender))
-		{
+	    if (can_print() && is_type_authorized(type) && is_sender_authorized(sender)) {
 			std::cout << type << _type_sender_separation << sender << _sender_message_separation << message << std::endl;
 		}
 	};

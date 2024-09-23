@@ -34,6 +34,10 @@
 #include "scls_foundation_directory/scls_foundation_math.h"
 #include "scls_foundation_directory/scls_foundation_string.h"
 
+#ifndef SCLS_FOUNDATION_INIT
+#define SCLS_FOUNDATION_INIT SCLS_FOUNDATION_CORE_INIT
+#endif // SCLS_FOUNDATION_INIT
+
 namespace scls {
     // Test scls_foundation_core.h
     inline void test_data_structure() {
