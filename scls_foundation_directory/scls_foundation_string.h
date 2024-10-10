@@ -581,6 +581,15 @@ namespace scls {
         return to_return;
     };
 
+    // Remove spaces from a text
+    inline std::string remove_space(std::string str) {
+        std::string to_return = "";
+        for(int i = 0;i<static_cast<int>(str.size());i++) {
+            if(str[i] != ' ') to_return += str[i];
+        }
+        return to_return;
+    };
+
 	//*********
 	//
 	// Text encoding system
