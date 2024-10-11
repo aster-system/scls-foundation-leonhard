@@ -355,6 +355,63 @@ namespace scls {
 		return result;
 	};
 
+	/* Does not work for now
+	// Cut a string in a vector between two characters
+	inline std::vector<std::string> cut_string_between(std::string text, std::string cut_start, std::string cut_end) {
+		int cut_level = 0;
+		std::string last_string = ""; // String since the last cut
+		std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
+		std::vector<std::string> result = std::vector<std::string>();
+		// Browse the string char by char
+		for (int i = 0; i < static_cast<int>(text.size()); i++) {
+			last_string_cut += text[i];
+			if (last_string_cut.size() > cut.size()) {
+                // If the string which allows to know where to cut is too long, cut him
+				last_string_cut = last_string_cut.substr(1, cut.size());
+			}
+
+			if (last_string_cut == start_cut) {
+                // If the string which allows to know where to cut is equal to the start of the cut, start the cut
+                cut_level++;
+                if(cut_level != 1) continue;
+				std::string final_string = last_string.substr(0, last_string.size() - (cut.size() - 1));
+				if (erase_blank) {
+					if (final_string != "") {
+						result.push_back(final_string);
+					}
+				}
+				else {
+					result.push_back(final_string);
+				}
+				last_string = "";
+				last_string_cut = "";
+			}
+			else if (last_string_cut == end_cut){
+                // If the string which allows to know where to cut is equal to the start of the cut, end the cut
+                cut_level++;
+                if(cut_level != 0) continue;
+				std::string final_string = last_string.substr(0, last_string.size() - (cut.size() - 1));
+				if (erase_blank) {
+					if (final_string != "") {
+						result.push_back(final_string);
+					}
+				}
+				else {
+					result.push_back(final_string);
+				}
+				last_string = "";
+				last_string_cut = "";
+			}
+			else {
+				last_string += string[i];
+			}
+		}
+
+		if (last_string.size() > 0 || !erase_last_if_blank) { result.push_back(last_string); } // Add the last non-cutted element
+		return result;
+	};
+    //*/
+
 	// Cut a string in a vector where there are the "cut" part out of a string
 	inline std::vector<std::string> cut_string_out_of(std::string str, std::string cut, std::string out_of, bool erase_blank = false, bool erase_last_if_blank = true) {
 		// If the loop is out of the string or not
