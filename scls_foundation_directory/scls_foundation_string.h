@@ -541,8 +541,7 @@ namespace scls {
 
 	// Return the string with only lower case
 	inline std::string lowercase_string(std::string str) {
-        for(int i = 0;i<static_cast<int>(str.size());i++)
-        {
+        for(int i = 0;i<static_cast<int>(str.size());i++) {
             if(str[i] >= 65 && str[i] <= 90)
             {
                 str[i] += 32;
@@ -647,6 +646,10 @@ namespace scls {
         return to_return;
     };
 
+    // Returns if a string is a number or not
+    inline bool string_is_number(char to_test) {return to_test == '0' || to_test == '1' || to_test == '2' || to_test == '3' || to_test == '4' || to_test == '5' || to_test == '6' || to_test == '7' ||to_test == '8' || to_test == '9';};
+    inline bool string_is_number(std::string to_test) {for(int i = 0;i<static_cast<int>(to_test.size());i++){if(!string_is_number(to_test[i]))return false;}return true;}
+
 	//*********
 	//
 	// Text encoding system
@@ -737,6 +740,27 @@ namespace scls {
             current_pos++;
         }
         return result;
+    };
+
+    // Returns the offset of size between two position in an utf 8 and code point text
+    inline unsigned int utf_8_code_point_size_offset(std::string utf_8, unsigned int analyse_end_utf_8 = -1, unsigned int analyse_end_code_point = -1) {
+        unsigned int to_return = 0;
+        if(analyse_end_utf_8 == -1) {
+            for(int i = 0;i<static_cast<int>(utf_8.size()) && i < analyse_end_code_point;i++) {
+                if(utf_8[i] >= 128) {i++;}
+                to_return++;
+            }
+        } else if(analyse_end_code_point == -1) {
+            for(int i = 0;i<static_cast<int>(utf_8.size()) && to_return < analyse_end_utf_8;i++) {
+                if(utf_8[i] >= 128) {i++;}
+                to_return++;
+            }
+        } else {
+            for(int i = 0;i<static_cast<int>(utf_8.size());i++) {
+                if(utf_8[i] >= 128) {i++;}
+                to_return++;
+            }
+        } return to_return;
     };
 
 	//*********

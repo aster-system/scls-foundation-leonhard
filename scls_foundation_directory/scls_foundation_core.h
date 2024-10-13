@@ -60,6 +60,7 @@ namespace scls {
 	//
 	//*********
 
+	// Each variables are initialised with SCLS_FOUNDATION_CORE_INIT
 	// Static vector of each authorized sender to be printed
 	extern std::vector<std::string> __authorized_sender;
 	// Static vector of each authorized type to be printed
@@ -73,13 +74,10 @@ namespace scls {
 
 	// Return a reference to "__authorized_sender"
 	inline std::vector<std::string>& authorized_sender() {return __authorized_sender;};
-
 	// Return a reference to "__authorized_type"
 	inline std::vector<std::string>& authorized_type() {return __authorized_type;};
-
 	// Return the value of "__can_print".
 	inline bool can_print() { return __can_print; };
-
 	// Returns if a sender is authorized or not
 	inline bool is_sender_authorized(std::string sender_to_test) {
         if(authorized_sender().size() == 0) return true;
@@ -89,7 +87,6 @@ namespace scls {
         }
         return false;
 	}
-
 	// Returns if a type is authorized or not
 	inline bool is_type_authorized(std::string type_to_test) {
         if(authorized_type().size() == 0) return true;
@@ -99,19 +96,14 @@ namespace scls {
         }
         return false;
 	}
-
 	// Return the value of "_sender_message_separation"
 	inline std::string sender_message_separation () {return __sender_message_separation;};
-
 	// Change the value of the static "__can_print" variable.
 	inline void set_can_print(bool new_can_print) { __can_print = new_can_print; };
-
 	// Change the value of the static "_sender_message_separation" variable.
 	inline void set_sender_message_separation(std::string new_sender_message_separation) { __sender_message_separation = new_sender_message_separation; };
-
 	// Change the value of the static "_type_sender_separation" variable.
 	inline void set_type_sender_separation(std::string new_type_sender_separation) { __type_sender_separation = new_type_sender_separation; };
-
 	// Return the value of "_type_sender_separation"
 	inline std::string type_sender_separation () {return __type_sender_separation;};
 
