@@ -697,8 +697,7 @@ namespace scls {
                 final_character_3 = str[i] & 0b00111111;
                 result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
             }
-            else if((str[i] & 0b11000000) == 0b11000000)
-            {
+            else if((str[i] & 0b11000000) == 0b11000000) {
                 unsigned short final_character_1 = 0;
                 unsigned short final_character_2 = 0;
                 final_character_1 = (str[i]) & 0b00011111; final_character_1 = final_character_1 << 6; i++;
@@ -743,22 +742,27 @@ namespace scls {
     };
 
     // Returns the offset of size between two position in an utf 8 and code point text
-    inline unsigned int utf_8_code_point_size_offset(std::string utf_8, unsigned int analyse_end_utf_8 = -1, unsigned int analyse_end_code_point = -1) {
+    inline unsigned int code_point_utf_8_size_offset(std::string utf_8, unsigned int analyse_end_utf_8 = -1) {
         unsigned int to_return = 0;
         if(analyse_end_utf_8 == -1) {
-            for(int i = 0;i<static_cast<int>(utf_8.size()) && i < analyse_end_code_point;i++) {
-                if(utf_8[i] >= 128) {i++;}
-                to_return++;
-            }
-        } else if(analyse_end_code_point == -1) {
-            for(int i = 0;i<static_cast<int>(utf_8.size()) && to_return < analyse_end_utf_8;i++) {
-                if(utf_8[i] >= 128) {i++;}
-                to_return++;
+            for(int i = 0;i<static_cast<int>(utf_8.size());i++) {
+                if(static_cast<int>(utf_8[i]) >= 128) {to_return++;}
             }
         } else {
+            for(int i = 0;i<static_cast<int>(utf_8.size()) && i < analyse_end_utf_8;i++) {
+                if(static_cast<int>(utf_8[i]) >= 128) {to_return++;}
+            }
+        } return to_return;
+    };
+    inline unsigned int utf_8_code_point_size_offset(std::string utf_8, int analyse_end_code_point = -1) {
+        unsigned int to_return = 0;
+        if(analyse_end_code_point <= -1) {
             for(int i = 0;i<static_cast<int>(utf_8.size());i++) {
-                if(utf_8[i] >= 128) {i++;}
-                to_return++;
+                if(!(~utf_8[i] & 0b10000000)) {to_return++;i++;}
+            }
+        } else {
+            for(int i = 0;i<static_cast<int>(utf_8.size()) && i < analyse_end_code_point + to_return;i++) {
+                if(!(~utf_8[i] & 0b10000000)) {to_return++;i++;}
             }
         } return to_return;
     };
@@ -1465,6 +1469,9 @@ namespace scls {
         // Most simple String constructor with "std::string"
         String(std::string content) : a_content(content) {};
 
+        // Returns the String to an std::string in code point
+        inline std::string to_code_point() const {return to_utf_8_code_point(a_content);};
+
         // Return if the String contains an another string
         inline bool contains(std::string part) { return contains_string(a_content, part); };
         // Returns if a string contains an another string out of a string
@@ -1493,6 +1500,11 @@ namespace scls {
         inline String formatted_as_plain_text() {return String(format_string_as_plain_text(a_content));};
         // Returns the String formatted from plain text
         inline String formatted_from_plain_text() {return String(format_string_from_plain_text(a_content));};
+
+        // Returns the size of the string
+        inline unsigned int size() const {return a_content.size();};
+        // Substract a string and returns it
+        inline String substr(int start, int sub_size) const {return String(a_content.substr(start, sub_size));};
 
         // Returns the String to a char array
         inline const char* to_char_array() const {return a_content.c_str();};
@@ -1528,6 +1540,9 @@ namespace scls {
         inline bool operator==(const std::string& second) const { return a_content == second; };
         // Operator == overload with String
         inline bool operator==(const String& second) const { return a_content == second.a_content; };
+
+        // Operator + overload with String
+        inline String operator+(String second) const {return String(a_content + second.a_content); };
 
         // Convert to std::string
         operator std::string() const {return to_std_string();};
