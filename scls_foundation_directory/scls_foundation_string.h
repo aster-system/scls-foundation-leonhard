@@ -709,13 +709,12 @@ namespace scls {
     };
 
 	// Convert a char to an UTF-8
+	inline unsigned char __utf_8_level(char character) {if(~character & 0b10000000)return 0;else if((character & 0b11000000) == 0b11000000)return 1;else if((character & 0b11100000) == 0b11100000)return 2;return 3;};
     inline std::string to_utf_8_code_point(const char* character, unsigned int text_size) {
         std::string result = "";
         unsigned int current_pos = 0;
-        for(int i = 0;i<static_cast<int>(text_size);i++)
-        {
-            if(~character[current_pos] & 0b10000000)
-            {
+        for(int i = 0;i<static_cast<int>(text_size);i++) {
+            if(~character[current_pos] & 0b10000000) {
                 result += character[current_pos];
             }
             else if((character[current_pos] & 0b11100000) == 0b11100000)
@@ -1469,8 +1468,9 @@ namespace scls {
         // Most simple String constructor with "std::string"
         String(std::string content) : a_content(content) {};
 
-        // Returns the String to an std::string in code point
+        // Returns the String to an std::string in code point / utf-8
         inline std::string to_code_point() const {return to_utf_8_code_point(a_content);};
+        inline std::string to_utf_8() const {return a_content;};
 
         // Return if the String contains an another string
         inline bool contains(std::string part) { return contains_string(a_content, part); };
@@ -1501,10 +1501,31 @@ namespace scls {
         // Returns the String formatted from plain text
         inline String formatted_from_plain_text() {return String(format_string_from_plain_text(a_content));};
 
+        // Returns the position in the content from the position in the String
+        inline unsigned int __position_in_content_from_position(int start) const {
+            unsigned int to_return = 0;
+            for(;to_return<static_cast<unsigned int>(a_content.size())&&to_return<start;to_return++) {
+                unsigned char level = __utf_8_level(a_content.at(to_return));
+                if(level != 0) {start++;to_return+=level;}
+            } return to_return;
+        };
+        inline unsigned int __position_from_position_in_content(int start) const {
+            unsigned int to_return = 0;
+            for(int i = 0;i<static_cast<unsigned int>(a_content.size())&&i<start;i++) {
+                unsigned char level = __utf_8_level(a_content.at(i));
+                i += level;
+                to_return++;
+            } return to_return;
+        };
         // Returns the size of the string
-        inline unsigned int size() const {return a_content.size();};
+        inline unsigned int size() const {return __position_from_position_in_content(a_content.size());};
         // Substract a string and returns it
-        inline String substr(int start, int sub_size) const {return String(a_content.substr(start, sub_size));};
+        inline String substr(int start, int sub_size) const {
+            sub_size = __position_in_content_from_position(start + sub_size);
+            start = __position_in_content_from_position(start); sub_size -= start;
+            if(sub_size > a_content.size() - start) sub_size = a_content.size() - start;
+            return String(a_content.substr(start, sub_size));
+        };
 
         // Returns the String to a char array
         inline const char* to_char_array() const {return a_content.c_str();};
