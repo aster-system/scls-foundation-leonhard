@@ -38,6 +38,9 @@
 #include "scls_foundation_math.h"
 
 #define PNG_CRC_POLYMONIAL 0x04c11db7
+#ifndef SCLS_FOUNDATION_BINARY_INIT
+#define SCLS_FOUNDATION_BINARY_INIT std::map<std::string, scls::CRC_32B_Datas> scls::_loaded_crc_32b_algorithms = std::map<std::string, scls::CRC_32B_Datas>();
+#endif // SCLS_FOUNDATION_BINARY_INIT
 
 // The namespace "scls" is used to simplify the all.
 namespace scls {
@@ -51,8 +54,7 @@ namespace scls {
 	inline short __extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false) {
 		short number_1 = 0;
 		short number_2 = 0;
-		if (big_endian)
-		{
+		if (big_endian) {
 			number_1 = ((static_cast<short>(result[offset]) << 8) & 0xff00);
 			number_2 = (static_cast<short>(result[offset + 1]) & 0xff);
 		}
@@ -425,7 +427,7 @@ namespace scls {
 	};
 
 	// Map of each loaded CRC table
-	static std::map<std::string, CRC_32B_Datas> _loaded_crc_32b_algorithms = std::map<std::string, CRC_32B_Datas>();
+	extern std::map<std::string, CRC_32B_Datas> _loaded_crc_32b_algorithms;
 
 	// Return if a CRC 32 bits table is loaded or not
 	inline bool contains_crc_32b(std::string name) {
@@ -734,8 +736,7 @@ namespace scls {
              if(position < 0 || position >= datas_size()) {
                 scls::print("Error", "SCLS", "Datas \"" + std::to_string(position) + "\" out of range in the Binary object.");
                 return;
-            }
-            a_datas[position] = new_data;
+            } a_datas[position] = new_data;
         }
 
         // File manipulation

@@ -48,6 +48,12 @@ namespace scls {
 	inline std::vector<long long> partition_number(long long number_to_partition, long long number_of_partitions) {
 	    std::vector<long long> to_return = std::vector<long long>();
 
+	    // Format the datas as needed
+	    if(number_of_partitions == 0) return to_return;
+	    char sign = 1;
+	    if(number_of_partitions < 0) sign *= -1;
+	    number_of_partitions = abs(number_of_partitions);
+
 	    // Calculate the main value to add at each iteration
         long long round_partition_size = static_cast<long long>(static_cast<double>(number_to_partition) / static_cast<double>(number_of_partitions));
         long long rest = number_to_partition % number_of_partitions;
@@ -71,7 +77,7 @@ namespace scls {
                 current_rest_of_rest -= rest_of_rest_to_add;
             }
             current_rest_of_rest++;
-            to_return.push_back(round_partition_size + rest_to_add + to_add);
+            to_return.push_back((round_partition_size + rest_to_add + to_add) * sign);
         }
         return to_return;
 	};
