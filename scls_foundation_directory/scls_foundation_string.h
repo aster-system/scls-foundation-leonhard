@@ -1197,7 +1197,7 @@ namespace scls {
         };
 
         // Returns the position of the first plain text character in a unformatted text from before a position
-        unsigned int first_plain_text_character_before_position_in_informatted_text(const std::string& text_to_convert, unsigned int position) {
+        unsigned int first_plain_text_character_before_position_in_informatted_text(const std::string& text_to_convert, int position) {
             if(text_to_convert[position] == '>') {
                 // Remove balises
                 while(text_to_convert[position] != '<' && position > 0) { position--; }
