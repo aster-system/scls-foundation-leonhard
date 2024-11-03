@@ -79,29 +79,29 @@ namespace scls {
         // Creates the pairs
         std::vector<std::shared_ptr<_Huffman_Pair>>& pairs = to_return.get()->pairs();
         unsigned int total_size = occurences.size() - 1;
-        for(int i = 0;i<total_size;i++) {
+        for(unsigned int i = 0;i<total_size;i++) {
             // Get the minimum chars
             unsigned int j = 0;
             char minimum_1 = 0;
             unsigned int minimum_occurences_1 = -1;
-            unsigned int minimum_pos_1 = 0;
+            //unsigned int minimum_pos_1 = 0;
             for(std::map<char, unsigned int>::iterator it = occurences.begin();it!=occurences.end();it++) {
                 if(it->second < minimum_occurences_1) {
                     minimum_1 = it->first;
                     minimum_occurences_1 = it->second;
-                    minimum_pos_1 = j;
+                    //minimum_pos_1 = j;
                 }
                 j++;
             }
             j = 0;
             char minimum_2 = 0;
             unsigned int minimum_occurences_2 = -1;
-            unsigned int minimum_pos_2 = 0;
+            //unsigned int minimum_pos_2 = 0;
             for(std::map<char, unsigned int>::iterator it = occurences.begin();it!=occurences.end();it++) {
                 if(it->second < minimum_occurences_2 && it->first != minimum_1) {
                     minimum_2 = it->first;
                     minimum_occurences_2 = it->second;
-                    minimum_pos_2 = j;
+                    //minimum_pos_2 = j;
                 }
                 j++;
             }
@@ -111,7 +111,7 @@ namespace scls {
             int minimum_pair_occurences_1 = -1;
             unsigned int minimum_pair_pos_1 = 0;
             for(int j = 0;j<static_cast<int>(pairs.size());j++) {
-                if(pairs[j].get()->total_occurences < minimum_pair_occurences_1) {
+                if(static_cast<int>(pairs[j].get()->total_occurences) < minimum_pair_occurences_1) {
                     minimum_pair_1 = &pairs[j];
                     minimum_pair_occurences_1 = pairs[j].get()->total_occurences;
                     minimum_pair_pos_1 = j;
@@ -121,7 +121,7 @@ namespace scls {
             int minimum_pair_occurences_2 = -1;
             unsigned int minimum_pair_pos_2 = 0;
             for(int j = 0;j<static_cast<int>(pairs.size());j++) {
-                if(pairs[j].get()->total_occurences < minimum_pair_occurences_2 && pairs[j].get() != minimum_pair_1->get()) {
+                if(static_cast<int>(pairs[j].get()->total_occurences) < minimum_pair_occurences_2 && pairs[j].get() != minimum_pair_1->get()) {
                     minimum_pair_2 = &pairs[j];
                     minimum_pair_occurences_2 = pairs[j].get()->total_occurences;
                     minimum_pair_pos_2 = j;

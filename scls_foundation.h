@@ -27,15 +27,23 @@
 #ifndef SCLS_FOUNDATION
 #define SCLS_FOUNDATION
 
+// Include every needed SLCS Foundation files
 #include "scls_foundation_directory/scls_foundation_binary.h"
 #include "scls_foundation_directory/scls_foundation_core.h"
-#include "scls_foundation_directory/scls_foundation_compression.h"
 #include "scls_foundation_directory/scls_foundation_file.h"
 #include "scls_foundation_directory/scls_foundation_math.h"
 #include "scls_foundation_directory/scls_foundation_string.h"
+// Include every needed SLCS Foundation files (indev)
+#ifdef __ASTER_DEV
+#include "scls_foundation_directory/scls_foundation_compression.h"
+#endif // __ASTER_DEV
 
+// Define SCLS_INIT
 #ifndef SCLS_FOUNDATION_INIT
 #define SCLS_FOUNDATION_INIT SCLS_FOUNDATION_CORE_INIT SCLS_FOUNDATION_BINARY_INIT
 #endif // SCLS_FOUNDATION_INIT
+#ifndef SCLS_INIT
+#define SCLS_INIT SCLS_FOUNDATION_INIT
+#endif // SCLS_INIT
 
 #endif // SCLS_FOUNDATION

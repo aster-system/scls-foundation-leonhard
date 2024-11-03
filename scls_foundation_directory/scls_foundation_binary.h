@@ -371,8 +371,7 @@ namespace scls {
 			file.seekg(start_pos, file.beg);
 			file.read(datas, size);
 			file.close();
-		}
-		catch (std::ifstream::failure e) { print("Error", "System", "The file \"" + path + "\" can't be opened, error -> " + e.what() + "."); }
+		} catch (std::ifstream::failure& e) { print("Error", "System", "The file \"" + path + "\" can't be opened, error -> " + e.what() + "."); }
 	};
 
 	// Read and return the content of all a binary file
@@ -396,9 +395,7 @@ namespace scls {
 			file.open(path, opening_mode);
 			file.write(to_write, size);
 			file.close();
-		}
-		catch (std::ofstream::failure e)
-		{
+		} catch (std::ofstream::failure& e) {
 			print("Error", "System", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
 		}
 	}
@@ -711,7 +708,7 @@ namespace scls {
         // Put datas in the Bytes_Set
         inline void put_datas(Bytes_Set* datas_to_put, unsigned int offset = 0) {
             if(offset + datas_to_put->datas_size() <= datas_size()) {
-                for(int i = 0;i<datas_to_put->datas_size();i++) {
+                for(int i = 0;i<static_cast<int>(datas_to_put->datas_size());i++) {
                     a_datas[offset + i] = datas_to_put->a_datas[i];
                 }
             }

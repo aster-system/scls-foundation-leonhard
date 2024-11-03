@@ -428,7 +428,8 @@ namespace scls {
 			}
 
 			// Check the off-part
-            if(i >= out_of.size() && i <= str.size() - out_of.size() && str.substr(i - out_of.size(), out_of.size()) == out_of) { in_out_of = !in_out_of; }
+            if(i >= static_cast<int>(out_of.size()) && i <= static_cast<int>(str.size()) - static_cast<int>(out_of.size()) &&
+               str.substr(i - static_cast<int>(out_of.size()), static_cast<int>(out_of.size())) == out_of) { in_out_of = !in_out_of; }
 
 			if (last_string_cut == cut && !in_out_of) // If the string which allows to know where to cut is equal to the part to cut, do a cut
 			{
@@ -741,7 +742,7 @@ namespace scls {
     };
 
     // Returns the offset of size between two position in an utf 8 and code point text
-    inline unsigned int code_point_utf_8_size_offset(std::string utf_8, unsigned int analyse_end_utf_8 = -1) {
+    inline unsigned int code_point_utf_8_size_offset(std::string utf_8, int analyse_end_utf_8 = -1) {
         unsigned int to_return = 0;
         if(analyse_end_utf_8 == -1) {
             for(int i = 0;i<static_cast<int>(utf_8.size());i++) {
@@ -760,7 +761,7 @@ namespace scls {
                 if(!(~utf_8[i] & 0b10000000)) {to_return++;i++;}
             }
         } else {
-            for(int i = 0;i<static_cast<int>(utf_8.size()) && i < analyse_end_code_point + to_return;i++) {
+            for(int i = 0;i<static_cast<int>(utf_8.size()) && i < analyse_end_code_point + static_cast<int>(to_return);i++) {
                 if(!(~utf_8[i] & 0b10000000)) {to_return++;i++;}
             }
         } return to_return;
@@ -921,7 +922,8 @@ namespace scls {
 		std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
 
 		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
-            if(i >= out.size() && i <= str.size() - out.size() && str.substr(i - out.size(), out.size()) == out) can_cut = !can_cut;
+            if(i >= static_cast<int>(out.size()) && i <= static_cast<int>(str.size()) - static_cast<int>(out.size()) &&
+               str.substr(i - static_cast<int>(out.size()), static_cast<int>(out.size())) == out) can_cut = !can_cut;
             else if(str[i] == SCLS_BALISE_START && can_cut) {
                 _Text_Balise_Part part_to_add;
                 part_to_add.content = last_string;
@@ -937,7 +939,7 @@ namespace scls {
                 i++;
                 while(i < static_cast<int>(str.size())) {
                     // Check the "out" character
-                    if(i >= out.size() && i <= str.size() - out.size() && str.substr(i - out.size(), out.size()) == out) can_stop = !can_stop;
+                    if(i >= static_cast<int>(out.size()) && i <= static_cast<int>(str.size()) - static_cast<int>(out.size()) && str.substr(i - static_cast<int>(out.size()), static_cast<int>(out.size())) == out) can_stop = !can_stop;
 
                     if(str[i] == SCLS_BALISE_START && can_stop) balise_level++;
                     else if(str[i] == SCLS_BALISE_END && can_stop) {
@@ -1051,9 +1053,9 @@ namespace scls {
             else parse_text();
         };
         // XML_Text constructor for single balising
-        XML_Text(std::string balise_name, std::vector<XML_Attribute> balise_attributes) : a_balise_name(balise_name), a_balise_attributes(balise_attributes) {a_only_text = true;};
+        XML_Text(std::string balise_name, std::vector<XML_Attribute> balise_attributes) : a_balise_attributes(balise_attributes), a_balise_name(balise_name) {a_only_text = true;};
         // XML_Text constructor for open balising
-        XML_Text(std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string balise_content) : a_balise_name(balise_name), a_balise_attributes(balise_attributes) {
+        XML_Text(std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string balise_content) : a_balise_attributes(balise_attributes), a_balise_name(balise_name) {
             // Create the text
             a_xml_text = format_for_xml(balise_content);
             parse_text();
@@ -1271,8 +1273,8 @@ namespace scls {
             return final_text;
         };
         // Returns a plain text position to unformatted text position
-        unsigned int plain_text_position_to_unformatted_text_position(std::string text_to_convert, unsigned int position) {
-            unsigned int final_position = 0;
+        unsigned int plain_text_position_to_unformatted_text_position(std::string text_to_convert, int position) {
+            int final_position = 0;
             for(int i = 0;i<static_cast<int>(text_to_convert.size()) && i < position;i++) {
                 if(text_to_convert[final_position] == '<') {
                     // Remove balises
@@ -1281,7 +1283,7 @@ namespace scls {
                 else if(text_to_convert[final_position] == '&') {
                     // Remove special insertion
                     std::string part_content = "";
-                    const unsigned int start_position = final_position;
+                    const int start_position = final_position;
                     while(text_to_convert[final_position] != ';' && final_position < static_cast<int>(text_to_convert.size())) {
                         part_content += text_to_convert[final_position];
                         final_position++;
@@ -1504,14 +1506,14 @@ namespace scls {
         // Returns the position in the content from the position in the String
         inline unsigned int __position_in_content_from_position(int start) const {
             unsigned int to_return = 0;
-            for(;to_return<static_cast<unsigned int>(a_content.size())&&to_return<start;to_return++) {
+            for(;to_return<static_cast<unsigned int>(a_content.size())&&static_cast<int>(to_return)<start;to_return++) {
                 unsigned char level = __utf_8_level(a_content.at(to_return));
                 if(level != 0) {start++;to_return+=level;}
             } return to_return;
         };
         inline unsigned int __position_from_position_in_content(int start) const {
             unsigned int to_return = 0;
-            for(int i = 0;i<static_cast<unsigned int>(a_content.size())&&i<start;i++) {
+            for(int i = 0;i<static_cast<int>(a_content.size())&&i<start;i++) {
                 unsigned char level = __utf_8_level(a_content.at(i));
                 i += level;
                 to_return++;
@@ -1523,7 +1525,7 @@ namespace scls {
         inline String substr(int start, int sub_size) const {
             sub_size = __position_in_content_from_position(start + sub_size);
             start = __position_in_content_from_position(start); sub_size -= start;
-            if(sub_size > a_content.size() - start) sub_size = a_content.size() - start;
+            if(sub_size > static_cast<int>(a_content.size()) - start) sub_size = a_content.size() - start;
             return String(a_content.substr(start, sub_size));
         };
 

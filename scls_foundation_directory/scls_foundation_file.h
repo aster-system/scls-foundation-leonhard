@@ -160,14 +160,11 @@ namespace scls {
 	inline void write_in_file(std::string path, std::string to_write, std::ios::openmode opening_mode = std::ios::out) {
 		std::ofstream file;
 		file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-		try
-		{
+		try {
 			file.open(path, opening_mode);
 			file << to_write;
 			file.close();
-		}
-		catch (std::ofstream::failure e)
-		{
+		} catch (std::ofstream::failure& e) {
 			print("Error", "SCLS", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
 		}
 	}
