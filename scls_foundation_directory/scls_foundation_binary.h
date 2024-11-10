@@ -554,19 +554,11 @@ namespace scls {
         // Bytes_Set constructor
         Bytes_Set() {};
         // Bytes_Set constructor creating empty datas
-        Bytes_Set(unsigned int new_datas_size) : Bytes_Set() {
-            a_datas = new char[new_datas_size];
-            a_datas_size = new_datas_size;
-        };
+        Bytes_Set(unsigned int new_datas_size) : Bytes_Set() {a_datas = new char[new_datas_size];a_datas_size = new_datas_size;};
         // Bytes_Set constructor taking existing datas
-        Bytes_Set(char* new_datas, unsigned int new_datas_size) : Bytes_Set() {
-            a_datas = new_datas;
-            a_datas_size = new_datas_size;
-        };
+        Bytes_Set(char* new_datas, unsigned int new_datas_size) : Bytes_Set() {a_datas = new_datas;a_datas_size = new_datas_size;};
         // Bytes_Set copy constructor
-        Bytes_Set(const Bytes_Set& binary) : Bytes_Set() {
-            add_datas(binary.datas(), binary.datas_size());
-        };
+        Bytes_Set(const Bytes_Set& binary) : Bytes_Set() {add_datas(binary.datas(), binary.datas_size());};
         // Bytes_Set destructor
         ~Bytes_Set() {free_memory();};
 
@@ -651,21 +643,18 @@ namespace scls {
             add_datas(final_datas, 4);
             delete[] final_datas; final_datas = 0;
         };
-        inline void add_string(std::string data) {
-            add_datas(data.c_str(), static_cast<unsigned int>(data.size()));
-        };
+        inline void add_string(std::string text) {add_datas(text.c_str(), static_cast<unsigned int>(text.size()));};
 
         // Return the char at a certain position
-        inline char data_at(unsigned int position) {
-             if(position < 0 || position >= datas_size()) {
+        inline char data_at(unsigned int position) const {
+             if(position >= datas_size()) {
                 scls::print("Error", "SCLS", "Datas \"" + std::to_string(position) + "\" out of range in the Binary object.");
                 return 0;
-            }
-            return a_datas[position];
-        }
+            } return a_datas[position];
+        };
 
         // Extract datas from the object (with differents types)
-        inline char* extract_datas(unsigned int extract_size, unsigned int offset = 0, bool inverse = false) {
+        inline char* extract_datas(unsigned int extract_size, unsigned int offset = 0, bool inverse = false) const {
             char* extracted_datas = new char[extract_size];
             for(unsigned int i = 0;i<extract_size;i++) {
                 extracted_datas[i] = data_at(offset + i);
@@ -673,35 +662,30 @@ namespace scls {
             if(inverse) {scls::swap_char_array(extracted_datas, extract_size);}
             return extracted_datas;
         }
-        inline char extract_data(unsigned int offset = 0) {
-            return data_at(offset);
-        };
-        inline double extract_double(unsigned int offset = 0, bool big_endian = false) {
-            return __extract_double_from_char_array(a_datas, offset, big_endian);
-        };
-        inline float extract_float(unsigned int offset = 0, bool big_endian = false) {
+        inline double extract_double(unsigned int offset = 0, bool big_endian = false) const {return __extract_double_from_char_array(a_datas, offset, big_endian);};
+        inline float extract_float(unsigned int offset = 0, bool big_endian = false) const {
             return static_cast<float>(extract_double(offset, big_endian));
         };
-        inline int extract_int(unsigned int offset = 0, bool big_endian = false) {
+        inline int extract_int(unsigned int offset = 0, bool big_endian = false) const {
             return __extract_4bytes_from_char_array(a_datas, offset, big_endian);
         };
-        inline int64_t extract_int64(unsigned int offset = 0, bool big_endian = false) {
+        inline int64_t extract_int64(unsigned int offset = 0, bool big_endian = false) const {
             return __extract_8bytes_from_char_array(a_datas, offset, big_endian);
         };
-        inline short extract_short(unsigned int offset = 0, bool big_endian = false) {
+        inline short extract_short(unsigned int offset = 0, bool big_endian = false) const {
             return __extract_2bytes_from_char_array(a_datas, offset, big_endian);
         }
-        inline std::string extract_string(unsigned int extract_size, unsigned int offset = 0) {
+        inline std::string extract_string(unsigned int extract_size, unsigned int offset = 0) const {
             std::string extracted_datas = "";
             for(unsigned int i = 0;i<extract_size;i++) {
                 extracted_datas += data_at(offset + i);
             }
             return extracted_datas;
         }
-        inline unsigned int extract_uint(unsigned int offset = 0, bool big_endian = false) {
+        inline unsigned int extract_uint(unsigned int offset = 0, bool big_endian = false) const {
             return __extract_u4bytes_from_char_array(a_datas, offset, big_endian);
         }
-        inline unsigned short extract_ushort(unsigned int offset = 0, bool big_endian = false) {
+        inline unsigned short extract_ushort(unsigned int offset = 0, bool big_endian = false) const {
             return __extract_u2bytes_from_char_array(a_datas, offset, big_endian);
         }
 
@@ -745,12 +729,10 @@ namespace scls {
                 a_datas = read_entire_file_binary(path, total_size);
                 a_datas_size = total_size;
                 return true;
-            }
-            scls::print("Error", "SCLS", "The path \"" + path + "\" you want to open does not exist.");
-            return false;
+            } scls::print("Error", "SCLS", "The path \"" + path + "\" you want to open does not exist."); return false;
         };
         // Save the datas in a file
-        inline void save(std::string path) { write_in_file_binary(path, datas(), datas_size()); };
+        inline void save(std::string path) const { write_in_file_binary(path, datas(), datas_size()); };
 
         // Operator overloading
         // Operator to access to a char
