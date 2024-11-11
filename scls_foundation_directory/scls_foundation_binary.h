@@ -713,11 +713,12 @@ namespace scls {
         };
 
         // Set the char at a certain position
+        inline void set_data_at_directly(unsigned int position, char new_data) {a_datas[position] = new_data;};
         inline void set_data_at(unsigned int position, char new_data) {
              if(position < 0 || position >= datas_size()) {
                 scls::print("Error", "SCLS", "Datas \"" + std::to_string(position) + "\" out of range in the Binary object.");
                 return;
-            } a_datas[position] = new_data;
+            } set_data_at_directly(position, new_data);
         }
 
         // File manipulation
