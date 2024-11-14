@@ -650,8 +650,9 @@ namespace scls {
              if(position >= datas_size()) {
                 scls::print("Error", "SCLS", "Datas \"" + std::to_string(position) + "\" out of range in the Binary object.");
                 return 0;
-            } return a_datas[position];
+            } return data_at_directly(position);
         };
+        inline char data_at_directly(unsigned int position) const {return a_datas[position];};
 
         // Extract datas from the object (with differents types)
         inline char* extract_datas(unsigned int extract_size, unsigned int offset = 0, bool inverse = false) const {
