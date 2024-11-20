@@ -660,8 +660,7 @@ namespace scls {
 	// Convert a string in UTF-8 code point to an UTF-8
 	inline std::string to_utf_8(std::string str) {
         std::string result = "";
-        for(int i = 0;i<static_cast<int>(str.size());i++)
-        {
+        for(int i = 0;i<static_cast<int>(str.size());i++) {
             unsigned char number = str[i];
             if(number < 128) {
                 result += number;
@@ -683,8 +682,7 @@ namespace scls {
 	inline bool is_character_utf_8(char chr) {if(chr & 0b10000000)return true;return false;};
     inline std::string to_utf_8_code_point(std::string str) {
         std::string result = "";
-        for(int i = 0;i<static_cast<int>(str.size());i++)
-        {
+        for(int i = 0;i<static_cast<int>(str.size());i++) {
             if(~str[i] & 0b10000000)
             {
                 result += str[i];
