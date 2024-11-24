@@ -27,47 +27,6 @@
 #ifndef SCLS_FOUNDATION_STRING
 #define SCLS_FOUNDATION_STRING
 
-// Define the end of a balise
-#ifndef SCLS_BALISE_END
-#define SCLS_BALISE_END '>'
-#endif // SCLS_BALISE_END
-// Define the end of a balise in a char array
-#ifndef SCLS_BALISE_END_CHAR_ARRAY
-#define SCLS_BALISE_END_CHAR_ARRAY ">"
-#endif // SCLS_BALISE_END_CHAR_ARRAY
-// Define the end of a balise in HTML in a char array
-#ifndef SCLS_BALISE_END_PLAIN_TEXT_CHAR_ARRAY
-#define SCLS_BALISE_END_PLAIN_TEXT_CHAR_ARRAY "&gt;"
-#endif // SCLS_BALISE_END_PLAIN_TEXT_CHAR_ARRAY
-// Define the end of a balise in HTML in a std::string
-#ifndef SCLS_BALISE_END_PLAIN_TEXT_STD_STRING
-#define SCLS_BALISE_END_PLAIN_TEXT_STD_STRING std::string("&gt;")
-#endif // SCLS_BALISE_END_PLAIN_TEXT_STD_STRING
-// Define the end of a balise in a std::string
-#ifndef SCLS_BALISE_END_STD_STRING
-#define SCLS_BALISE_END_STD_STRING std::string(">")
-#endif // SCLS_BALISE_END_STD_STRING
-// Define the start of a balise
-#ifndef SCLS_BALISE_START
-#define SCLS_BALISE_START '<'
-#endif // SCLS_BALISE_START
-// Define the start of a balise in a char array
-#ifndef SCLS_BALISE_START_CHAR_ARRAY
-#define SCLS_BALISE_START_CHAR_ARRAY "<"
-#endif // SCLS_BALISE_START_CHAR_ARRAY
-// Define the start of a balise in HTML in a char array
-#ifndef SCLS_BALISE_START_PLAIN_TEXT_CHAR_ARRAY
-#define SCLS_BALISE_START_PLAIN_TEXT_CHAR_ARRAY "&lt;"
-#endif // SCLS_BALISE_START_PLAIN_TEXT_CHAR_ARRAY
-// Define the start of a balise in HTML in a std::string
-#ifndef SCLS_BALISE_START_PLAIN_TEXT_STD_STRING
-#define SCLS_BALISE_START_PLAIN_TEXT_STD_STRING std::string("&lt;")
-#endif // SCLS_BALISE_START_PLAIN_TEXT_STD_STRING
-// Define the start of a balise in a std::string
-#ifndef SCLS_BALISE_START_STD_STRING
-#define SCLS_BALISE_START_STD_STRING std::string("<")
-#endif // SCLS_BALISE_START_STD_STRING
-
 #include "scls_foundation_binary.h"
 
 // The namespace "scls" is used to simplify the all.
@@ -79,7 +38,7 @@ namespace scls {
 	//*********
 
 	// Convert a char array to a string and return it
-	inline std::string char_array_to_string(const char* c_a, unsigned int c_a_size);
+    std::string char_array_to_string(const char* c_a, unsigned int c_a_size);
 
 	// Returns if a string contains an another string out of 2 (or 1, or 0) different string
 	bool contains_string(std::string str, std::string part, std::string out_of_start, std::string out_of_end);
@@ -94,7 +53,7 @@ namespace scls {
 	// Cut a string in a vector where there are the "cut" part out of 2 (or 1, or 0) different string
 	std::vector<std::string> cut_string_out_of_2(std::string str, std::string cut, std::string out_of_start, std::string out_of_end, bool erase_blank = false, bool erase_last_if_blank = true);
 	std::vector<std::string> cut_string_out_of(std::string str, std::string cut, std::string out_of, bool erase_blank = false, bool erase_last_if_blank = true);
-    std::vector<std::string> cut_string(std::string string, std::string cut, bool erase_blank = false, bool erase_last_if_blank = true);
+    std::vector<std::string> cut_string(std::string str, std::string cut, bool erase_blank = false, bool erase_last_if_blank = true);
 
 	// Join a vector of string into one string.
     std::string join_string(std::vector<std::string> strings, std::string separation = "");

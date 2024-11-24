@@ -487,8 +487,8 @@ namespace scls {
                         special += str[i];
                         i++;
                     }
-                    if(special == "gt") {to_return += SCLS_BALISE_END_CHAR_ARRAY;}
-                    else if(special == "lt") {to_return += SCLS_BALISE_START_CHAR_ARRAY;}
+                    if(special == "gt") {to_return += ">";}
+                    else if(special == "lt") {to_return += "<";}
                     else if(special == "nbsp") {to_return += " ";}
                 }
             } else {to_return += str[i];}
@@ -685,9 +685,9 @@ namespace scls {
 
 	// Return the name of a formatted balise
     std::string balise_name(std::string balise_formatted) {
-	    if(balise_formatted[0] == SCLS_BALISE_START) balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
+	    if(balise_formatted[0] == '<') balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
 	    if(balise_formatted[0] == '/') balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
-	    if(balise_formatted[balise_formatted.size() - 1] == SCLS_BALISE_END) balise_formatted = balise_formatted.substr(0, balise_formatted.size() - 1);
+	    if(balise_formatted[balise_formatted.size() - 1] == '>') balise_formatted = balise_formatted.substr(0, balise_formatted.size() - 1);
 	    // Remove useless spaces
 	    while(balise_formatted.size() > 0 && balise_formatted[0] == ' ') {
             balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
@@ -732,7 +732,7 @@ namespace scls {
 
 		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
 		{
-		    if(str[i] == SCLS_BALISE_START) {
+		    if(str[i] == '<') {
                 _Text_Balise_Part part_to_add;
                 part_to_add.content = last_string;
                 part_to_add.start_position = i;
@@ -745,8 +745,8 @@ namespace scls {
                 int balise_level = 1;
                 i++;
                 while(i < static_cast<int>(str.size())) {
-                    if(str[i] == SCLS_BALISE_START) balise_level++;
-                    else if(str[i] == SCLS_BALISE_END) {
+                    if(str[i] == '<') balise_level++;
+                    else if(str[i] == '>') {
                         balise_level--;
                         if(balise_level <= 0) break;
                     }
@@ -754,7 +754,7 @@ namespace scls {
                     i++;
                 }
 
-                part_to_add.content = SCLS_BALISE_START + last_string + SCLS_BALISE_END;
+                part_to_add.content = std::string("<") + last_string + std::string(">");
                 result.push_back(part_to_add);
                 last_is_balise = true;
                 last_string = "";
@@ -783,7 +783,7 @@ namespace scls {
 		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
             if(i >= static_cast<int>(out.size()) && i <= static_cast<int>(str.size()) - static_cast<int>(out.size()) &&
                str.substr(i - static_cast<int>(out.size()), static_cast<int>(out.size())) == out) can_cut = !can_cut;
-            else if(str[i] == SCLS_BALISE_START && can_cut) {
+            else if(str[i] == '<' && can_cut) {
                 _Text_Balise_Part part_to_add;
                 part_to_add.content = last_string;
                 part_to_add.start_position = i;
@@ -800,8 +800,8 @@ namespace scls {
                     // Check the "out" character
                     if(i >= static_cast<int>(out.size()) && i <= static_cast<int>(str.size()) - static_cast<int>(out.size()) && str.substr(i - static_cast<int>(out.size()), static_cast<int>(out.size())) == out) can_stop = !can_stop;
 
-                    if(str[i] == SCLS_BALISE_START && can_stop) balise_level++;
-                    else if(str[i] == SCLS_BALISE_END && can_stop) {
+                    if(str[i] == '<' && can_stop) balise_level++;
+                    else if(str[i] == '>' && can_stop) {
                         balise_level--;
                         if(balise_level <= 0) break;
                     }
@@ -809,7 +809,7 @@ namespace scls {
                     i++;
                 }
 
-                part_to_add.content = SCLS_BALISE_START + last_string + SCLS_BALISE_END;
+                part_to_add.content = std::string("<") + last_string + std::string(">");
                 result.push_back(part_to_add);
                 last_is_balise = true;
                 last_string = "";
@@ -848,8 +848,8 @@ namespace scls {
 
         // Format the balise
         std::string final_balise = "";
-        if(slash_position_founded) final_balise = SCLS_BALISE_START_STD_STRING + "/" + str.substr(slash_position + 1, str.size() - (2 + slash_position)) + SCLS_BALISE_END_STD_STRING;
-        else final_balise = SCLS_BALISE_START_STD_STRING + str.substr(1, str.size() - 2) + SCLS_BALISE_END_STD_STRING;
+        if(slash_position_founded) final_balise = std::string("<") + "/" + str.substr(slash_position + 1, str.size() - (2 + slash_position)) + std::string(">");
+        else final_balise = std::string("<") + str.substr(1, str.size() - 2) + std::string(">");
 
         // Format the formatted balise (help)
 	    while(final_balise.size() > 0 && final_balise[0] == ' ') {
