@@ -39,7 +39,7 @@ namespace scls {
 	//*********
 
 	// Get the datas in the clipboard
-	inline std::string clipboard_datas() {
+	static std::string clipboard_datas() {
 	    std::string to_return = "";
 	    #if defined(__WIN32__) || defined(__WIN64__)
             if(!OpenClipboard(0)) return "";
@@ -53,64 +53,16 @@ namespace scls {
 	};
 
 	// Cut a path between its parent path
-    inline std::vector<std::string> cut_path(std::string path, bool full_path = false) {
-        std::filesystem::path p = path;
-        std::filesystem::path parent = p.parent_path();
-        std::vector<std::string> to_return = std::vector<std::string>();
-        do {
-            if(full_path) to_return.push_back(p.string());
-            else to_return.insert(to_return.begin(), p.filename().string());
-            p = parent;
-            parent = p.parent_path();
-        } while(p != parent);
-        to_return.push_back(p.root_name().string());
-        return to_return;
-    };
-
+    std::vector<std::string> cut_path(std::string path, bool full_path = false);
 	// Return the content of a directory in a vector of string.
-	inline std::vector<std::string> directory_content(std::string path, bool sub_directory = false) {
-		std::vector<std::string> result;
-		if(!std::filesystem::exists(path)) {
-            print("Error", "SCLS", "The path \"" + path + "\" you want to get the directory content does not exists.");
-            return result;
-		}
-		else if(!std::filesystem::is_directory(path)) {
-            print("Error", "SCLS", "The path \"" + path + "\" you want to get the directory content is not a directory.");
-            return result;
-		}
+    std::vector<std::string> directory_content(std::string path, bool sub_directory = false);
 
-		for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(path))
-		{
-			std::string path = entry.path().string();
-			if (sub_directory && std::filesystem::is_directory(path))
-			{
-				std::vector<std::string> sub = directory_content(path, true);
-				for (int i = 0; i < static_cast<int>(sub.size()); i++) result.push_back(sub[i]);
-			}
-			else
-			{
-				result.push_back(path);
-			}
-		}
-		return result;
-	};
-
-	// Return the extension of the file
-	inline std::string file_extension(std::string path, bool with_point = false) {
-	    std::filesystem::path p = path; std::string extension = p.extension().string();;
-	    if(with_point || extension.size() == 0 || extension[0] != '.')return extension;
-	    return extension.substr(1, extension.size() - 1);
-    };
-
-	// Return the name of the file
-	inline std::string file_name(std::string path, bool with_extension = false) {
-	    std::filesystem::path p = path; std::string name = p.filename().string();
-	    if(with_extension) return name;
-	    return name.substr(0, name.size() - file_extension(path, true).size());
-    };
+	// Return the extension / name of the file
+    std::string file_extension(std::string path, bool with_point = false);
+    std::string file_name(std::string path, bool with_extension = false);
 
     // Returns the parent path of a path
-    inline std::string path_parent(std::string path) { std::filesystem::path p = path; return p.parent_path().string(); };
+    std::string path_parent(std::string path);
 
     //*********
 	//
@@ -119,7 +71,7 @@ namespace scls {
 	//*********
 
 	// Returns the home path of the user
-	inline std::string current_user_home_directory() {
+	static std::string current_user_home_directory() {
 	    std::string to_return = "";
         #if defined(__WIN32__) || defined(__WIN64__)
 	    char* user_ca = getenv("USERPROFILE");
@@ -133,9 +85,7 @@ namespace scls {
 	    to_return = replace(to_return, "\\", "/");
 	    return to_return;
 	};
-
-	// Returns the document path of the user
-	inline std::string current_user_document_directory() { return current_user_home_directory() + "/Documents"; };
+	static std::string current_user_document_directory() { return current_user_home_directory() + "/Documents"; };
 
     //*********
 	//
@@ -144,35 +94,11 @@ namespace scls {
 	//*********
 
 	// Return the content of a file.
-	inline std::string read_file(std::string path) {
-		std::string file_content = ""; unsigned int total_size = 0;
-		char* content = read_entire_file_binary(path, total_size);
-
-		if(content != 0) {
-            for(unsigned int i = 0;i<total_size;i++) file_content += content[i];
-            delete[] content; content = 0;
-		}
-
-		return file_content;
-	};
+    std::string read_file(std::string path);
 
 	// Write something in a file.
-	inline void write_in_file(std::string path, std::string to_write, std::ios::openmode opening_mode = std::ios::out) {
-		std::ofstream file;
-		file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-		try {
-			file.open(path, opening_mode);
-			file << to_write;
-			file.close();
-		} catch (std::ofstream::failure& e) {
-			print("Error", "SCLS", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
-		}
-	}
-
-	// Write something in a file with String
-	inline void write_in_file(std::string path, String to_write, std::ios::openmode opening_mode = std::ios::out) {
-	    write_in_file(path, to_write.to_std_string(), opening_mode);
-	};
+    void write_in_file(std::string path, std::string to_write, std::ios::openmode opening_mode = std::ios::out);
+    void write_in_file(std::string path, String to_write, std::ios::openmode opening_mode = std::ios::out);
 }
 
 #endif // SCLS_FOUNDATION_FILE
