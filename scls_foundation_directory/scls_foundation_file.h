@@ -30,6 +30,39 @@
 #include "scls_foundation_binary.h"
 #include "scls_foundation_string.h"
 
+#ifndef SCLS_FOUNDATION_FILE_INIT
+#if defined(__WIN32__) || defined(__WIN64__)
+    #define SCLS_FOUNDATION_FILE_INIT std::string scls::clipboard_datas() {\
+	    std::string to_return = "";\
+	    if(!OpenClipboard(0)) return "";\
+        char* datas = reinterpret_cast< char*>(GetClipboardData(CF_TEXT));\
+        CloseClipboard();\
+        if(datas == 0) return "";\
+        to_return = datas;\
+	    return to_utf_8(to_return);\
+	} std::string scls::current_user_home_directory() {\
+	    std::string to_return = "";\
+        char* user_ca = getenv("USERPROFILE");\
+	    if(user_ca == 0) return "";\
+	    to_return = user_ca;\
+	    to_return = replace(to_return, "\\", "/");\
+	    return to_return;\
+	} std::string scls::current_user_document_directory() { return scls::current_user_home_directory() + "/Documents"; }
+#elif defined(__linux__)
+    #define SCLS_FOUNDATION_FILE_INIT std::string scls::clipboard_datas() {\
+	    std::string to_return = "";\
+	    return to_utf_8(to_return);\
+	} std::string scls::current_user_home_directory() {\
+	    std::string to_return = "";\
+        char* user_ca = getenv("HOME");\
+	    if(user_ca == 0) return "";\
+	    to_return = user_ca;\
+	    to_return = replace(to_return, "\\", "/");\
+	    return to_return;\
+	} std::string scls::current_user_document_directory() { return scls::current_user_home_directory() + "/Documents"; }
+#endif // defined
+#endif // SCLS_FOUNDATION_FILE_INIT
+
 // The namespace "scls" is used to simplify the all.
 namespace scls {
     //*********
@@ -39,18 +72,7 @@ namespace scls {
 	//*********
 
 	// Get the datas in the clipboard
-	static std::string clipboard_datas() {
-	    std::string to_return = "";
-	    #if defined(__WIN32__) || defined(__WIN64__)
-            if(!OpenClipboard(0)) return "";
-            char* datas = reinterpret_cast< char*>(GetClipboardData(CF_TEXT));
-            CloseClipboard();
-            if(datas == 0) return "";
-            to_return = datas;
-	    #endif // defined
-
-	    return to_utf_8(to_return);
-	};
+    std::string clipboard_datas();
 
 	// Cut a path between its parent path
     std::vector<std::string> cut_path(std::string path, bool full_path = false);
@@ -71,21 +93,8 @@ namespace scls {
 	//*********
 
 	// Returns the home path of the user
-	static std::string current_user_home_directory() {
-	    std::string to_return = "";
-        #if defined(__WIN32__) || defined(__WIN64__)
-	    char* user_ca = getenv("USERPROFILE");
-	    if(user_ca == 0) return "";
-	    to_return = user_ca;
-	    #elif defined(__linux__)
-	    char* user_ca = getenv("HOME");
-	    if(user_ca == 0) return "";
-	    to_return = user_ca;
-	    #endif // defined
-	    to_return = replace(to_return, "\\", "/");
-	    return to_return;
-	};
-	static std::string current_user_document_directory() { return current_user_home_directory() + "/Documents"; };
+    std::string current_user_home_directory();
+    std::string current_user_document_directory();
 
     //*********
 	//
