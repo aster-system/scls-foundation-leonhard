@@ -464,8 +464,10 @@ namespace scls {
     std::string format_string_break_line(std::string str, std::string new_break_line) {
 	    std::string nl = ""; nl += static_cast<char>(10);
 	    std::string np = ""; np += static_cast<char>(13);
-	    if(new_break_line != nl) str = replace(str, nl, new_break_line);
-	    if(new_break_line != np) str = replace(str, np, new_break_line);
+	    std::string nb = np + nl;
+	    if(new_break_line != nb) {str = replace(str, nb, new_break_line);}
+	    if(new_break_line != nl && new_break_line != nb) {str = replace(str, nl, new_break_line);}
+	    if(new_break_line != np && new_break_line != nb) {str = replace(str, np, new_break_line);}
 	    return str;
 	};
     std::string format_string(std::string str) {return format_string_break_line(str, "");};
