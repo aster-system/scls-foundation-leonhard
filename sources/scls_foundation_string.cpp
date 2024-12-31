@@ -445,7 +445,7 @@ namespace scls {
 	//*********
 
 	// Format a number to a text
-    std::string format_number_to_text(double number_to_format) {
+    std::string format_number_to_text(double number_to_format, int max_size) {
 	    std::string to_return = std::to_string(number_to_format);
 	    to_return = replace(to_return, ",", ".");
 
@@ -455,7 +455,13 @@ namespace scls {
 	    }
 
 	    // Delete the useless "."
-	    if(to_return[to_return.size() - 1] == '.') to_return = to_return.substr(0, to_return.size() - 1);
+	    if(to_return[to_return.size() - 1] == '.'){to_return = to_return.substr(0, to_return.size() - 1);}
+	    if(max_size != -1 && number_to_format - floor(number_to_format) != 0) {
+            // Delete the useless numbers
+            int decimal_size = 0; for(;decimal_size<static_cast<int>(to_return.size());decimal_size++){if(to_return[decimal_size]=='.'){break;}}
+            decimal_size++;
+            while(to_return.size() - decimal_size > max_size) {to_return = to_return.substr(0, to_return.size() - 1);}
+	    }
 
         return to_return;
 	};
@@ -528,6 +534,25 @@ namespace scls {
 	// Text encoding system
 	//
 	//*********
+
+	// Adds a specific character in UTF-8 with his UTF-8 code
+	void add_utf_8(std::string& to_add, unsigned int code) {
+	    // Convert the number
+        std::string result = std::string("");
+        if(code > 127) {
+            if(code < 2047) {
+                unsigned char first_part = 0;
+                unsigned char second_part = 0;
+
+                first_part = (code & 0b00000000000000000000000000111111) | 0b10000000;
+                second_part = ((code >> 6) & 0b00000000000000000000000000011111) | 0b11000000;
+                result += second_part;
+                result += first_part;
+            }
+        } else {result += static_cast<unsigned char>(code);}
+        // Add the part
+        to_add += result;
+	}
 
 	// Convert a string in UTF-8 code point to an UTF-8
     std::string to_utf_8(std::string str) {
@@ -700,6 +725,9 @@ namespace scls {
 	    return cutted[0];
 	};
 
+	// Returns if a formated balise is a closing balise or not
+    bool closing_balise(std::string balise) {return balise.size() > 1 && balise[1] == '/';}
+
 	// Cut a balise by its attributes
     std::vector<std::string> cut_balise_by_attributes(std::string str) {
 	    // Cut the balise
@@ -732,8 +760,8 @@ namespace scls {
 		std::string last_string = ""; // String since the last cut
 		std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
 
-		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
-		{
+		// Browse the string char by char
+		for (int i = 0; i < static_cast<int>(str.size()); i++) {
 		    if(str[i] == '<') {
                 _Text_Balise_Part part_to_add;
                 part_to_add.content = last_string;
@@ -741,8 +769,9 @@ namespace scls {
                 if(!last_is_balise && last_string == "") {
                     if(!erase_blank && (result.size() > 0 || (i + 1 < static_cast<int>(str.size()) && str[i + 1] == '/')))result.push_back(part_to_add);
                 }
-                else result.push_back(part_to_add);
+                else {result.push_back(part_to_add);}
                 last_string = "";
+                part_to_add.content = "";
 
                 int balise_level = 1;
                 i++;
@@ -756,7 +785,7 @@ namespace scls {
                     i++;
                 }
 
-                part_to_add.content = std::string("<") + last_string + std::string(">");
+                part_to_add.balise_content = std::string("<") + last_string + std::string(">");
                 result.push_back(part_to_add);
                 last_is_balise = true;
                 last_string = "";
@@ -811,7 +840,7 @@ namespace scls {
                     i++;
                 }
 
-                part_to_add.content = std::string("<") + last_string + std::string(">");
+                part_to_add.balise_content = std::string("<") + last_string + std::string(">");
                 result.push_back(part_to_add);
                 last_is_balise = true;
                 last_string = "";
@@ -892,7 +921,7 @@ namespace scls {
 
     // Parse the text
     void XML_Text::parse_text() {
-        if(only_text()) return;
+        if(only_text()) {return;}
 
         // Cut by balises
         std::vector<_Text_Balise_Part> cutted = cut_string_by_balise(text(), true);
@@ -900,67 +929,53 @@ namespace scls {
 
         // Create each sub-text
         for(int i = 0;i<static_cast<int>(cutted.size());i++) {
-            unsigned int cutted_position = cutted.size() - (i + 1);
-            if(cutted[cutted_position].content.size() > 0) {
-                if(cutted[cutted_position].content[0] == '<') {
-                    if(cutted[cutted_position].content.size() > 1 && cutted[cutted_position].content[1] == '/') {
-                        // The part is a opened balise
+            if(cutted[i].balise_content.size() > 0 && cutted[i].balise_content[0] == '<') {
+                // Create the balise
+                std::string needed_balise = formatted_balise(cutted[i].balise_content);
+                std::string needed_balise_name = balise_name(needed_balise);
+                std::vector<XML_Attribute> needed_balise_attributes = cut_balise_by_xml_attributes_out_of(needed_balise, "\"");
+                if(balise_container()->defined_balise_has_content(needed_balise_name)) {
+                    // The part is the end of an opened balise
 
-                        // Get the content of the balise
-                        std::string balise_content = "";
-                        std::string base_balise = formatted_balise(cutted[cutted_position].content);
-                        std::string base_balise_name = balise_name(base_balise);
-                        unsigned int current_level = 1; i++;
-                        while(i<static_cast<int>(cutted.size())) {
-                            cutted_position = cutted.size() - (i + 1);
-                            if(cutted[cutted_position].content.size() > 0 && cutted[cutted_position].content[0] == '<') {
-                                std::string current_balise = formatted_balise(cutted[cutted_position].content);
-                                std::string current_balise_name = balise_name(current_balise);
-                                if(current_balise_name == base_balise_name) {
-                                    if(current_balise[1] == '/') current_level++;
-                                    else current_level--;
-
-                                    if(current_level <= 0) break;
-                                    else balise_content = cutted[cutted_position].content + balise_content;
-                                }
-                                else { balise_content = cutted[cutted_position].content + balise_content; }
-                            }
-                            else { balise_content = cutted[cutted_position].content + balise_content; }
-                            i++;
-                        }
-                        balise_content = format_for_xml(balise_content);
-
-                        if(balise_content != "") {
-                            // Create the balise
-                            std::string current_balise = formatted_balise(cutted[cutted_position].content);
+                    // Get the content of the balise
+                    std::string balise_content = "";
+                    unsigned int current_level = 1; i++;
+                    while(i<static_cast<int>(cutted.size())) {
+                        if(cutted[i].balise_content.size() > 0 && cutted[i].balise_content[0] == '<') {
+                            std::string current_balise = formatted_balise(cutted[i].balise_content);
                             std::string current_balise_name = balise_name(current_balise);
-                            std::vector<XML_Attribute> current_balise_attributes = cut_balise_by_xml_attributes_out_of(current_balise, "\"");
-                            XML_Text to_add = XML_Text(current_balise_name, current_balise_attributes, balise_content);
-                            a_sub_xml_texts.push_back(to_add);
-                        }
-                    }
-                    else {
-                        // The part is a single balise
-                        std::string current_balise = formatted_balise(cutted[cutted_position].content);
+                            if(current_balise_name == needed_balise_name) {
+                                if(closing_balise(current_balise)){current_level--;}
+                                else{current_level++;}
 
-                        // Create the balise
-                        std::string current_balise_name = balise_name(current_balise);
-                        std::vector<XML_Attribute> current_balise_attributes = cut_balise_by_xml_attributes_out_of(current_balise, "\"");
-                        XML_Text to_add(current_balise_name, current_balise_attributes);
-                        a_sub_xml_texts.push_back(to_add);
-                    }
+                                if(current_level <= 0){break;}
+                                else{balise_content += cutted[i].total_content();}
+                            }
+                            else { balise_content += cutted[i].total_content(); }
+                        }
+                        else { balise_content += cutted[i].total_content(); }
+                        i++;
+                    } balise_content = format_for_xml(balise_content);
+
+                    // Create the balise
+                    std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, needed_balise_name, needed_balise_attributes, balise_content);
+                    a_sub_xml_texts.push_back(to_add);
                 }
                 else {
-                    std::string content = format_for_xml(cutted[cutted_position].content);
-                    if(content != "") {
-                        // The part is not a balise
-                        XML_Text to_add(content, true);
-                        a_sub_xml_texts.push_back(to_add);
-                    }
+                    // The part is a single balise
+                    // Create the balise
+                    std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, needed_balise_name, needed_balise_attributes, cutted[i].content);
+                    a_sub_xml_texts.push_back(to_add);
+                }
+            } else {
+                std::string content = format_for_xml(cutted[i].total_content());
+                if(content != "") {
+                    // The part is not a balise
+                    std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, content, true);
+                    a_sub_xml_texts.push_back(to_add);
                 }
             }
         }
-        std::reverse(a_sub_xml_texts.begin(), a_sub_xml_texts.end());
     };
 
     // Returns the position of the first plain text character in a unformatted text from before a position
@@ -1106,10 +1121,29 @@ namespace scls {
         std::vector<_Text_Balise_Part> first_cutted = cut_string_by_balise(block_text, false, true);
         std::vector<_Text_Balise_Part> cutted = std::vector<_Text_Balise_Part>();
         for(int i = 0;i<static_cast<int>(first_cutted.size());i++) {
-            if(first_cutted[i].content.size() > 0 && first_cutted[i].content[0] == '<') {
-                // Erase the last blank character if necessary
-                std::string current_balise_name = balise_name(formatted_balise(first_cutted[i].content));
-                cutted.push_back(first_cutted[i]);
+            if(first_cutted[i].balise_content.size() > 0 && first_cutted[i].balise_content[0] == '<') {
+                // This part is a balise
+                std::string needed_balise_name = balise_name(formatted_balise(first_cutted[i].balise_content));
+                _Text_Balise_Part to_add = first_cutted[i];
+                if(contains_defined_balise(needed_balise_name)) {
+                    Balise_Datas* datas = defined_balise(needed_balise_name);
+                    if(datas->has_content) {
+                        // The balise contains a content
+                        i++; int level = 1;
+                        while(i<static_cast<int>(first_cutted.size())) {
+                            if(first_cutted[i].balise_content.size() > 0 && first_cutted[i].balise_content[0] == '<') {
+                                std::string formated = formatted_balise(first_cutted[i].balise_content);
+                                std::string current_balise_name = balise_name(formated);
+                                if(current_balise_name == needed_balise_name) {
+                                    if(closing_balise(formated)) {level--;} else {level++;}
+                                    if(level <= 0){to_add.balise_end_content = first_cutted[i].total_content();break;}
+                                } to_add.content += first_cutted[i].total_content();
+                            } else {
+                                to_add.content += first_cutted[i].total_content();
+                            } i++;
+                        }
+                    }
+                } cutted.push_back(to_add);
             }
             else if(first_cutted[i].content == "") {
                 _Text_Balise_Part part_to_add; cutted.push_back(part_to_add);
@@ -1137,9 +1171,9 @@ namespace scls {
         std::string last_text = "";
         std::vector<std::string> to_return = std::vector<std::string>();
         for(int i = 0;i<static_cast<int>(first_cutted.size());i++) {
-            if(first_cutted[i].content.size() > 0 && first_cutted[i].content[0] == '<') {
+            if(first_cutted[i].balise_content.size() > 0 && first_cutted[i].balise_content[0] == '<') {
                 // A sub-block is here
-                std::string current_balise_name = balise_name(formatted_balise(first_cutted[i].content));
+                std::string current_balise_name = balise_name(formatted_balise(first_cutted[i].balise_content));
                 if(contains_defined_balise(current_balise_name) && defined_balise(current_balise_name)->is_paragraph) {
                     // Save the last empty paragraph
                     to_return.push_back(last_text); last_text = "";
@@ -1148,20 +1182,15 @@ namespace scls {
                     unsigned int level = 1;
                     std::string total_text = "";
                     while(i<static_cast<int>(first_cutted.size())) {
-                        if(first_cutted[i].content[0] == '<') {
-                            first_cutted[i].content = formatted_balise(first_cutted[i].content);
-                            std::string next_balise_name = balise_name(first_cutted[i].content);
+                        if(first_cutted[i].balise_content.size() > 0 && first_cutted[i].balise_content[0] == '<') {
+                            first_cutted[i].balise_content = formatted_balise(first_cutted[i].balise_content);
+                            std::string next_balise_name = balise_name(first_cutted[i].balise_content);
                             if(next_balise_name == current_balise_name) {
-                                if(first_cutted[i].content[1] == '/') {
-                                    level--;
-                                    if(level == 0) break;
-                                }
-                                else {
-                                    level++;
-                                }
+                                if(closing_balise(first_cutted[i].balise_content)) {level--;}else {level++;}
+                                if(level <= 0) break;
                             }
                         }
-                        total_text += first_cutted[i].content;
+                        total_text += first_cutted[i].total_content();
                         i++;
                     }
 
@@ -1169,7 +1198,7 @@ namespace scls {
                     to_return.push_back(total_text);
                 }
                 else {
-                    last_text += first_cutted[i].content;
+                    last_text += first_cutted[i].total_content();
                 }
             }
             else {
@@ -1203,7 +1232,47 @@ namespace scls {
         current_balise = std::make_shared<Balise_Datas>();
         current_balise.get()->is_paragraph = true;
         set_defined_balise("h2", current_balise);
+        // Create the <math> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("math", current_balise);
+        // Create the <vec> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("vec", current_balise);
     }
+
+    // Load the built-ins balises for the GUI loading
+    void __Balise_Container::__load_built_in_balises_gui() {
+        std::shared_ptr<Balise_Datas> current_balise;
+        // Create the <content> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("content", current_balise);
+        // Create the <gui_object> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("gui_object", current_balise);
+        // Create the <when> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("when", current_balise);
+    }
+
+    // Load the built-ins balises for the window loading
+    void __Balise_Container::__load_built_in_balises_window() {
+        std::shared_ptr<Balise_Datas> current_balise;
+        // Create the <page_2d> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("page_2d", current_balise);
+    }
+
+    // Create an XML simply from a text
+	std::shared_ptr<XML_Text> xml(std::shared_ptr<__Balise_Container> balises, std::string content) {
+	    std::shared_ptr<XML_Text> to_return = std::make_shared<XML_Text>(balises, content);
+	    return to_return;
+	}
 
     //*********
 	//

@@ -43,7 +43,9 @@ namespace scls {
         if(number_of_partitions == 0) return to_return;
         char sign = 1;
         if(number_of_partitions < 0) sign *= -1;
-        number_of_partitions = abs(number_of_partitions);
+        if(number_to_partition < 0){sign *= -1;}
+        number_of_partitions = std::abs(number_of_partitions);
+        number_to_partition = std::abs(number_to_partition);
 
         // Calculate the main value to add at each iteration
         long long round_partition_size = static_cast<long long>(static_cast<double>(number_to_partition) / static_cast<double>(number_of_partitions));

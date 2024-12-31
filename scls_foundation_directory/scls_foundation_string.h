@@ -77,7 +77,8 @@ namespace scls {
 	//*********
 
 	// Format a number to a text
-    std::string format_number_to_text(double number_to_format);
+	std::string format_number_to_text(double number_to_format, int max_size);
+    inline std::string format_number_to_text(double number_to_format){return format_number_to_text(number_to_format, -1);};
 
     // Format a std::string and its break lines
     std::string format_string_break_line(std::string str, std::string new_break_line);
@@ -101,6 +102,8 @@ namespace scls {
 	//
 	//*********
 
+	// Adds a specific character in UTF-8 with his UTF-8 code
+	void add_utf_8(std::string& to_add, unsigned int code);
 	// Convert a string in UTF-8 code point to an UTF-8
     std::string to_utf_8(std::string str);
 
@@ -133,10 +136,17 @@ namespace scls {
     };
 	// Part of a text gotten by a balising cut
     struct _Text_Balise_Part {
+        // Content of the balise containing the part
+        std::string balise_content = "";
+        // Content of the end of the balise containing the part
+        std::string balise_end_content = "";
         // Content of the part
         std::string content = "";
         // Position of the start of the balise (of the first char of the content)
         unsigned int start_position = 0;
+
+        // Returns the total content of the balise
+        std::string total_content() const {return balise_content + content + balise_end_content;};
     };
     // XML attribute into a balise
     struct XML_Attribute {
@@ -161,6 +171,8 @@ namespace scls {
 	// Format a text for being usable with XLM
     std::string format_for_xml(std::string content);
 
+    // Returns if a balise is a closing balise or not
+    bool closing_balise(std::string balise);
 	// Cut a balise by its attributes
     std::vector<std::string> cut_balise_by_attributes(std::string str);
 	// Cut a balise by its attributes out of a certain pattern
@@ -170,54 +182,6 @@ namespace scls {
 	// Cut a string by its balises (including the balises in the vector) out of 2 (or 1, or 0) different string
     std::vector<_Text_Balise_Part> cut_string_by_balise_out_of(std::string str, std::string out, bool erase_blank = false, bool erase_last_if_blank = true);
     std::vector<_Text_Balise_Part> cut_string_by_balise(std::string str, bool erase_blank = false, bool erase_last_if_blank = true);
-
-	class XML_Text {
-	    // Class containing a XML text
-    public:
-
-        // Most simple XML_Text constructor, with only a text / open balising
-        XML_Text(std::string text, bool only_text = false) {a_xml_text = format_for_xml(format_string_break_line(text, "\n"));if(only_text) {a_only_text = true;}else parse_text();};
-        XML_Text(std::string balise_name, std::vector<XML_Attribute> balise_attributes) : a_balise_attributes(balise_attributes), a_balise_name(balise_name) {a_only_text = true;};
-        XML_Text(std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string balise_content) : a_balise_attributes(balise_attributes), a_balise_name(balise_name) {a_xml_text = format_for_xml(balise_content);parse_text();};
-
-        // Parse the text
-        void parse_text();
-
-        // Returns an attribute by its name
-        inline XML_Attribute xml_attribute(std::string xml_attribute_name) {XML_Attribute to_return;return to_return;};
-
-        // Getters and setter
-        inline bool only_text() const {return a_only_text;};
-        inline std::vector<XML_Text>& sub_texts() {return a_sub_xml_texts;};
-        inline std::string text() const {return a_xml_text;};
-        inline std::vector<XML_Attribute>& xml_balise_attributes() {return a_balise_attributes;};
-        inline std::string xml_balise_name() const {return a_balise_name;};
-    private:
-
-        //*********
-        //
-        // Balise handler
-        //
-        //*********
-
-        // Attributes of the balise
-        std::vector<XML_Attribute> a_balise_attributes = std::vector<XML_Attribute>();
-        // Name of the balise
-        std::string a_balise_name = "";
-
-        //*********
-        //
-        // Intern text handler
-        //
-        //*********
-
-        // If the XML text is only a test
-        bool a_only_text = false;
-        // Sub-XML text
-        std::vector<XML_Text> a_sub_xml_texts = std::vector<XML_Text>();
-        // XML text
-        std::string a_xml_text = "";
-	};
 
 	class __Balise_Container {
         // Class faciliting the handle of balises
@@ -240,23 +204,87 @@ namespace scls {
         // Returns the balise of the block or a blank string if it is not
         std::string __block_balise(std::vector<_Text_Balise_Part>& cutted);
         // If the generator contains the style of a balise
-        inline bool contains_defined_balise(std::string balise_name) {for(std::map<std::string, std::shared_ptr<Balise_Datas>>::iterator it = a_defined_balises.begin();it!=a_defined_balises.end();it++){if(it->first == balise_name) return true;}return false;};
+        inline bool contains_defined_balise(std::string balise_name) const {return defined_balise(balise_name) != 0;};
         // Cut a block by its sub_blocks and spaces
         std::vector<_Text_Balise_Part> __cut_block(std::string block_text);
         // Cut a multi-block by sub-blocks
         std::vector<std::string> __cut_multi_block(std::string block_text);
         // Return the style of a balise
-        inline Balise_Datas* defined_balise(std::string balise_name) { return a_defined_balises[balise_name].get(); };
+        inline Balise_Datas* defined_balise(std::string balise_name) const {for(int i = 0;i<static_cast<int>(a_defined_balises.size());i++){if(a_defined_balises.at(i).get()->name==balise_name){return a_defined_balises.at(i).get();}}return 0;};
+        inline bool defined_balise_has_content(std::string balise_name) const {Balise_Datas* needed_balise=defined_balise(balise_name);return (needed_balise!=0&&needed_balise->has_content);};
         // Set a balise to the container
         template <typename O = Balise_Datas>
-        inline void set_defined_balise(std::string name, const std::shared_ptr<O>& balise_datas) { a_defined_balises[name] = balise_datas; };
+        inline void set_defined_balise(std::shared_ptr<O> balise_datas) {a_defined_balises.push_back(balise_datas);};
+        template <typename O = Balise_Datas>
+        inline void set_defined_balise(std::string name, std::shared_ptr<O> balise_datas) {balise_datas.get()->name=name;set_defined_balise<O>(balise_datas);};
 
         // Load the built-ins balises
         virtual void __load_built_in_balises();
+        // Load the built-ins balises for the GUI loading
+        virtual void __load_built_in_balises_gui();
+        // Load the built-ins balises for the window loading
+        virtual void __load_built_in_balises_window();
+
     private:
         // List of each defined balises
-        std::map<std::string, std::shared_ptr<Balise_Datas>> a_defined_balises = std::map<std::string, std::shared_ptr<Balise_Datas>>();
+        std::vector<std::shared_ptr<Balise_Datas>> a_defined_balises = std::vector<std::shared_ptr<Balise_Datas>>();
     };
+
+    class XML_Text {
+	    // Class containing a XML text
+    public:
+
+        // Most simple XML_Text constructor, with only a text / open balising
+        XML_Text(std::shared_ptr<__Balise_Container> balise_container, std::string text, bool only_text = false):a_balise_container(balise_container) {a_xml_text = format_for_xml(format_string_break_line(text, "\n"));if(only_text) {a_only_text = true;}else{parse_text();}};
+        XML_Text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes) : a_balise_attributes(balise_attributes),a_balise_container(balise_container),a_balise_name(balise_name) {a_only_text = true;};
+        XML_Text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string balise_content) : a_balise_attributes(balise_attributes),a_balise_container(balise_container),a_balise_name(balise_name) {a_xml_text = format_for_xml(balise_content);parse_text();};
+
+        // Parse the text
+        void parse_text();
+
+        // Returns an attribute by its name
+        inline XML_Attribute xml_attribute(std::string xml_attribute_name) {XML_Attribute to_return;return to_return;};
+        // Returns the text in the balise
+        inline std::string xml_balise() {return std::string("<") + xml_balise_name() + std::string(">"); };
+
+        // Getters and setter
+        inline __Balise_Container* balise_container() const {return a_balise_container.get();};
+        inline bool only_text() const {return a_only_text;};
+        inline std::vector<std::shared_ptr<XML_Text>>& sub_texts() {return a_sub_xml_texts;};
+        inline std::string text() const {return a_xml_text;};
+        inline std::vector<XML_Attribute>& xml_balise_attributes() {return a_balise_attributes;};
+        inline std::string xml_balise_name() const {return a_balise_name;};
+    private:
+
+        //*********
+        //
+        // Balise handler
+        //
+        //*********
+
+        // Attributes of the balise
+        std::vector<XML_Attribute> a_balise_attributes = std::vector<XML_Attribute>();
+        // Balise container in the text
+        std::shared_ptr<__Balise_Container> a_balise_container;
+        // Name of the balise
+        std::string a_balise_name = "";
+
+        //*********
+        //
+        // Intern text handler
+        //
+        //*********
+
+        // If the XML text is only a test
+        bool a_only_text = false;
+        // Sub-XML text
+        std::vector<std::shared_ptr<XML_Text>> a_sub_xml_texts = std::vector<std::shared_ptr<XML_Text>>();
+        // XML text
+        std::string a_xml_text = "";
+	};
+
+	// Create an XML simply from a text
+	std::shared_ptr<XML_Text> xml(std::shared_ptr<__Balise_Container> balises, std::string content);
 
     //*********
 	//
@@ -354,7 +382,7 @@ namespace scls {
         // Operator == overload with char*
         inline bool operator==(const char* second) const { return a_content.c_str() == second; };
         // Operator == overload with std::string
-        inline bool operator==(const std::string& second) const { return a_content == second; };
+        inline bool operator==(std::string second) const { return a_content == second; };
         // Operator == overload with String
         inline bool operator==(const String& second) const { return a_content == second.a_content; };
 
@@ -365,7 +393,7 @@ namespace scls {
         operator std::string() const {return to_std_string();};
     private:
         // Content of the string
-        std::string a_content = "";
+        std::string a_content = std::string("");
 	};
 
 	// Flux output operator of String
