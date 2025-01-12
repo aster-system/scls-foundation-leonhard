@@ -1245,6 +1245,10 @@ namespace scls {
     // Load the built-ins balises for the GUI loading
     void __Balise_Container::__load_built_in_balises_gui() {
         std::shared_ptr<Balise_Datas> current_balise;
+        // Create the <choice> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("choice", current_balise);
         // Create the <content> style
         current_balise = std::make_shared<Balise_Datas>();
         current_balise.get()->has_content = true;
@@ -1253,6 +1257,10 @@ namespace scls {
         current_balise = std::make_shared<Balise_Datas>();
         current_balise.get()->has_content = true;
         set_defined_balise("gui_object", current_balise);
+        // Create the <sub_choice> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("sub_choice", current_balise);
         // Create the <when> style
         current_balise = std::make_shared<Balise_Datas>();
         current_balise.get()->has_content = true;
