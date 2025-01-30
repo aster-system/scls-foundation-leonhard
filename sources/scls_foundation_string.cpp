@@ -920,11 +920,9 @@ namespace scls {
 	};
 
     // Parse the text
-    void XML_Text::parse_text() {
-        if(only_text()) {return;}
-
+    void XML_Text::parse_text(std::string new_text) {
         // Cut by balises
-        std::vector<_Text_Balise_Part> cutted = cut_string_by_balise(text(), true);
+        std::vector<_Text_Balise_Part> cutted = cut_string_by_balise(new_text, true);
         a_sub_xml_texts.clear();
 
         // Create each sub-text
@@ -967,16 +965,33 @@ namespace scls {
                     std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, needed_balise_name, needed_balise_attributes, cutted[i].content);
                     a_sub_xml_texts.push_back(to_add);
                 }
-            } else {
+            }
+            else {
                 std::string content = format_for_xml(cutted[i].total_content());
-                if(content != "") {
-                    // The part is not a balise
-                    std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, content, true);
-                    a_sub_xml_texts.push_back(to_add);
+                if(static_cast<int>(cutted.size()) <= 1) {a_xml_text = content;}
+                else {
+                    if(content != "") {
+                        // The part is not a balise
+                        std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, content, true);
+                        a_sub_xml_texts.push_back(to_add);
+                    }
                 }
             }
         }
     };
+
+    // Returns the full text in the XML text
+    std::string XML_Text::full_text(bool add_balise) const {
+        std::string to_return = std::string();
+        if(add_balise && a_balise_name != ""){to_return = xml_balise();}
+
+        // Add the inner text
+        if(only_text()){to_return = to_return + text();}
+        else{for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){to_return += a_sub_xml_texts[i].get()->full_text();}}
+
+        if(add_balise && a_balise_name != ""){to_return += xml_balise_end();}
+        return to_return;
+    }
 
     // Returns the position of the first plain text character in a unformatted text from before a position
     unsigned int __Balise_Container::first_plain_text_character_before_position_in_informatted_text(const std::string& text_to_convert, int position) {
@@ -1277,10 +1292,7 @@ namespace scls {
     }
 
     // Create an XML simply from a text
-	std::shared_ptr<XML_Text> xml(std::shared_ptr<__Balise_Container> balises, std::string content) {
-	    std::shared_ptr<XML_Text> to_return = std::make_shared<XML_Text>(balises, content);
-	    return to_return;
-	}
+	std::shared_ptr<XML_Text> xml(std::shared_ptr<__Balise_Container> balises, std::string content) {std::shared_ptr<XML_Text> to_return = std::make_shared<XML_Text>(balises, content);return to_return;}
 
     //*********
 	//
