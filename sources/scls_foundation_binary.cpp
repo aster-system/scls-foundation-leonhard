@@ -447,15 +447,12 @@ namespace scls {
 	    unsigned int c = datas->starting_value;
 	    if(datas->reflect_input)
         {
-            for (int n = 0; n < len; n++)
-            {
+            for (int n = 0; n < len; n++) {
                 c = datas->crc_values[(c ^ buf[n]) & 0xff] ^ (c >> 8);
             }
         }
-        else
-        {
-            for (int n = 0; n < len; n++)
-            {
+        else {
+            for (int n = 0; n < len; n++) {
                 c = datas->crc_values[(c ^ reflect_char(buf[n])) & 0xff] ^ (c >> 8);
             }
         }

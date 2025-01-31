@@ -932,7 +932,8 @@ namespace scls {
                 std::string needed_balise = formatted_balise(cutted[i].balise_content);
                 std::string needed_balise_name = balise_name(needed_balise);
                 std::vector<XML_Attribute> needed_balise_attributes = cut_balise_by_xml_attributes_out_of(needed_balise, "\"");
-                if(balise_container()->defined_balise_has_content(needed_balise_name)) {
+                Balise_Datas* datas = balise_container()->defined_balise(needed_balise_name);
+                if(datas != 0 && datas->has_content) {
                     // The part is the end of an opened balise
 
                     // Get the content of the balise
@@ -957,12 +958,14 @@ namespace scls {
 
                     // Create the balise
                     std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, needed_balise_name, needed_balise_attributes, balise_content);
+                    if(datas != 0){to_add.get()->set_xml_balise_datas(datas);}
                     a_sub_xml_texts.push_back(to_add);
                 }
                 else {
                     // The part is a single balise
                     // Create the balise
                     std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, needed_balise_name, needed_balise_attributes, cutted[i].content);
+                    if(datas != 0){to_add.get()->set_xml_balise_datas(datas);}
                     a_sub_xml_texts.push_back(to_add);
                 }
             }
@@ -985,11 +988,16 @@ namespace scls {
         std::string to_return = std::string();
         if(add_balise && a_balise_name != ""){to_return = xml_balise();}
 
-        // Add the inner text
         if(only_text()){to_return = to_return + text();}
-        else{for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){to_return += a_sub_xml_texts[i].get()->full_text();}}
+        else if(a_balise_datas.has_content) {
+            // Add the inner text
+            if(only_text()){to_return = to_return + text();}
+            else{for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){to_return += a_sub_xml_texts[i].get()->full_text();}}
+        }
 
-        if(add_balise && a_balise_name != ""){to_return += xml_balise_end();}
+        // Add the closing balise
+        if(add_balise && a_balise_name != "" && a_balise_datas.has_content){to_return += xml_balise_end();}
+
         return to_return;
     }
 
@@ -1224,38 +1232,6 @@ namespace scls {
         if(last_text != "") { to_return.push_back(last_text); last_text = ""; }
         return to_return;
     };
-
-    // Load the built-ins balises
-    void __Balise_Container::__load_built_in_balises() {
-        std::shared_ptr<Balise_Datas> current_balise = std::make_shared<Balise_Datas>();
-        // Create the <br> style
-        current_balise.get()->is_break_line = true;
-        set_defined_balise("br", current_balise);
-        // Create the <div> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->is_paragraph = true;
-        set_defined_balise("div", current_balise);
-        // Create the <p> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->is_paragraph = true;
-        set_defined_balise("p", current_balise);
-        // Create the <h1> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->is_paragraph = true;
-        set_defined_balise("h1", current_balise);
-        // Create the <h2> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->is_paragraph = true;
-        set_defined_balise("h2", current_balise);
-        // Create the <math> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("math", current_balise);
-        // Create the <vec> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("vec", current_balise);
-    }
 
     // Load the built-ins balises for the GUI loading
     void __Balise_Container::__load_built_in_balises_gui() {

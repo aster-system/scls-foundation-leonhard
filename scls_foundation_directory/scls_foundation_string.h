@@ -219,7 +219,7 @@ namespace scls {
         inline void set_defined_balise(std::string name, std::shared_ptr<O> balise_datas) {balise_datas.get()->name=name;set_defined_balise<O>(balise_datas);};
 
         // Load the built-ins balises
-        virtual void __load_built_in_balises();
+        virtual void __load_built_in_balises(){};
         // Load the built-ins balises for the GUI loading
         virtual void __load_built_in_balises_gui();
         // Load the built-ins balises for the window loading
@@ -255,6 +255,8 @@ namespace scls {
         // Getters and setter
         inline __Balise_Container* balise_container() const {return a_balise_container.get();};
         inline bool only_text() const {return a_sub_xml_texts.size() <= 0;};
+        inline void set_xml_balise_datas(Balise_Datas new_xml_balise_datas){a_balise_datas = new_xml_balise_datas;};
+        inline void set_xml_balise_datas(Balise_Datas* new_xml_balise_datas){a_balise_datas = *new_xml_balise_datas;};
         inline void set_xml_balise_name(std::string new_xml_balise_name){a_balise_name = new_xml_balise_name;};
         inline std::vector<std::shared_ptr<XML_Text>>& sub_texts() {return a_sub_xml_texts;};
         inline std::string text() const {if(a_sub_xml_texts.size() <= 0){return a_xml_text;}return full_text(false);};
@@ -273,6 +275,8 @@ namespace scls {
         std::vector<XML_Attribute> a_balise_attributes = std::vector<XML_Attribute>();
         // Balise container in the text
         std::shared_ptr<__Balise_Container> a_balise_container;
+        // Datas for the balise
+        Balise_Datas a_balise_datas;
         // Name of the balise
         std::string a_balise_name = "";
 
