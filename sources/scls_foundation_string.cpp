@@ -902,6 +902,7 @@ namespace scls {
 	    // Create the attributes
 	    for(int i = 0;i<static_cast<int>(result.size());i++) {
             // Create the attribute
+            std::vector<std::string> cutted = cut_string_out_of(result[i], "=", "\"");
             XML_Attribute current_attribute;
             current_attribute.name = attribute_name(result[i]);
             current_attribute.value = attribute_value(result[i]);
@@ -913,7 +914,7 @@ namespace scls {
             }
 
             // Add the attribute
-            to_return.push_back(current_attribute);
+            if(current_attribute.name != std::string("")){to_return.push_back(current_attribute);}
 	    }
 
 	    return to_return;
@@ -966,6 +967,7 @@ namespace scls {
                     // Create the balise
                     std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, needed_balise_name, needed_balise_attributes, cutted[i].content);
                     if(datas != 0){to_add.get()->set_xml_balise_datas(datas);}
+                    else{Balise_Datas current_data = Balise_Datas(false);to_add.get()->set_xml_balise_datas(&current_data);}
                     a_sub_xml_texts.push_back(to_add);
                 }
             }
@@ -991,8 +993,7 @@ namespace scls {
         if(only_text()){to_return = to_return + text();}
         else if(a_balise_datas.has_content) {
             // Add the inner text
-            if(only_text()){to_return = to_return + text();}
-            else{for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){to_return += a_sub_xml_texts[i].get()->full_text();}}
+            for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){to_return += a_sub_xml_texts[i].get()->full_text();}
         }
 
         // Add the closing balise
