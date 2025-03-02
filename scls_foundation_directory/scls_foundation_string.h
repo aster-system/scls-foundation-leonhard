@@ -244,7 +244,11 @@ namespace scls {
         XML_Text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes) : a_balise_attributes(balise_attributes),a_balise_container(balise_container),a_balise_name(balise_name) {};
         XML_Text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string balise_content) : a_balise_attributes(balise_attributes),a_balise_container(balise_container),a_balise_name(balise_name) {parse_text(balise_content);};
 
-        // Parse the text
+        // Adds a sub-balise in the XML balise
+        inline std::shared_ptr<XML_Text> add_sub_balise(std::string pure_text){std::shared_ptr<XML_Text> needed_text = std::make_shared<XML_Text>(a_balise_container,pure_text);a_sub_xml_texts.push_back(needed_text);return needed_text;};
+        // Adds some text in the XML balise text
+        inline void add_text(std::string text){a_xml_text+=text;};
+        // Parses the text
         void parse_text(std::string new_text);
         // Returns the full text in the XML text
         std::string full_text(bool add_balise) const;
@@ -262,6 +266,7 @@ namespace scls {
         inline void set_xml_balise_datas(Balise_Datas new_xml_balise_datas){a_balise_datas = new_xml_balise_datas;};
         inline void set_xml_balise_datas(Balise_Datas* new_xml_balise_datas){a_balise_datas = *new_xml_balise_datas;};
         inline void set_xml_balise_name(std::string new_xml_balise_name){a_balise_name = new_xml_balise_name;};
+        inline XML_Text* sub_text(int index)const{if(index<static_cast<int>(a_sub_xml_texts.size())){return 0;}return a_sub_xml_texts[index].get();};
         inline std::vector<std::shared_ptr<XML_Text>>& sub_texts() {return a_sub_xml_texts;};
         inline std::string text() const {if(a_sub_xml_texts.size() <= 0){return a_xml_text;}return full_text(false);};
         inline bool use_balise() const {return static_cast<int>(a_balise_name.size()) > 0;};
