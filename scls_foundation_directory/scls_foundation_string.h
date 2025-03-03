@@ -270,6 +270,7 @@ namespace scls {
         inline std::vector<std::shared_ptr<XML_Text>>& sub_texts() {return a_sub_xml_texts;};
         inline std::string text() const {if(a_sub_xml_texts.size() <= 0){return a_xml_text;}return full_text(false);};
         inline bool use_balise() const {return static_cast<int>(a_balise_name.size()) > 0;};
+        inline std::vector<XML_Attribute>& xml_attributes() {return a_balise_attributes;};
         inline std::vector<XML_Attribute>& xml_balise_attributes() {return a_balise_attributes;};
         inline std::string xml_balise_name() const {return a_balise_name;};
     private:
