@@ -257,7 +257,8 @@ namespace scls {
         // Returns an attribute by its name
         inline XML_Attribute xml_attribute(std::string xml_attribute_name) {XML_Attribute to_return;return to_return;};
         // Returns the text in the balise
-        inline std::string xml_balise() const {std::string attribute = ""; for(int i = 0;i<static_cast<int>(a_balise_attributes.size());i++){attribute += a_balise_attributes.at(i).name + std::string("=") + a_balise_attributes.at(i).value;if(i < static_cast<int>(a_balise_attributes.size())){attribute+=std::string(" ");}}if(attribute.size()>0){attribute=std::string(" ")+attribute;}return std::string("<") + xml_balise_name() + attribute + std::string(">"); };
+        std::string xml_balise() const;
+
         inline std::string xml_balise_end() const {return std::string("</") + xml_balise_name() + std::string(">"); };
 
         // Getters and setter

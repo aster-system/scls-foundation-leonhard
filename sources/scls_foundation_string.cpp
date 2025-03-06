@@ -308,21 +308,20 @@ namespace scls {
 		std::vector<std::string> result = std::vector<std::string>();
 		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
             last_string_cut += str[i];
-			if (last_string_cut.size() > cut.size()) // If the string which allows to know where to cut is too long, cut him
-			{
+
+            // If the string which allows to know where to cut is too long, cut him
+			if (last_string_cut.size() > cut.size()) {
 				last_string_cut = last_string_cut.substr(1, cut.size());
 			}
 
 			// Check the off-part
-            if(i >= static_cast<int>(out_of.size()) && i <= static_cast<int>(str.size()) - static_cast<int>(out_of.size()) &&
-               str.substr(i - static_cast<int>(out_of.size()), static_cast<int>(out_of.size())) == out_of) { in_out_of = !in_out_of; }
+            if(i >= static_cast<int>(out_of.size()) && str.substr(i - static_cast<int>(out_of.size()), static_cast<int>(out_of.size())) == out_of) { in_out_of = !in_out_of; }
 
-			if (last_string_cut == cut && !in_out_of) // If the string which allows to know where to cut is equal to the part to cut, do a cut
-			{
+            // If the string which allows to know where to cut is equal to the part to cut, do a cut
+			if (last_string_cut == cut && !in_out_of) {
 				std::string final_string = last_string.substr(0, last_string.size() - (cut.size() - 1));
 				if (erase_blank) {
-					if (final_string != "")
-					{
+					if (final_string != "") {
 						result.push_back(final_string);
 					}
 				}
@@ -332,8 +331,7 @@ namespace scls {
 				last_string = "";
 				last_string_cut = "";
 			}
-			else
-			{
+			else {
 				last_string += str[i];
 			}
 		}
@@ -745,11 +743,11 @@ namespace scls {
 	    // Cut the balise
 	    std::vector<std::string> result = cut_string_out_of(str, " ", out, true);
         int result_size = result.size() - 1;
-	    if(result_size >= 0)result.erase(result.begin());
+	    if(result_size >= 0){result.erase(result.begin());}
 
 	    // Erase the last '>' if necessary
 	    result_size = result.size() - 1;
-        if(result_size >= 0 && result[result_size][result[result_size].size() - 1] == '>') result[result_size] = result[result_size].substr(0, result[result_size].size() - 1);
+        if(result_size >= 0 && result[result_size][result[result_size].size() - 1] == '>'){result[result_size] = result[result_size].substr(0, result[result_size].size() - 1);}
 
 	    return result;
 	};
@@ -1001,6 +999,24 @@ namespace scls {
 
         return to_return;
     }
+
+    // Returns the text in the balise
+    std::string XML_Text::xml_balise() const {
+        std::string attribute = "";
+        for(int i = 0;i<static_cast<int>(a_balise_attributes.size());i++){
+            attribute += a_balise_attributes.at(i).name + std::string("=");
+
+            // Add the value
+            bool contains_space = scls::contains_string(a_balise_attributes.at(i).value, std::string(" "));
+            if(contains_space){attribute += "\"";}
+            attribute += a_balise_attributes.at(i).value;
+            if(contains_space){attribute += "\"";}
+
+            if(i < static_cast<int>(a_balise_attributes.size())){attribute+=std::string(" ");}}
+            if(attribute.size()>0){attribute=std::string(" ")+attribute;
+        }
+        return std::string("<") + xml_balise_name() + attribute + std::string(">");
+    };
 
     // Returns the position of the first plain text character in a unformatted text from before a position
     unsigned int __Balise_Container::first_plain_text_character_before_position_in_informatted_text(const std::string& text_to_convert, int position) {
