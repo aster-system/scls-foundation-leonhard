@@ -547,7 +547,20 @@ namespace scls {
                 result += second_part;
                 result += first_part;
             }
-        } else {result += static_cast<unsigned char>(code);}
+            else {
+                unsigned char first_part = 0;
+                unsigned char second_part = 0;
+                unsigned char third_part = 0;
+
+                first_part = (code & 0b00000000000000000000000000111111) | 0b10000000;
+                second_part = ((code >> 6) & 0b00000000000000000000000000011111) | 0b11000000;
+                third_part = ((code >> 12) & 0b00000000000000000000000000001111) | 0b11100000;
+                result += third_part;
+                result += second_part;
+                result += first_part;
+            }
+        }
+        else {result += static_cast<unsigned char>(code);}
         // Add the part
         to_add += result;
 	}
@@ -575,16 +588,14 @@ namespace scls {
 
 	// Convert a string in UTF-8 to an UTF-8 code point
     bool is_character_utf_8(char chr) {if(chr & 0b10000000)return true;return false;};
-    unsigned char utf_8_level(char character) {if(~character & 0b10000000)return 0;else if((character & 0b11000000) == 0b11000000)return 1;else if((character & 0b11100000) == 0b11100000)return 2;return 3;};
+    unsigned char utf_8_level(char character) {if(~character & 0b10000000)return 0;else if((character & 0b11100000) == 0b11000000)return 1;else if((character & 0b11110000) == 0b11100000)return 2;return 3;};
     std::string to_utf_8_code_point(std::string str) {
         std::string result = "";
         for(int i = 0;i<static_cast<int>(str.size());i++) {
-            if(~str[i] & 0b10000000)
-            {
+            if(~str[i] & 0b10000000) {
                 result += str[i];
             }
-            else if((str[i] & 0b11100000) == 0b11100000)
-            {
+            else if((str[i] & 0b11100000) == 0b11100000) {
                 unsigned short final_character_1 = 0;
                 unsigned short final_character_2 = 0;
                 unsigned short final_character_3 = 0;
