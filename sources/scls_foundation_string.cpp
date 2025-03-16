@@ -442,6 +442,12 @@ namespace scls {
 	//
 	//*********
 
+	// Capitalize a character of a std::string
+	std::string capitalise_letter(std::string str, int position) {
+	    if(utf_8_level(str[position]) == 0){char to_convert = str[position];to_convert-=32;str = str.substr(0, position) + to_convert + str.substr(position + 1, str.size() - (position + 1)); }
+	    return str;
+	}
+
 	// Format a number to a text
     std::string format_number_to_text(double number_to_format, int max_size) {
 	    std::string to_return = std::to_string(number_to_format);
@@ -929,6 +935,56 @@ namespace scls {
 	    return to_return;
 	};
 
+	// Checks the include in the text
+    void XML_Text::check_include(std::string path) {
+        // Analyse each balises
+        for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
+            std::shared_ptr<XML_Text> current_text = sub_texts()[i];
+            std::string current_balise_name = current_text.get()->xml_balise_name();
+
+            // Add an include
+            if(current_balise_name == "include") {
+                // Include a part to the XML loading
+                std::string src = std::string("");
+                for(int j = 0;j<static_cast<int>(current_text.get()->xml_balise_attributes().size());j++) {
+                    std::string current_attribute_name = current_text.get()->xml_balise_attributes()[j].name;
+                    std::string current_attribute_value = current_text.get()->xml_balise_attributes()[j].value;
+                    if(current_attribute_value.size() > 0 && current_attribute_value[0] == '\"'){current_attribute_value = current_attribute_value.substr(1, current_attribute_value.size() - 1);}
+                    if(current_attribute_value.size() > 0 && current_attribute_value[current_attribute_value.size() - 1] == '\"'){current_attribute_value = current_attribute_value.substr(0, current_attribute_value.size() - 1);}
+                    if(current_attribute_name == "src") {
+                        // Get the src of the include
+                        src = current_attribute_value;
+                    }
+                }
+
+                // Include the part
+                std::string base_src = src;
+                if(!std::filesystem::exists(src)){std::filesystem::path p = path;src = p.parent_path().string() + "/" + src;}
+                if(std::filesystem::exists(src)) {
+                    unsigned int total_size = 0;
+                    char* binary_content = read_entire_file_binary(src, total_size);
+                    std::string content_to_parse = std::string();
+                    if(binary_content != 0) {
+                        for(unsigned int i = 0;i<total_size;i++){
+                            if(binary_content[i]!=static_cast<char>(10)&&binary_content[i]!=static_cast<char>(13)){content_to_parse += binary_content[i];}
+                            else if(i <= 0 || (binary_content[i - 1]!=static_cast<char>(10)&&binary_content[i - 1]!=static_cast<char>(13))){content_to_parse += ' ';}
+                        }
+                        delete[] binary_content; binary_content = 0;
+                    }
+
+                    // Add the new balises
+                    std::shared_ptr<XML_Text> content = std::make_shared<XML_Text>(balise_container_shared_ptr(), content_to_parse);
+                    if(content.get()->sub_texts().size() > 0) {
+                        sub_texts()[i] = content.get()->sub_texts()[0];
+                        for(int j = 1;j<static_cast<int>(content.get()->sub_texts().size());j++){sub_texts().insert(sub_texts().begin() + i + 1, content.get()->sub_texts()[j]);i++;}
+                    }
+                }
+                else {print("Warning", "SCLS XML System", "The \"" + base_src + "\" path you want to include does not exist.");}
+            }
+            else{current_text.get()->check_include(path);}
+        }
+    }
+
     // Parse the text
     void XML_Text::parse_text(std::string new_text) {
         // Cut by balises
@@ -1010,6 +1066,31 @@ namespace scls {
 
         return to_return;
     }
+
+    // Removes the first balise with a precise name and returns it
+    std::shared_ptr<XML_Text> XML_Text::remove_balise_by_name(std::string name) {
+        std::shared_ptr<XML_Text> to_return;
+        for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
+            if(sub_texts().at(i).get()->xml_balise_name() == name) {
+                to_return = sub_texts().at(i);
+                sub_texts().erase(sub_texts().begin() + i);
+                break;
+            }
+        }
+        return to_return;
+    }
+
+    // Replace all balise with another balise
+    void XML_Text::replace_balise_by_name(std::string name, std::string new_balise_name, std::vector<XML_Attribute>& new_balise_attributes) {
+        for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
+            if(sub_texts().at(i).get()->xml_balise_name() == name) {
+                sub_texts().at(i).get()->set_xml_balise_name(new_balise_name);
+                sub_texts().at(i).get()->xml_attributes() = new_balise_attributes;
+            }
+            sub_texts().at(i).get()->replace_balise_by_name(name, new_balise_name, new_balise_attributes);
+        }
+    }
+    void XML_Text::replace_balise_by_name(std::string name, std::string new_name){std::vector<XML_Attribute> new_balise_attributes = cut_balise_by_xml_attributes_out_of(new_name, "\"");std::string new_balise_name = balise_name(new_name);replace_balise_by_name(name, new_balise_name, new_balise_attributes);}
 
     // Returns the text in the balise
     std::string XML_Text::xml_balise() const {

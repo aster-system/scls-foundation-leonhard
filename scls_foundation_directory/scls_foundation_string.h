@@ -76,6 +76,9 @@ namespace scls {
 	//
 	//*********
 
+	// Capitalize a character of a std::string
+	std::string capitalise_letter(std::string str, int position);
+
 	// Format a number to a text
 	std::string format_number_to_text(double number_to_format, int max_size);
     inline std::string format_number_to_text(double number_to_format){return format_number_to_text(number_to_format, -1);};
@@ -248,12 +251,23 @@ namespace scls {
         inline std::shared_ptr<XML_Text> add_sub_balise(std::string pure_text){std::shared_ptr<XML_Text> needed_text = std::make_shared<XML_Text>(a_balise_container,pure_text);a_sub_xml_texts.push_back(needed_text);return needed_text;};
         // Adds some text in the XML balise text
         inline void add_text(std::string text){a_xml_text+=text;};
+        // Checks the include in the text
+        void check_include(std::string path);
+        // Clears the balise
+        void clear(){a_sub_xml_texts.clear();a_balise_attributes.clear();};
         // Parses the text
         void parse_text(std::string new_text);
         // Returns the full text in the XML text
         std::string full_text(bool add_balise) const;
         inline std::string full_text() const {return full_text(true);};
 
+        // Adds an XML attribute
+        inline void add_xml_attribute(std::string xml_attribute_name, std::string xml_attribute_value) {XML_Attribute to_return;to_return.name=xml_attribute_name;to_return.value=xml_attribute_value;a_balise_attributes.push_back(to_return);};
+        // Removes the first balise with a precise name and returns it
+        std::shared_ptr<XML_Text> remove_balise_by_name(std::string name);
+        // Replace all balise with another balise
+        void replace_balise_by_name(std::string name, std::string new_balise_name, std::vector<XML_Attribute>& new_balise_attributes);
+        void replace_balise_by_name(std::string name, std::string new_name);
         // Returns an attribute by its name
         inline XML_Attribute xml_attribute(std::string xml_attribute_name) {XML_Attribute to_return;return to_return;};
         // Returns the text in the balise
@@ -262,7 +276,9 @@ namespace scls {
         inline std::string xml_balise_end() const {return std::string("</") + xml_balise_name() + std::string(">"); };
 
         // Getters and setter
+        inline Balise_Datas& balise_datas(){return a_balise_datas;};
         inline __Balise_Container* balise_container() const {return a_balise_container.get();};
+        inline std::shared_ptr<__Balise_Container> balise_container_shared_ptr() const {return a_balise_container;};
         inline bool only_text() const {return a_sub_xml_texts.size() <= 0;};
         inline void set_xml_balise_datas(Balise_Datas new_xml_balise_datas){a_balise_datas = new_xml_balise_datas;};
         inline void set_xml_balise_datas(Balise_Datas* new_xml_balise_datas){a_balise_datas = *new_xml_balise_datas;};
