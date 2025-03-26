@@ -283,6 +283,7 @@ namespace scls {
         inline void set_xml_balise_datas(Balise_Datas new_xml_balise_datas){a_balise_datas = new_xml_balise_datas;};
         inline void set_xml_balise_datas(Balise_Datas* new_xml_balise_datas){a_balise_datas = *new_xml_balise_datas;};
         inline void set_xml_balise_name(std::string new_xml_balise_name){a_balise_name = new_xml_balise_name;};
+        inline void set_xml_text(std::string xml_text){a_xml_text = xml_text;};
         inline XML_Text* sub_text(int index)const{if(index<static_cast<int>(a_sub_xml_texts.size())){return 0;}return a_sub_xml_texts[index].get();};
         inline std::vector<std::shared_ptr<XML_Text>>& sub_texts() {return a_sub_xml_texts;};
         inline std::string text() const {if(a_sub_xml_texts.size() <= 0){return a_xml_text;}return full_text(false);};
