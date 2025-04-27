@@ -454,7 +454,7 @@ namespace scls {
 	    to_return = replace(to_return, ",", ".");
 
 	    // Delete the useless "0"
-	    while(to_return[to_return.size() - 1] == '0') {
+	    while(to_return.size() > 0 && to_return[to_return.size() - 1] == '0') {
             to_return = to_return.substr(0, to_return.size() - 1);
 	    }
 
@@ -464,11 +464,28 @@ namespace scls {
             // Delete the useless numbers
             int decimal_size = 0; for(;decimal_size<static_cast<int>(to_return.size());decimal_size++){if(to_return[decimal_size]=='.'){break;}}
             decimal_size++;
-            while(to_return.size() - decimal_size > max_size) {to_return = to_return.substr(0, to_return.size() - 1);}
+            while(to_return.size() > 0 && static_cast<int>(to_return.size()) - decimal_size > max_size) {to_return = to_return.substr(0, to_return.size() - 1);}
 	    }
 
         return to_return;
 	};
+	std::string format_number_to_text_strict(double number_to_format, int unit_size, int decimal_size) {
+	    std::string to_return = std::to_string(number_to_format);
+	    to_return = replace(to_return, ",", ".");
+	    std::vector<std::string> splited = cut_string(to_return, std::string("."));
+	    if(splited.size() == 1){splited.insert(splited.begin(), std::string(""));}
+
+	    // Handle unit part
+	    while(splited[0].size() > 0 && static_cast<int>(splited[0].size()) > unit_size){splited[0] = splited[0].substr(1, splited[0].size() - 1);}
+	    while(static_cast<int>(splited[0].size()) < unit_size){splited[0].insert(splited[0].begin(), '0');}
+	    if(decimal_size == 0){return splited[0];}
+
+	    // Handle decimal part
+	    while(splited[1].size() > 0 && static_cast<int>(splited[1].size()) > decimal_size){splited[1] = splited[1].substr(0, splited[1].size() - 1);}
+	    while(static_cast<int>(splited[1].size()) < decimal_size){splited[1].push_back('0');}
+
+        return splited[0] + std::string(".") + splited[1];
+	}
 
     // Format a std::string and its break lines
     std::string format_string_break_line(std::string str, std::string new_break_line) {

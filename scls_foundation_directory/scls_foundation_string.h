@@ -82,6 +82,7 @@ namespace scls {
 	// Format a number to a text
 	std::string format_number_to_text(double number_to_format, int max_size);
     inline std::string format_number_to_text(double number_to_format){return format_number_to_text(number_to_format, -1);};
+    std::string format_number_to_text_strict(double number_to_format, int unit_size, int decimal_size);
 
     // Format a std::string and its break lines
     std::string format_string_break_line(std::string str, std::string new_break_line);
@@ -248,6 +249,7 @@ namespace scls {
         XML_Text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string balise_content) : a_balise_attributes(balise_attributes),a_balise_container(balise_container),a_balise_name(balise_name) {parse_text(balise_content);};
 
         // Adds a sub-balise in the XML balise
+        inline void add_sub_balise(std::shared_ptr<XML_Text> content){a_sub_xml_texts.push_back(content);};
         inline std::shared_ptr<XML_Text> add_sub_balise(std::string pure_text){std::shared_ptr<XML_Text> needed_text = std::make_shared<XML_Text>(a_balise_container,pure_text);a_sub_xml_texts.push_back(needed_text);return needed_text;};
         // Adds some text in the XML balise text
         inline void add_text(std::string text){a_xml_text+=text;};
