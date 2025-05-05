@@ -47,7 +47,8 @@
 	    to_return = user_ca;\
 	    to_return = replace(to_return, "\\", "/");\
 	    return to_return;\
-	} std::string scls::current_user_document_directory() { return scls::current_user_home_directory() + "/Documents"; }
+	} std::string scls::current_user_document_directory() { return scls::current_user_home_directory() + "/Documents"; }\
+	std::string scls::program_directory(){return std::string("C:\\Program Files\\");};
 #elif defined(__linux__)
     #define SCLS_FOUNDATION_FILE_INIT std::string scls::clipboard_datas() {\
 	    std::string to_return = "";\
@@ -95,6 +96,9 @@ namespace scls {
 	// Returns the home path of the user
     std::string current_user_home_directory();
     std::string current_user_document_directory();
+
+    // Returns the program path of the computer
+    std::string program_directory();
 
     //*********
 	//
