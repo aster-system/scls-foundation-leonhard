@@ -322,7 +322,7 @@ namespace scls {
         std::string a_xml_text = "";
 	};
 
-	// Create an XML simply from a text
+	// Create an XML simply from a text (the returned XML is not a balise itself, but has balises children)
 	std::shared_ptr<XML_Text> xml(std::shared_ptr<__Balise_Container> balises, std::string content);
 
     //*********

@@ -1393,7 +1393,7 @@ namespace scls {
         set_defined_balise("page_2d", current_balise);
     }
 
-    // Create an XML simply from a text
+    // Create an XML simply from a text (the returned XML is not a balise itself, but has balises children)
 	std::shared_ptr<XML_Text> xml(std::shared_ptr<__Balise_Container> balises, std::string content) {std::shared_ptr<XML_Text> to_return = std::make_shared<XML_Text>(balises, content);return to_return;}
 
     //*********

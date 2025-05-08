@@ -188,12 +188,9 @@ namespace scls {
             a_datas = final_datas;
             a_datas_size = final_size;
         };
-        inline void add_datas(const Bytes_Set& datas_to_add) {
-            add_datas(datas_to_add.datas(), datas_to_add.datas_size());
-        };
-        inline void add_data(char data) {
-            add_datas(&data, 1);
-        };
+        inline void add_datas(const unsigned char* datas_to_add, unsigned int datas_to_add_size) {add_datas(reinterpret_cast<const char*>(datas_to_add), datas_to_add_size);};
+        inline void add_datas(const Bytes_Set& datas_to_add) {add_datas(datas_to_add.datas(), datas_to_add.datas_size());};
+        inline void add_data(char data) {add_datas(&data, 1);};
         inline void add_double(double data, bool big_endian = false) {
             char* final_datas = new char[8];
             __put_8bytes_double_to_char_array(data, final_datas, 0, big_endian);
@@ -252,18 +249,10 @@ namespace scls {
             return extracted_datas;
         }
         inline double extract_double(unsigned int offset = 0, bool big_endian = false) const {return __extract_double_from_char_array(a_datas, offset, big_endian);};
-        inline float extract_float(unsigned int offset = 0, bool big_endian = false) const {
-            return static_cast<float>(extract_double(offset, big_endian));
-        };
-        inline int extract_int(unsigned int offset = 0, bool big_endian = false) const {
-            return __extract_4bytes_from_char_array(a_datas, offset, big_endian);
-        };
-        inline int64_t extract_int64(unsigned int offset = 0, bool big_endian = false) const {
-            return __extract_8bytes_from_char_array(a_datas, offset, big_endian);
-        };
-        inline short extract_short(unsigned int offset = 0, bool big_endian = false) const {
-            return __extract_2bytes_from_char_array(a_datas, offset, big_endian);
-        }
+        inline float extract_float(unsigned int offset = 0, bool big_endian = false) const {return static_cast<float>(extract_double(offset, big_endian));};
+        inline int extract_int(unsigned int offset = 0, bool big_endian = false) const {return __extract_4bytes_from_char_array(a_datas, offset, big_endian);};
+        inline int64_t extract_int64(unsigned int offset = 0, bool big_endian = false) const {return __extract_8bytes_from_char_array(a_datas, offset, big_endian);};
+        inline short extract_short(unsigned int offset = 0, bool big_endian = false) const {return __extract_2bytes_from_char_array(a_datas, offset, big_endian);}
         inline std::string extract_string(unsigned int extract_size, unsigned int offset = 0) const {
             std::string extracted_datas = "";
             for(unsigned int i = 0;i<extract_size;i++) {
@@ -271,6 +260,7 @@ namespace scls {
             }
             return extracted_datas;
         }
+        inline std::string extract_string_all() const{return extract_string(datas_size());};
         inline unsigned int extract_uint(unsigned int offset = 0, bool big_endian = false) const {
             return __extract_u4bytes_from_char_array(a_datas, offset, big_endian);
         }
