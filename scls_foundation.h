@@ -35,7 +35,7 @@
 #include "scls_foundation_directory/scls_foundation_string.h"
 // Include every needed SLCS Foundation files (indev)
 #ifdef __ASTER_DEV
-#include "scls_foundation_directory/scls_foundation_compression.h"
+
 #endif // __ASTER_DEV
 
 // Define SCLS_INIT

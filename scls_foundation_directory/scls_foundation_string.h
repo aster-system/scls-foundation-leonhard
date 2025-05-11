@@ -265,6 +265,9 @@ namespace scls {
 
         // Adds an XML attribute
         inline void add_xml_attribute(std::string xml_attribute_name, std::string xml_attribute_value) {XML_Attribute to_return;to_return.name=xml_attribute_name;to_return.value=xml_attribute_value;a_balise_attributes.push_back(to_return);};
+        // Returns the first balise with the name
+        XML_Text* balise_by_name(std::string name);
+        std::shared_ptr<XML_Text> balise_by_name_shared_ptr(std::string name);
         // Removes the first balise with a precise name and returns it
         std::shared_ptr<XML_Text> remove_balise_by_name(std::string name);
         // Replace all balise with another balise

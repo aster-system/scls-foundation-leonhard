@@ -925,6 +925,7 @@ namespace scls {
         return final_balise;
 	};
 
+
     // Cut a balise by its XML attributes out of a certain pattern
     std::vector<XML_Attribute> cut_balise_by_xml_attributes_out_of(std::string str, std::string out) {
 	    // Cut the balise
@@ -951,6 +952,17 @@ namespace scls {
 
 	    return to_return;
 	};
+
+	// Returns the first balise with the name
+	XML_Text* XML_Text::balise_by_name(std::string name){return balise_by_name_shared_ptr(name).get();}
+    std::shared_ptr<XML_Text> XML_Text::balise_by_name_shared_ptr(std::string name) {
+        for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
+            if(sub_texts().at(i).get()->xml_balise_name() == name) {return sub_texts().at(i);}
+            std::shared_ptr<XML_Text> child = sub_texts().at(i).get()->balise_by_name_shared_ptr(name);
+            if(child.get() != 0){return child;}
+        }
+        return std::shared_ptr<XML_Text>();
+    }
 
 	// Checks the include in the text
     void XML_Text::check_include(std::string path) {

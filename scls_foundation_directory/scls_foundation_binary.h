@@ -155,6 +155,9 @@ namespace scls {
         // Bytes_Set destructor
         ~Bytes_Set() {free_memory();};
 
+        // Fills the Bytes_Set with a single value
+        void fill(char value){for(int i = 0;i<static_cast<int>(a_datas_size);i++){a_datas[i] = value;}};
+
         //*********
         //
         // Datas manipulation
@@ -240,6 +243,16 @@ namespace scls {
         inline char data_at_directly(unsigned int position) const {return a_datas[position];};
 
         // Extract datas from the object (with differents types)
+        inline Bytes_Set* extract_bytes_set(unsigned int extract_size, unsigned int offset = 0) const {
+            // Asserts
+            if(offset >= datas_size()){return 0;}
+            else if(offset + extract_size >= datas_size()){extract_size = datas_size() - offset;}
+
+            Bytes_Set* extracted_datas = new Bytes_Set(extract_size);
+            for(unsigned int i = 0;i<extract_size;i++) {extracted_datas->set_data_at_directly(i, data_at_directly(offset + i));}
+            return extracted_datas;
+        }
+        inline std::shared_ptr<Bytes_Set> extract_bytes_set_shared_ptr(unsigned int extract_size, unsigned int offset = 0)const{return std::shared_ptr<Bytes_Set>(extract_bytes_set(extract_size, offset));};
         inline char* extract_datas(unsigned int extract_size, unsigned int offset = 0, bool inverse = false) const {
             char* extracted_datas = new char[extract_size];
             for(unsigned int i = 0;i<extract_size;i++) {
@@ -261,12 +274,8 @@ namespace scls {
             return extracted_datas;
         }
         inline std::string extract_string_all() const{return extract_string(datas_size());};
-        inline unsigned int extract_uint(unsigned int offset = 0, bool big_endian = false) const {
-            return __extract_u4bytes_from_char_array(a_datas, offset, big_endian);
-        }
-        inline unsigned short extract_ushort(unsigned int offset = 0, bool big_endian = false) const {
-            return __extract_u2bytes_from_char_array(a_datas, offset, big_endian);
-        }
+        inline unsigned int extract_uint(unsigned int offset = 0, bool big_endian = false) const {return __extract_u4bytes_from_char_array(a_datas, offset, big_endian);}
+        inline unsigned short extract_ushort(unsigned int offset = 0, bool big_endian = false) const {return __extract_u2bytes_from_char_array(a_datas, offset, big_endian);}
 
         // Put datas in the Bytes_Set
         inline void put_datas(Bytes_Set* datas_to_put, unsigned int offset = 0) {
@@ -276,12 +285,8 @@ namespace scls {
                 }
             }
         };
-        inline void put_double(double value, unsigned int offset = 0, bool big_endian = false) {
-            if(offset + 8 < datas_size()) __put_8bytes_double_to_char_array(value, a_datas, offset, big_endian);
-        };
-        inline void put_uint(unsigned int value, unsigned int offset = 0, bool big_endian = false) {
-            if(offset + 4 < datas_size()) __put_4bytes_to_char_array(value, a_datas, offset, big_endian);
-        };
+        inline void put_double(double value, unsigned int offset = 0, bool big_endian = false) {if(offset + 8 < datas_size()) __put_8bytes_double_to_char_array(value, a_datas, offset, big_endian);};
+        inline void put_uint(unsigned int value, unsigned int offset = 0, bool big_endian = false) {if(offset + 4 < datas_size()) __put_4bytes_to_char_array(value, a_datas, offset, big_endian);};
 
         // Free the memory of the datas
         inline void free_memory() {if(datas() != 0) {delete[] a_datas;a_datas = 0; a_datas_size = 0;}};
