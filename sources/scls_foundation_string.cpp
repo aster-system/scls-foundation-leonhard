@@ -954,21 +954,21 @@ namespace scls {
 	};
 
 	// Returns the first balise with the name
-	XML_Text* XML_Text::balise_by_name(std::string name){return balise_by_name_shared_ptr(name).get();}
-    std::shared_ptr<XML_Text> XML_Text::balise_by_name_shared_ptr(std::string name) {
+	__XML_Text_Base* __XML_Text_Base::balise_by_name(std::string name){return balise_by_name_shared_ptr(name).get();}
+    std::shared_ptr<__XML_Text_Base> __XML_Text_Base::balise_by_name_shared_ptr(std::string name) {
         for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
             if(sub_texts().at(i).get()->xml_balise_name() == name) {return sub_texts().at(i);}
-            std::shared_ptr<XML_Text> child = sub_texts().at(i).get()->balise_by_name_shared_ptr(name);
+            std::shared_ptr<__XML_Text_Base> child = sub_texts().at(i).get()->balise_by_name_shared_ptr(name);
             if(child.get() != 0){return child;}
         }
-        return std::shared_ptr<XML_Text>();
+        return std::shared_ptr<__XML_Text_Base>();
     }
 
 	// Checks the include in the text
-    void XML_Text::check_include(std::string path) {
+    void __XML_Text_Base::check_include(std::string path) {
         // Analyse each balises
         for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
-            std::shared_ptr<XML_Text> current_text = sub_texts()[i];
+            std::shared_ptr<__XML_Text_Base> current_text = sub_texts()[i];
             std::string current_balise_name = current_text.get()->xml_balise_name();
 
             // Add an include
@@ -1002,7 +1002,7 @@ namespace scls {
                     }
 
                     // Add the new balises
-                    std::shared_ptr<XML_Text> content = std::make_shared<XML_Text>(balise_container_shared_ptr(), content_to_parse);
+                    std::shared_ptr<__XML_Text_Base> content = std::make_shared<__XML_Text_Base>(balise_container_shared_ptr(), content_to_parse);
                     if(content.get()->sub_texts().size() > 0) {
                         sub_texts()[i] = content.get()->sub_texts()[0];
                         for(int j = 1;j<static_cast<int>(content.get()->sub_texts().size());j++){sub_texts().insert(sub_texts().begin() + i + 1, content.get()->sub_texts()[j]);i++;}
@@ -1015,7 +1015,7 @@ namespace scls {
     }
 
     // Parse the text
-    void XML_Text::parse_text(std::string new_text) {
+    void __XML_Text_Base::parse_text(std::string new_text) {
         // Cut by balises
         std::vector<_Text_Balise_Part> cutted = cut_string_by_balise(new_text, true);
         a_sub_xml_texts.clear();
@@ -1052,14 +1052,14 @@ namespace scls {
                     } balise_content = format_for_xml(balise_content);
 
                     // Create the balise
-                    std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, needed_balise_name, needed_balise_attributes, balise_content);
+                    std::shared_ptr<__XML_Text_Base> to_add = std::make_shared<__XML_Text_Base>(a_balise_container, needed_balise_name, needed_balise_attributes, balise_content);
                     if(datas != 0){to_add.get()->set_xml_balise_datas(datas);}
                     a_sub_xml_texts.push_back(to_add);
                 }
                 else {
                     // The part is a single balise
                     // Create the balise
-                    std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, needed_balise_name, needed_balise_attributes, cutted[i].content);
+                    std::shared_ptr<__XML_Text_Base> to_add = std::make_shared<__XML_Text_Base>(a_balise_container, needed_balise_name, needed_balise_attributes, cutted[i].content);
                     if(datas != 0){to_add.get()->set_xml_balise_datas(datas);}
                     else{Balise_Datas current_data = Balise_Datas(false);to_add.get()->set_xml_balise_datas(&current_data);}
                     a_sub_xml_texts.push_back(to_add);
@@ -1071,7 +1071,7 @@ namespace scls {
                 else {
                     if(content != "") {
                         // The part is not a balise
-                        std::shared_ptr<XML_Text> to_add = std::make_shared<XML_Text>(a_balise_container, content, true);
+                        std::shared_ptr<__XML_Text_Base> to_add = std::make_shared<__XML_Text_Base>(a_balise_container, content, true);
                         a_sub_xml_texts.push_back(to_add);
                     }
                 }
@@ -1080,7 +1080,7 @@ namespace scls {
     };
 
     // Returns the full text in the XML text
-    std::string XML_Text::full_text(bool add_balise) const {
+    std::string __XML_Text_Base::full_text(bool add_balise) const {
         std::string to_return = std::string();
         if(add_balise && a_balise_name != ""){to_return = xml_balise();}
 
@@ -1097,8 +1097,8 @@ namespace scls {
     }
 
     // Removes the first balise with a precise name and returns it
-    std::shared_ptr<XML_Text> XML_Text::remove_balise_by_name(std::string name) {
-        std::shared_ptr<XML_Text> to_return;
+    std::shared_ptr<__XML_Text_Base> __XML_Text_Base::remove_balise_by_name(std::string name) {
+        std::shared_ptr<__XML_Text_Base> to_return;
         for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
             if(sub_texts().at(i).get()->xml_balise_name() == name) {
                 to_return = sub_texts().at(i);
@@ -1110,7 +1110,7 @@ namespace scls {
     }
 
     // Replace all balise with another balise
-    void XML_Text::replace_balise_by_name(std::string name, std::string new_balise_name, std::vector<XML_Attribute>& new_balise_attributes) {
+    void __XML_Text_Base::replace_balise_by_name(std::string name, std::string new_balise_name, std::vector<XML_Attribute>& new_balise_attributes) {
         for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
             if(sub_texts().at(i).get()->xml_balise_name() == name) {
                 sub_texts().at(i).get()->set_xml_balise_name(new_balise_name);
@@ -1119,10 +1119,10 @@ namespace scls {
             sub_texts().at(i).get()->replace_balise_by_name(name, new_balise_name, new_balise_attributes);
         }
     }
-    void XML_Text::replace_balise_by_name(std::string name, std::string new_name){std::vector<XML_Attribute> new_balise_attributes = cut_balise_by_xml_attributes_out_of(new_name, "\"");std::string new_balise_name = balise_name(new_name);replace_balise_by_name(name, new_balise_name, new_balise_attributes);}
+    void __XML_Text_Base::replace_balise_by_name(std::string name, std::string new_name){std::vector<XML_Attribute> new_balise_attributes = cut_balise_by_xml_attributes_out_of(new_name, "\"");std::string new_balise_name = balise_name(new_name);replace_balise_by_name(name, new_balise_name, new_balise_attributes);}
 
     // Returns the text in the balise
-    std::string XML_Text::xml_balise() const {
+    std::string __XML_Text_Base::xml_balise() const {
         std::string attribute = "";
         for(int i = 0;i<static_cast<int>(a_balise_attributes.size());i++){
             attribute += a_balise_attributes.at(i).name + std::string("=");
@@ -1406,7 +1406,7 @@ namespace scls {
     }
 
     // Create an XML simply from a text (the returned XML is not a balise itself, but has balises children)
-	std::shared_ptr<XML_Text> xml(std::shared_ptr<__Balise_Container> balises, std::string content) {std::shared_ptr<XML_Text> to_return = std::make_shared<XML_Text>(balises, content);return to_return;}
+	std::shared_ptr<__XML_Text_Base> xml(std::shared_ptr<__Balise_Container> balises, std::string content) {std::shared_ptr<__XML_Text_Base> to_return = std::make_shared<__XML_Text_Base>(balises, content);return to_return;}
 
     //*********
 	//
