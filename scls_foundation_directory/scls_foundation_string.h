@@ -242,26 +242,30 @@ namespace scls {
 	    // Class containing a XML text
     public:
 
-        // Most simple __XML_Text_Base constructor, with only a text / open balising
-        __XML_Text_Base(std::shared_ptr<__Balise_Container> balise_container, std::string text, bool only_text):a_balise_container(balise_container) {a_xml_text = format_for_xml(format_string_break_line(text, "\n"));if(!only_text) {parse_text(text);}};
-        __XML_Text_Base(std::shared_ptr<__Balise_Container> balise_container, std::string text):__XML_Text_Base(balise_container, text, false){};
-        __XML_Text_Base(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes) : a_balise_attributes(balise_attributes),a_balise_container(balise_container),a_balise_name(balise_name) {};
-        __XML_Text_Base(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string balise_content) : a_balise_attributes(balise_attributes),a_balise_container(balise_container),a_balise_name(balise_name) {parse_text(balise_content);};
+        // Creates and return a new __XML_Text_Base
+        static std::shared_ptr<__XML_Text_Base> new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string text);
+        static std::shared_ptr<__XML_Text_Base> new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string text, bool only_text);
+        static std::shared_ptr<__XML_Text_Base> new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes);
+        static std::shared_ptr<__XML_Text_Base> new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string balise_content);
 
         // Adds a sub-balise in the XML balise
-        inline void add_sub_balise(std::shared_ptr<__XML_Text_Base> content){a_sub_xml_texts.push_back(content);};
-        inline std::shared_ptr<__XML_Text_Base> add_sub_balise(std::string pure_text){std::shared_ptr<__XML_Text_Base> needed_text = std::make_shared<__XML_Text_Base>(a_balise_container,pure_text);a_sub_xml_texts.push_back(needed_text);return needed_text;};
+        void add_sub_balise(std::shared_ptr<__XML_Text_Base> content);
+        std::shared_ptr<__XML_Text_Base> add_sub_balise(std::string pure_text);
         // Adds some text in the XML balise text
         inline void add_text(std::string text){a_xml_text+=text;};
         // Checks the include in the text
         void check_include(std::string path);
         // Clears the balise
         void clear(){a_sub_xml_texts.clear();a_balise_attributes.clear();};
+        // First text balise at left
+        __XML_Text_Base* first_balise_at_left();
         // Parses the text
         void parse_text(std::string new_text);
         // Returns the full text in the XML text
         std::string full_text(bool add_balise) const;
         inline std::string full_text() const {return full_text(true);};
+        // Sets new datas for the text
+        void set_text(std::string new_text);
 
         // Adds an XML attribute
         inline void add_xml_attribute(std::string xml_attribute_name, std::string xml_attribute_value) {XML_Attribute to_return;to_return.name=xml_attribute_name;to_return.value=xml_attribute_value;a_balise_attributes.push_back(to_return);};
@@ -285,6 +289,8 @@ namespace scls {
         inline __Balise_Container* balise_container() const {return a_balise_container.get();};
         inline std::shared_ptr<__Balise_Container> balise_container_shared_ptr() const {return a_balise_container;};
         inline bool only_text() const {return a_sub_xml_texts.size() <= 0;};
+        inline __XML_Text_Base* parent()const{return a_parent.lock().get();};
+        inline void set_this_object(std::weak_ptr<__XML_Text_Base> new_this_object){a_this_object = new_this_object;};
         inline void set_xml_balise_datas(Balise_Datas new_xml_balise_datas){a_balise_datas = new_xml_balise_datas;};
         inline void set_xml_balise_datas(Balise_Datas* new_xml_balise_datas){a_balise_datas = *new_xml_balise_datas;};
         inline void set_xml_balise_name(std::string new_xml_balise_name){a_balise_name = new_xml_balise_name;};
@@ -297,6 +303,10 @@ namespace scls {
         inline std::vector<XML_Attribute>& xml_balise_attributes() {return a_balise_attributes;};
         inline std::string xml_balise_name() const {return a_balise_name;};
     private:
+
+        // Most simple __XML_Text_Base constructor, with only a text / open balising
+        __XML_Text_Base(std::shared_ptr<__Balise_Container> balise_container):a_balise_container(balise_container) {};
+        __XML_Text_Base(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes) : a_balise_attributes(balise_attributes),a_balise_container(balise_container),a_balise_name(balise_name) {};
 
         //*********
         //
@@ -312,6 +322,12 @@ namespace scls {
         Balise_Datas a_balise_datas;
         // Name of the balise
         std::string a_balise_name = "";
+
+        // Parent of this XML Text
+        std::weak_ptr<__XML_Text_Base> a_parent;
+        inline void set_parent(std::weak_ptr<__XML_Text_Base> new_parent){a_parent = new_parent;};
+        // This XML Text
+        std::weak_ptr<__XML_Text_Base> a_this_object;
 
         //*********
         //

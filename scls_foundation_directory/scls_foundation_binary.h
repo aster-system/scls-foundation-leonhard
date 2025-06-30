@@ -62,8 +62,8 @@ namespace scls {
     void __put_2bytes_to_char_array(short n, char* result, unsigned int offset = 0, bool big_endian = false);
     void __put_2bytes_to_char_array(unsigned short n, char* result, unsigned int offset = 0, bool big_endian = false);
 	// Convert an (possible unsigned) integer to a char array and put it in the char array
-    void __put_4bytes_to_char_array(int n, char* result, unsigned int offset = 0, bool big_endian = false);
-	void __put_4bytes_to_char_array(unsigned int n, char* result, unsigned int offset = 0, bool big_endian = false);
+    void __put_4bytes_to_char_array(int32_t n, char* result, unsigned int offset = 0, bool big_endian = false);
+	void __put_4bytes_to_char_array(uint32_t n, char* result, unsigned int offset = 0, bool big_endian = false);
     // Convert an integer to a char array and put it in the char array
     void __put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset = 0, bool big_endian = false);
 	// Convert a double / float to a char array and put it in the char array
@@ -278,15 +278,10 @@ namespace scls {
         inline unsigned short extract_ushort(unsigned int offset = 0, bool big_endian = false) const {return __extract_u2bytes_from_char_array(a_datas, offset, big_endian);}
 
         // Put datas in the Bytes_Set
-        inline void put_datas(Bytes_Set* datas_to_put, unsigned int offset = 0) {
-            if(offset + datas_to_put->datas_size() <= datas_size()) {
-                for(int i = 0;i<static_cast<int>(datas_to_put->datas_size());i++) {
-                    a_datas[offset + i] = datas_to_put->a_datas[i];
-                }
-            }
-        };
-        inline void put_double(double value, unsigned int offset = 0, bool big_endian = false) {if(offset + 8 < datas_size()) __put_8bytes_double_to_char_array(value, a_datas, offset, big_endian);};
-        inline void put_uint(unsigned int value, unsigned int offset = 0, bool big_endian = false) {if(offset + 4 < datas_size()) __put_4bytes_to_char_array(value, a_datas, offset, big_endian);};
+        void put_datas(Bytes_Set* datas_to_put, unsigned int offset = 0);
+        inline void put_double(double value, unsigned int offset = 0, bool big_endian = false) {if(offset + 8 < datas_size()){__put_8bytes_double_to_char_array(value, a_datas, offset, big_endian);}};
+        inline void put_float(float value, unsigned int offset = 0, bool big_endian = false) {if(offset + 4 < datas_size()){__put_4bytes_float_to_char_array(value, a_datas, offset, big_endian);}};
+        inline void put_uint(unsigned int value, unsigned int offset = 0, bool big_endian = false) {if(offset + 4 < datas_size()){__put_4bytes_to_char_array(value, a_datas, offset, big_endian);}};
 
         // Free the memory of the datas
         inline void free_memory() {if(datas() != 0) {delete[] a_datas;a_datas = 0; a_datas_size = 0;}};

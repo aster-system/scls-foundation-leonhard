@@ -198,16 +198,14 @@ namespace scls {
 	}
 
 	// Convert an integer to a char array and put it in the char array
-    void __put_4bytes_to_char_array(int n, char* result, unsigned int offset, bool big_endian) {
-		if (big_endian)
-		{
+    void __put_4bytes_to_char_array(int32_t n, char* result, unsigned int offset, bool big_endian) {
+		if (big_endian) {
 			result[offset + 3] = (n & 0x000000ff);
 			result[offset + 2] = (n & 0x0000ff00) >> 8;
 			result[offset + 1] = (n & 0x00ff0000) >> 16;
 			result[offset] = (n & 0xff000000) >> 24;
 		}
-		else
-		{
+		else {
 			result[offset] = (n & 0x000000ff);
 			result[offset + 1] = (n & 0x0000ff00) >> 8;
 			result[offset + 2] = (n & 0x00ff0000) >> 16;
@@ -216,16 +214,14 @@ namespace scls {
 	}
 
 	// Convert an unsigned integer to a char array and put it in the char array
-    void __put_4bytes_to_char_array(unsigned int n, char* result, unsigned int offset, bool big_endian) {
-		if (big_endian)
-		{
+    void __put_4bytes_to_char_array(uint32_t n, char* result, unsigned int offset, bool big_endian) {
+		if (big_endian){
 			result[offset + 3] = (n & 0x000000ff);
 			result[offset + 2] = (n & 0x0000ff00) >> 8;
 			result[offset + 1] = (n & 0x00ff0000) >> 16;
 			result[offset] = (n & 0xff000000) >> 24;
 		}
-		else
-		{
+		else{
 			result[offset] = (n & 0x000000ff);
 			result[offset + 1] = (n & 0x0000ff00) >> 8;
 			result[offset + 2] = (n & 0x00ff0000) >> 16;
@@ -235,8 +231,7 @@ namespace scls {
 
 	// Convert an integer to a char array and put it in the char array
     void __put_8bytes_to_char_array(int64_t n, char* result, unsigned int offset, bool big_endian) {
-		if (big_endian)
-		{
+		if (big_endian) {
 			result[offset + 7] = static_cast<char>(n & 0x00000000000000ff);
 			result[offset + 6] = static_cast<char>((n & 0x000000000000ff00) >> 8);
 			result[offset + 5] = static_cast<char>((n & 0x0000000000ff0000) >> 16);
@@ -246,8 +241,7 @@ namespace scls {
 			result[offset + 1] = static_cast<char>((n & 0x00ff000000000000) >> 48);
 			result[offset] = static_cast<char>((n & 0xff00000000000000) >> 56);
 		}
-		else
-		{
+		else {
 			result[offset] = static_cast<char>((n & 0x00000000000000ff));
 			result[offset + 1] = static_cast<char>((n & 0x000000000000ff00) >> 8);
 			result[offset + 2] = static_cast<char>((n & 0x0000000000ff0000) >> 16);
@@ -260,7 +254,7 @@ namespace scls {
 	}
 
 	// Convert a float to a char array and put it in the char array
-    void __put_4bytes_float_to_char_array(float n, char* result, unsigned int offset, bool big_endian) {int* n_p = (int*)(&n);__put_4bytes_to_char_array(*n_p, result, offset, big_endian);}
+    void __put_4bytes_float_to_char_array(float n, char* result, unsigned int offset, bool big_endian) {int32_t* n_p = reinterpret_cast<int32_t*>(&n);__put_4bytes_to_char_array(*n_p, result, offset, big_endian);}
 
 	// Convert an double to a char array and put it in the char array
     void __put_8bytes_double_to_char_array(double n, char* result, unsigned int offset, bool big_endian) {int64_t* n_p = (int64_t*)(&n);__put_8bytes_to_char_array(*n_p, result, offset, big_endian);}
@@ -493,4 +487,20 @@ namespace scls {
 
 		return c ^ datas->xor_final;
 	};
+
+	//*********
+	//
+	// The Bytes_Set class
+	//
+	//*********
+
+	// Put datas in the Bytes_Set
+    void Bytes_Set::put_datas(Bytes_Set* datas_to_put, unsigned int offset) {
+        if(offset + datas_to_put->datas_size() <= datas_size()) {
+            for(int i = 0;i<static_cast<int>(datas_to_put->datas_size());i++) {
+                a_datas[offset + i] =
+                datas_to_put->a_datas[i];
+            }
+        }
+    };
 }
