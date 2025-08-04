@@ -33,6 +33,7 @@
 #include "scls_foundation_directory/scls_foundation_file.h"
 #include "scls_foundation_directory/scls_foundation_math.h"
 #include "scls_foundation_directory/scls_foundation_string.h"
+#include "scls_foundation_directory/scls_foundation_time.h"
 // Include every needed SLCS Foundation files (indev)
 #ifdef __ASTER_DEV
 

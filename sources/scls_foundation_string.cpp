@@ -443,6 +443,7 @@ namespace scls {
 	//*********
 
 	// Capitalize a character of a std::string
+	std::string capitalise_first_letter(std::string str){return capitalise_letter(str, 0);}
 	std::string capitalise_letter(std::string str, int position) {
 	    if(utf_8_level(str[position]) == 0){char to_convert = str[position];to_convert-=32;str = str.substr(0, position) + to_convert + str.substr(position + 1, str.size() - (position + 1)); }
 	    return str;
@@ -955,6 +956,9 @@ namespace scls {
 	// Adds a sub-balise in the XML balise
     void __XML_Text_Base::add_sub_balise(std::shared_ptr<__XML_Text_Base> content){content.get()->set_parent(a_this_object);a_sub_xml_texts.push_back(content);};
     std::shared_ptr<__XML_Text_Base> __XML_Text_Base::add_sub_balise(std::string pure_text){std::shared_ptr<__XML_Text_Base> needed_text = new_xml_text(a_balise_container, pure_text);needed_text.get()->set_parent(a_this_object);a_sub_xml_texts.push_back(needed_text);return needed_text;};
+
+    // Returns an attribute by its name
+    XML_Attribute __XML_Text_Base::attribute_by_name(std::string attribute_name) {for(int i = 0;i<static_cast<int>(a_balise_attributes.size());i++){if(a_balise_attributes.at(i).name == attribute_name){return a_balise_attributes.at(i);}} return XML_Attribute();};
 
 	// Returns the first balise with the name
 	__XML_Text_Base* __XML_Text_Base::balise_by_name(std::string name){return balise_by_name_shared_ptr(name).get();}

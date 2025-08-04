@@ -86,17 +86,4 @@ namespace scls {
 			array[array_size - (i + 1)] = temp;
 		}
 	};
-
-    //*********
-	//
-	// Time handling
-	//
-	//*********
-
-	// Returns the number of milliseconds since a long date
-    long long time_ns() {
-	    timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        return static_cast<long long>(ts.tv_nsec) + static_cast<long long>(ts.tv_sec) * 1000000000;
-	};
 }

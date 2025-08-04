@@ -77,6 +77,7 @@ namespace scls {
 	//*********
 
 	// Capitalize a character of a std::string
+	std::string capitalise_first_letter(std::string str);
 	std::string capitalise_letter(std::string str, int position);
 
 	// Format a number to a text
@@ -269,6 +270,8 @@ namespace scls {
 
         // Adds an XML attribute
         inline void add_xml_attribute(std::string xml_attribute_name, std::string xml_attribute_value) {XML_Attribute to_return;to_return.name=xml_attribute_name;to_return.value=xml_attribute_value;a_balise_attributes.push_back(to_return);};
+        // Returns an attribute by its name
+        XML_Attribute attribute_by_name(std::string xml_attribute_name);
         // Returns the first balise with the name
         __XML_Text_Base* balise_by_name(std::string name);
         std::shared_ptr<__XML_Text_Base> balise_by_name_shared_ptr(std::string name);
@@ -277,8 +280,6 @@ namespace scls {
         // Replace all balise with another balise
         void replace_balise_by_name(std::string name, std::string new_balise_name, std::vector<XML_Attribute>& new_balise_attributes);
         void replace_balise_by_name(std::string name, std::string new_name);
-        // Returns an attribute by its name
-        inline XML_Attribute xml_attribute(std::string xml_attribute_name) {XML_Attribute to_return;return to_return;};
         // Returns the text in the balise
         std::string xml_balise() const;
 
@@ -292,8 +293,8 @@ namespace scls {
         inline __XML_Text_Base* parent()const{return a_parent.lock().get();};
         inline void set_this_object(std::weak_ptr<__XML_Text_Base> new_this_object){a_this_object = new_this_object;};
         inline void set_xml_balise_datas(Balise_Datas new_xml_balise_datas){a_balise_datas = new_xml_balise_datas;};
-        inline void set_xml_balise_datas(Balise_Datas* new_xml_balise_datas){a_balise_datas = *new_xml_balise_datas;};
-        inline void set_xml_balise_name(std::string new_xml_balise_name){a_balise_name = new_xml_balise_name;};
+        inline void set_xml_balise_datas(Balise_Datas* new_xml_balise_datas){if(new_xml_balise_datas != 0){a_balise_datas = *new_xml_balise_datas;}};
+        inline void set_xml_balise_name(std::string new_xml_balise_name){a_balise_name = new_xml_balise_name;set_xml_balise_datas(balise_container()->defined_balise(new_xml_balise_name));};
         inline void set_xml_text(std::string xml_text){a_xml_text = xml_text;};
         inline __XML_Text_Base* sub_text(int index)const{if(index<static_cast<int>(a_sub_xml_texts.size())){return 0;}return a_sub_xml_texts[index].get();};
         inline std::vector<std::shared_ptr<__XML_Text_Base>>& sub_texts() {return a_sub_xml_texts;};
@@ -353,10 +354,10 @@ namespace scls {
 	class String {
 	    // Class representing a SCLS string
     public:// Most simple String constructor
-        String() : a_content("") {};
-        // Most simple String constructor with "char*"
+        String() : a_content(std::string()) {};
+        // String constructor
+        String(char content): String() {a_content += content;};
         String(char* content) : a_content(content) {};
-        // Most simple String constructor with "std::string"
         String(std::string content) : a_content(content) {};
 
         // Returns the String to an std::string in code point / utf-8

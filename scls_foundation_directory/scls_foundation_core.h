@@ -78,15 +78,6 @@ namespace scls {
 
 	// Swap a char array
     void swap_char_array(char* array, unsigned int array_size);
-
-	//*********
-	//
-	// Time handling
-	//
-	//*********
-
-	// Returns the number of milliseconds since a long date
-    long long time_ns();
 }
 
 #endif // SCLS_FOUNDATION_CORE
