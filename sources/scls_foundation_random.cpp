@@ -1,6 +1,6 @@
 //******************
 //
-// scls_foundation.h
+// scls_foundation_random.cpp
 //
 //******************
 // Presentation :
@@ -11,7 +11,7 @@
 // The Foundation "Leonhard" part represents the foundation of SCLS.
 // It is named after the "Father of modern mathematics", Leonhard Euler.
 //
-// This file contains the includes to all the others SCLS Foundation files.
+// This file contains the source code of scls_foundation_random.h.
 //
 //******************
 //
@@ -24,28 +24,17 @@
 // You should have received a copy of the GNU General Public License along with SCLS. If not, see <https://www.gnu.org/licenses/>.
 //
 
-#ifndef SCLS_FOUNDATION
-#define SCLS_FOUNDATION
+// Include the needed header
+#include "../scls_foundation_directory/scls_foundation_random.h"
 
-// Include every needed SLCS Foundation files
-#include "scls_foundation_directory/scls_foundation_binary.h"
-#include "scls_foundation_directory/scls_foundation_core.h"
-#include "scls_foundation_directory/scls_foundation_file.h"
-#include "scls_foundation_directory/scls_foundation_math.h"
-#include "scls_foundation_directory/scls_foundation_random.h"
-#include "scls_foundation_directory/scls_foundation_string.h"
-#include "scls_foundation_directory/scls_foundation_time.h"
-// Include every needed SLCS Foundation files (indev)
-#ifdef __ASTER_DEV
+// The namespace "scls" is used to simplify the all.
+namespace scls {
 
-#endif // __ASTER_DEV
+    // Random engine
+    std::random_device r;
+    std::default_random_engine gen(r());
+    std::uniform_real_distribution<double> dis(0.0, 1.0);
 
-// Define SCLS_INIT
-#ifndef SCLS_FOUNDATION_INIT
-#define SCLS_FOUNDATION_INIT SCLS_FOUNDATION_FILE_INIT
-#endif // SCLS_FOUNDATION_INIT
-#ifndef SCLS_INIT
-#define SCLS_INIT SCLS_FOUNDATION_INIT
-#endif // SCLS_INIT
-
-#endif // SCLS_FOUNDATION
+    // Returns a random int between two included numbers
+    int random_int_between_included(int min_number, int max_number){return min_number + std::floor(static_cast<double>(max_number - min_number) * dis(gen));}
+}
