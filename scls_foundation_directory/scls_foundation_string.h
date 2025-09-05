@@ -142,6 +142,9 @@ namespace scls {
         bool is_paragraph = false;
         // Name of the balise
         std::string name = "";
+
+        // Style part
+        bool break_line_in_between = true;
     };
 	// Part of a text gotten by a balising cut
     struct _Text_Balise_Part {
@@ -227,11 +230,13 @@ namespace scls {
         template <typename O = Balise_Datas>
         inline void set_defined_balise(std::string name, std::shared_ptr<O> balise_datas) {balise_datas.get()->name=name;set_defined_balise<O>(balise_datas);};
 
-        // Load the built-ins balises
+        // Loads the built-ins balises
         virtual void __load_built_in_balises(){};
-        // Load the built-ins balises for the GUI loading
+        // Loads the built-ins balises for the GUI loading
         virtual void __load_built_in_balises_gui();
-        // Load the built-ins balises for the window loading
+        // Loads the built-ins balises for the HTML loading
+        virtual void __load_built_in_balises_html();
+        // Loads the built-ins balises for the window loading
         virtual void __load_built_in_balises_window();
 
     private:
@@ -265,6 +270,10 @@ namespace scls {
         // Returns the full text in the XML text
         std::string full_text(bool add_balise) const;
         inline std::string full_text() const {return full_text(true);};
+        // Returns the full text formatted in the XML text
+        std::string full_text_formatted(bool add_balise, int level, std::string* parent_text) const;
+        std::string full_text_formatted(bool add_balise) const;
+        std::string full_text_formatted() const;
         // Sets new datas for the text
         void set_text(std::string new_text);
 
@@ -289,6 +298,7 @@ namespace scls {
         inline Balise_Datas& balise_datas(){return a_balise_datas;};
         inline __Balise_Container* balise_container() const {return a_balise_container.get();};
         inline std::shared_ptr<__Balise_Container> balise_container_shared_ptr() const {return a_balise_container;};
+        inline bool break_line_in_between() const {return a_balise_datas.break_line_in_between;};
         inline bool only_text() const {return a_sub_xml_texts.size() <= 0;};
         inline __XML_Text_Base* parent()const{return a_parent.lock().get();};
         inline void set_this_object(std::weak_ptr<__XML_Text_Base> new_this_object){a_this_object = new_this_object;};

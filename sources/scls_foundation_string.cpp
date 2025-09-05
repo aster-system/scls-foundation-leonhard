@@ -1060,6 +1060,52 @@ namespace scls {
         return to_return;
     }
 
+    // Returns the full text formatted in the XML text
+    std::string __XML_Text_Base::full_text_formatted() const{return full_text_formatted(true, -1, 0);}
+    std::string __XML_Text_Base::full_text_formatted(bool add_balise) const{return full_text_formatted(add_balise, -1, 0);}
+    std::string __XML_Text_Base::full_text_formatted(bool add_balise, int level, std::string* parent_text) const{
+        bool break_line_in_between_final = !(!break_line_in_between() && only_text());
+        std::string level_diff = std::string();for(int i = 0;i<static_cast<int>(level * 4);i++){level_diff += std::string(" ");}
+        std::string level_diff_plus = std::string("    ") + level_diff;
+        if(a_balise_name == std::string()){level_diff_plus = level_diff;}std::string to_return = std::string();
+
+        // Add the opening balise
+        bool jump_line_at_first = false;
+        if(add_balise && a_balise_name != ""){
+            if(parent_text == 0 || parent_text->size() == 0 || parent_text->at(parent_text->size() - 1) == '\n'){to_return = level_diff + xml_balise();jump_line_at_first=true;}
+            else{to_return = xml_balise();}
+        }
+
+        if(only_text()){
+            if(text() != std::string("")){
+                if(break_line_in_between_final) {
+                    if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
+                    to_return += level_diff_plus + scls::replace(text(), std::string("\n"), std::string("\n") + level_diff_plus) + std::string("\n");
+                    if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
+                }
+                else{to_return += scls::replace(text(), std::string("\n"), std::string("\n") + level_diff_plus);}
+            }
+        }
+        else if(a_balise_datas.has_content){
+            for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){
+                if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
+                to_return += a_sub_xml_texts[i].get()->full_text_formatted(true, level + 1, &to_return);
+                if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
+            }
+        }
+
+        // Add the closing balise
+        if(add_balise && a_balise_name != "" && a_balise_datas.has_content){
+            if(break_line_in_between_final){
+                if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
+                to_return += level_diff;
+            }
+            to_return += xml_balise_end();
+        }
+
+        return to_return;
+    }
+
     // Creates and return a new __XML_Text_Base
     std::shared_ptr<__XML_Text_Base> __XML_Text_Base::new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string text){return new_xml_text(balise_container, text, false);}
     std::shared_ptr<__XML_Text_Base> __XML_Text_Base::new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes){return new_xml_text(balise_container, balise_name, balise_attributes, std::string());}
@@ -1188,7 +1234,7 @@ namespace scls {
             attribute += a_balise_attributes.at(i).value;
             if(contains_space){attribute += "\"";}
 
-            if(i < static_cast<int>(a_balise_attributes.size())){attribute+=std::string(" ");}}
+            if(i < static_cast<int>(a_balise_attributes.size()) - 1){attribute+=std::string(" ");}}
             if(attribute.size()>0){attribute=std::string(" ")+attribute;
         }
         return std::string("<") + xml_balise_name() + attribute + std::string(">");
@@ -1449,6 +1495,102 @@ namespace scls {
         current_balise = std::make_shared<Balise_Datas>();
         current_balise.get()->has_content = true;
         set_defined_balise("when", current_balise);
+    }
+
+    // Load the built-ins balises for the HTML loading
+    void __Balise_Container::__load_built_in_balises_html() {
+        std::shared_ptr<Balise_Datas> current_balise;
+
+        // Create the <html> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("html", current_balise);
+        // Create the <head> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("head", current_balise);
+        // Create the <body> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("body", current_balise);
+
+        // Create the <title> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("title", current_balise);
+
+        // Create the <a> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->break_line_in_between = false;
+        current_balise.get()->has_content = true;
+        set_defined_balise("a", current_balise);
+        // Create the <div> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("div", current_balise);
+        // Create the <p> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("p", current_balise);
+        // Create the <span> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->break_line_in_between = false;
+        current_balise.get()->has_content = true;
+        set_defined_balise("span", current_balise);
+
+        // Style
+        // Create the <i> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->break_line_in_between = false;
+        current_balise.get()->has_content = true;
+        set_defined_balise("i", current_balise);
+
+        // Create the <math> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("math", current_balise);
+        // Create the <mfrac> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("mfrac", current_balise);
+        // Create the <mi> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("mi", current_balise);
+        // Create the <mo> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->break_line_in_between = false;
+        current_balise.get()->has_content = true;
+        set_defined_balise("mo", current_balise);
+        // Create the <mrow> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("mrow", current_balise);
+        // Create the <msub> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("msub", current_balise);
+        // Create the <msup> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("msup", current_balise);
+        // Create the <munder> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("munder", current_balise);
+        // Create the <sub> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("sub", current_balise);
+        // Create the <sup> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("sup", current_balise);
+
+        // Create the <script> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("script", current_balise);
     }
 
     // Load the built-ins balises for the window loading
