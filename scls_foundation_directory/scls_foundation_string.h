@@ -299,6 +299,7 @@ namespace scls {
         inline __Balise_Container* balise_container() const {return a_balise_container.get();};
         inline std::shared_ptr<__Balise_Container> balise_container_shared_ptr() const {return a_balise_container;};
         inline bool break_line_in_between() const {return a_balise_datas.break_line_in_between;};
+        inline bool has_content() const {return a_balise_datas.has_content;};
         inline bool only_text() const {return a_sub_xml_texts.size() <= 0;};
         inline __XML_Text_Base* parent()const{return a_parent.lock().get();};
         inline void set_this_object(std::weak_ptr<__XML_Text_Base> new_this_object){a_this_object = new_this_object;};
