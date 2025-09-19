@@ -122,6 +122,10 @@ namespace scls {
     unsigned int code_point_utf_8_size_offset(std::string utf_8, int analyse_end_utf_8 = -1);
     unsigned int utf_8_code_point_size_offset(std::string utf_8, int analyse_end_code_point = -1);
 
+    // Parses text as a function called
+    struct Function_Called_Text{std::string name = std::string();std::vector<std::string> parameters;};
+    Function_Called_Text parse_function_call(std::string base);
+
 	//*********
 	//
 	// XML system

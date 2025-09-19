@@ -694,6 +694,22 @@ namespace scls {
         } return to_return;
     };
 
+    // Parses text as a function called
+    Function_Called_Text parse_function_call(std::string base) {
+        // Search a function opening / closing
+        int closing = -1;int opening = -1;int error = 0;
+        for(int i = 0;i<static_cast<int>(base.size());i++){if(base.at(i) == '('){opening = i;break;}else if(base.at(i) == ')'){error = 1;return Function_Called_Text();}}
+        for(int i = opening;i<static_cast<int>(base.size());i++){if(base.at(i) == ')'){closing = i;break;}}
+        if(opening == -1){return Function_Called_Text();}
+        else if(closing == -1){return Function_Called_Text();}
+
+        // Get the datas
+        Function_Called_Text to_return;
+        to_return.name = base.substr(0, opening);
+        to_return.parameters = scls::cut_string(base.substr(opening + 1, closing), std::string(","));
+        return to_return;
+    }
+
     //*********
 	//
 	// XML system
