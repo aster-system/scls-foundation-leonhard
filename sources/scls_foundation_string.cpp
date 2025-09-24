@@ -450,14 +450,29 @@ namespace scls {
 	}
 
 	// Format a number to a text
-    std::string format_number_to_text(double number_to_format, int max_size) {
-	    std::string to_return = std::to_string(number_to_format);
-	    to_return = replace(to_return, ",", ".");
+	char __format_number_to_text[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    std::string format_number_to_text(double number_to_format){return format_number_to_text(number_to_format, -1, 10);};
+    std::string format_number_to_text(double number_to_format, int max_size){return format_number_to_text(number_to_format, max_size, 10);};
+    std::string format_number_to_text(double number_to_format, int max_size, int base) {
+        std::string to_return = std::string();
+        if(base != 10 && number_to_format == floor(number_to_format)) {
+            // Integer double
+            int p = std::floor(number_to_format / base);
+            int r = static_cast<int>(number_to_format) % base;
+            to_return = __format_number_to_text[r];
+            while(p != 0) {
+                r = p % base;p = std::floor(p / base);
+                to_return = __format_number_to_text[r] + to_return;
+            }
+        }
+        else {
+            // Normal double
+            to_return = std::to_string(number_to_format);
+            to_return = replace(to_return, ",", ".");
 
-	    // Delete the useless "0"
-	    while(to_return.size() > 0 && to_return[to_return.size() - 1] == '0') {
-            to_return = to_return.substr(0, to_return.size() - 1);
-	    }
+            // Delete the useless "0"
+            while(to_return.size() > 0 && to_return[to_return.size() - 1] == '0') {to_return = to_return.substr(0, to_return.size() - 1);}
+        }
 
 	    // Delete the useless "."
 	    if(to_return[to_return.size() - 1] == '.'){to_return = to_return.substr(0, to_return.size() - 1);}
@@ -699,9 +714,9 @@ namespace scls {
         // Search a function opening / closing
         int closing = -1;int opening = -1;int error = 0;
         for(int i = 0;i<static_cast<int>(base.size());i++){if(base.at(i) == '('){opening = i;break;}else if(base.at(i) == ')'){error = 1;return Function_Called_Text();}}
-        for(int i = opening;i<static_cast<int>(base.size());i++){if(base.at(i) == ')'){closing = i;break;}}
         if(opening == -1){return Function_Called_Text();}
-        else if(closing == -1){return Function_Called_Text();}
+        for(int i = opening;i<static_cast<int>(base.size());i++){if(base.at(i) == ')'){closing = i;break;}}
+        if(closing == -1){return Function_Called_Text();}
 
         // Get the datas
         Function_Called_Text to_return;
@@ -1037,6 +1052,9 @@ namespace scls {
             else{current_text.get()->check_include(path);}
         }
     }
+
+    // Clears the balise
+    void __XML_Text_Base::clear(){a_sub_xml_texts.clear();a_balise_attributes.clear();a_xml_text = std::string();}
 
     // First text balise at left
     __XML_Text_Base* __XML_Text_Base::first_balise_at_left() {
@@ -1616,6 +1634,43 @@ namespace scls {
         current_balise = std::make_shared<Balise_Datas>();
         current_balise.get()->has_content = true;
         set_defined_balise("page_2d", current_balise);
+        // Create the <page_3d> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("page_3d", current_balise);
+    }
+
+    // Load the built-ins balises for the 3D loading
+    void __Balise_Container::__load_built_in_balises_3d() {
+        std::shared_ptr<Balise_Datas> current_balise;
+        // Create the <object_3d> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("object_3d", current_balise);
+        // Create the <repeat> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("repeat", current_balise);
+    }
+
+    // Handle utilities balises
+    Utility_Balise utilities_balise(std::shared_ptr<scls::__XML_Text_Base> xml) {
+        Utility_Balise to_return;
+
+        // Handle the balise
+        std::string balise_content = xml.get()->xml_balise();
+        std::string current_balise_name = xml.get()->xml_balise_name();
+        std::vector<scls::XML_Attribute>& attributes = xml.get()->xml_balise_attributes();
+        if(current_balise_name == std::string("repeat")) {
+            // Repeat instructions
+            to_return.type = SCLS_BALISE_REPEAT;
+            for(int i = 0;i<static_cast<int>(attributes.size());i++) {
+                if(attributes[i].name == "times") {to_return.times = std::stoi(attributes.at(i).value);}
+            }
+        }
+
+        // Return the result
+        return to_return;
     }
 
     // Create an XML simply from a text (the returned XML is not a balise itself, but has balises children)

@@ -81,8 +81,9 @@ namespace scls {
 	std::string capitalise_letter(std::string str, int position);
 
 	// Format a number to a text
+	std::string format_number_to_text(double number_to_format, int max_size, int base);
 	std::string format_number_to_text(double number_to_format, int max_size);
-    inline std::string format_number_to_text(double number_to_format){return format_number_to_text(number_to_format, -1);};
+    std::string format_number_to_text(double number_to_format);
     std::string format_number_to_text_strict(double number_to_format, int unit_size, int decimal_size);
 
     // Format a std::string and its break lines
@@ -227,6 +228,7 @@ namespace scls {
         std::vector<std::string> __cut_multi_block(std::string block_text);
         // Return the style of a balise
         inline Balise_Datas* defined_balise(std::string balise_name) const {for(int i = 0;i<static_cast<int>(a_defined_balises.size());i++){if(a_defined_balises.at(i).get()->name==balise_name){return a_defined_balises.at(i).get();}}return 0;};
+        inline std::shared_ptr<Balise_Datas> defined_balise_shared_ptr(std::string balise_name) const {for(int i = 0;i<static_cast<int>(a_defined_balises.size());i++){if(a_defined_balises.at(i).get()->name==balise_name){return a_defined_balises.at(i);}}return std::shared_ptr<Balise_Datas>();};
         inline bool defined_balise_has_content(std::string balise_name) const {Balise_Datas* needed_balise=defined_balise(balise_name);return (needed_balise!=0&&needed_balise->has_content);};
         // Set a balise to the container
         template <typename O = Balise_Datas>
@@ -242,6 +244,8 @@ namespace scls {
         virtual void __load_built_in_balises_html();
         // Loads the built-ins balises for the window loading
         virtual void __load_built_in_balises_window();
+        // Loads the built-ins balises for the 3D loading
+        virtual void __load_built_in_balises_3d();
 
     private:
         // List of each defined balises
@@ -266,7 +270,7 @@ namespace scls {
         // Checks the include in the text
         void check_include(std::string path);
         // Clears the balise
-        void clear(){a_sub_xml_texts.clear();a_balise_attributes.clear();};
+        void clear();
         // First text balise at left
         __XML_Text_Base* first_balise_at_left();
         // Parses the text
@@ -356,6 +360,11 @@ namespace scls {
         // XML text
         std::string a_xml_text = "";
 	};
+
+	// Handle utilities balises
+	#define SCLS_BALISE_REPEAT 0
+	struct Utility_Balise {int times = 1;int type = -1;int value_start = 0;int value_end=1;};
+    Utility_Balise utilities_balise(std::shared_ptr<scls::__XML_Text_Base> xml);
 
 	// Create an XML simply from a text (the returned XML is not a balise itself, but has balises children)
 	std::shared_ptr<__XML_Text_Base> xml(std::shared_ptr<__Balise_Container> balises, std::string content);
