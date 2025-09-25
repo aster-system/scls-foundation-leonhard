@@ -146,11 +146,9 @@ namespace scls {
 
         // Bytes_Set constructor
         Bytes_Set() {};
-        // Bytes_Set constructor creating empty datas
+        Bytes_Set(std::string new_datas) : Bytes_Set() {add_string(new_datas);};
         Bytes_Set(unsigned int new_datas_size) : Bytes_Set() {a_datas = new char[new_datas_size];a_datas_size = new_datas_size;};
-        // Bytes_Set constructor taking existing datas
         Bytes_Set(char* new_datas, unsigned int new_datas_size) : Bytes_Set() {a_datas = new_datas;a_datas_size = new_datas_size;};
-        // Bytes_Set copy constructor
         Bytes_Set(const Bytes_Set& binary) : Bytes_Set() {add_datas(binary.datas(), binary.datas_size());};
         // Bytes_Set destructor
         ~Bytes_Set() {free_memory();};
