@@ -25,9 +25,10 @@
 //
 
 #include "scls_foundation.h"
+#include "scls_foundation_directory/scls_foundation_compression.h"
 
 namespace scls {
-    // Test scls_foundation_core.h
+    /*// Test scls_foundation_core.h
     void test_data_structure() {
         std::string double_1 = "128.48";
         std::string double_2 = "128,48";
@@ -93,7 +94,7 @@ namespace scls {
             scls::print("Test", "Swapped char array", static_cast<unsigned int>(test_char_array[i]));
         }
         delete[] test_char_array; test_char_array = 0;
-    }
+    }//*/
     void test_debugging_helper() {
         double data_1 = 1548.20654;
         std::string data_2 = "Test";
@@ -206,7 +207,7 @@ namespace scls {
         scls::print("Debug", "UShort (50)", binary_read.extract_ushort(current_size + 50 * 2, true));
         scls::print("Debug", "Short (-128 + 50 = -78)", binary_read.extract_short(current_size + 300 * 2, true));
         current_size += 500 * 2;
-        scls::print("Debug", "Char (50)", static_cast<int>(binary_read.extract_data(current_size + 50)));
+        scls::print("Debug", "Char (50)", static_cast<int>(*binary_read.extract_datas(current_size + 50)));
     }
     void test_crc() {
         // Test "reflect" also
@@ -229,9 +230,10 @@ namespace scls {
 
     // Test scls_foundation_compression.h
     void test_huffman_compression() {
-        scls::Bytes_Set bs;
-        bs.add_string("Hello world !");
-        std::shared_ptr<scls::Huffman_Tree> ht = scls::compress_huffman(&bs);
+        //scls::Bytes_Set bs;
+        //bs.add_string("Hello world !");
+        //std::shared_ptr<scls::Huffman_Tree> ht = scls::compress_huffman(&bs);
+        scls::compress_huffman("Le Leclerc est le nouveau MBT de l'armée française.");
     }
 
     // Test scls_foundation_file.h
@@ -321,7 +323,7 @@ namespace scls {
         scls::print("Test", "SCLS Foundation", scls::to_utf_8_code_point("Début du test de SCLS Foundation Leonhard :\n"));
 
         scls::print("Test data structure", "SCLS Foundation", scls::to_utf_8_code_point("Test des structure des données."));
-        test_data_structure();
+        //test_data_structure();
         scls::print("Test data structure", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé."));
         scls::print("Test debugging", "SCLS Foundation", scls::to_utf_8_code_point("Test du système de debug."));
         test_debugging_helper();

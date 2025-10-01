@@ -153,6 +153,12 @@ namespace scls {
         // Bytes_Set destructor
         ~Bytes_Set() {free_memory();};
 
+        // Returns the bit to std::string
+        std::string bits_to_std_string();
+
+        // Returns a Byte Set by what is needed in it
+        static Bytes_Set from_char(char chr){Bytes_Set to_return;to_return.add_data(chr);return to_return;};
+
         // Fills the Bytes_Set with a single value
         void fill(char value){for(int i = 0;i<static_cast<int>(a_datas_size);i++){a_datas[i] = value;}};
 
@@ -236,11 +242,12 @@ namespace scls {
         };
         inline void add_string(std::string text) {add_datas(text.c_str(), static_cast<unsigned int>(text.size()));};
 
-        // Return the char at a certain position
+        // Returns the char at a certain position
         inline char data_at(unsigned int position) const {if(position >= datas_size()) {scls::print("Error", "SCLS", "Datas \"" + std::to_string(position) + "\" out of range in the Binary object.");return 0;} return data_at_directly(position);};
         inline char data_at_directly(unsigned int position) const {return a_datas[position];};
+        bool data_at_bit_directly(int position);
 
-        // Extract datas from the object (with differents types)
+        // Extracts datas from the object (with differents types)
         inline Bytes_Set* extract_bytes_set(unsigned int extract_size, unsigned int offset = 0) const {
             // Asserts
             if(offset >= datas_size()){return 0;}
@@ -284,7 +291,7 @@ namespace scls {
         // Free the memory of the datas
         inline void free_memory() {if(datas() != 0) {delete[] a_datas;a_datas = 0; a_datas_size = 0;}};
 
-        // Set the char at a certain position
+        // Sets the char at a certain position
         inline void set_data_at_directly(unsigned int position, char new_data) {a_datas[position] = new_data;};
         inline void set_data_at(unsigned int position, char new_data) {
              if(position < 0 || position >= datas_size()) {
@@ -292,6 +299,7 @@ namespace scls {
                 return;
             } set_data_at_directly(position, new_data);
         }
+        void set_data_at_bit(int position, bool data);
 
         // File manipulation
         // Read the datas from a file

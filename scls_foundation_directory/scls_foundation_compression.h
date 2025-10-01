@@ -38,10 +38,21 @@ namespace scls {
 	//*********
 
 	struct __Huffman_Pair {
+        // Returns the bytes / this for a specific character
+        std::shared_ptr<Bytes_Set> bytes_for_chr(char needed_chr);
+        void bytes_for_this(Bytes_Set* to_add, int offset);
+
+        // Parent of this parent
+        __Huffman_Pair* parent() const {return pair_parent.get();};
+        // Sets the parent of this pair
+        void set_parent(std::shared_ptr<__Huffman_Pair> new_pair_parent);
+
         char chr_0 = 0;
         char chr_1 = 0;
+        int hierarchy_position = 0;
         std::shared_ptr<__Huffman_Pair> pair_0;
         std::shared_ptr<__Huffman_Pair> pair_1;
+        std::shared_ptr<__Huffman_Pair> pair_parent;
         unsigned int total_occurences = 0;
 	};
 

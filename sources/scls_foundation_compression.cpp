@@ -34,6 +34,28 @@ namespace scls {
 	//
 	//*********
 
+	// Returns the bytes for a specific character
+    std::shared_ptr<Bytes_Set> __Huffman_Pair::bytes_for_chr(char needed_chr) {
+        std::shared_ptr<Bytes_Set> needed_bytes = std::make_shared<Bytes_Set>((hierarchy_position + 1) / 8 + 1);needed_bytes.get()->fill(0);
+        bytes_for_this(needed_bytes.get(), 1);
+        if(chr_0 == needed_chr && pair_0.get() == 0){needed_bytes.get()->set_data_at_bit(0, false);}
+        else{needed_bytes.get()->set_data_at_bit(0, true);}
+        return needed_bytes;
+    }
+    void __Huffman_Pair::bytes_for_this(Bytes_Set* to_add, int offset) {
+        if(parent() != 0) {
+            if(parent()->pair_0.get() == this){to_add->set_data_at_bit(offset, false);}
+            else{to_add->set_data_at_bit(offset, true);}
+            parent()->bytes_for_this(to_add, offset + 1);
+        }
+    }
+
+    // Sets the parent of this pair
+    void __Huffman_Pair::set_parent(std::shared_ptr<__Huffman_Pair> new_pair_parent) {
+        pair_parent = new_pair_parent;
+        hierarchy_position = new_pair_parent.get()->hierarchy_position + 1;
+    }
+
 	// Return Huffman pair to an std::string
 	std::string huffmain_pair_to_std_string(__Huffman_Pair* needed_pair){
         std::string to_return = std::string();
@@ -43,7 +65,7 @@ namespace scls {
             else {to_return += std::string("\"") + needed_pair->chr_0 + std::string("\"");}
         }
         else{to_return += std::string("\"") + needed_pair->chr_0 + std::string("\"") + std::string(" ") + std::string("\"") + needed_pair->chr_1 + std::string("\"");}
-        return to_return;
+        return std::to_string(needed_pair->hierarchy_position) + std::string(" ") + to_return;
 	}
 
 	// Do an huffman compression on a Byte_Set of datas
@@ -60,6 +82,7 @@ namespace scls {
         // Creates the pairs
         std::vector<std::shared_ptr<__Huffman_Pair>> all_pairs;
         std::vector<std::shared_ptr<__Huffman_Pair>> pairs;
+        std::vector<std::shared_ptr<__Huffman_Pair>> pairs_by_chr = std::vector<std::shared_ptr<__Huffman_Pair>>(256);
         unsigned int total_size = 256;
         for(unsigned int i = 0;i<total_size;i++) {
             // Get the minimum index
@@ -69,16 +92,20 @@ namespace scls {
             min_index_occurence_0 = occurences[min_index_0];min_index_occurence_1 = occurences[min_index_1];
 
             // Get the minimum pairs
-            std::shared_ptr<__Huffman_Pair> min_pair_0 = 0;int min_pair_index_0 = 0;std::shared_ptr<__Huffman_Pair> min_pair_1 = 0;int min_pair_index_1 = 0;
+            std::shared_ptr<__Huffman_Pair> min_pair_0 = 0;int min_pair_index_0 = -1;std::shared_ptr<__Huffman_Pair> min_pair_1 = 0;int min_pair_index_1 = -1;
             for(int j = 0;j<static_cast<int>(pairs.size());j++){if(min_pair_0 == 0 || pairs.at(j).get()->total_occurences < min_pair_0->total_occurences){min_pair_0 = pairs.at(j);min_pair_index_0=j;}}
             for(int j = 0;j<static_cast<int>(pairs.size());j++){if(j != min_pair_index_0 && (min_pair_1 == 0 || pairs.at(j).get()->total_occurences < min_pair_1->total_occurences)){min_pair_1 = pairs.at(j);min_pair_index_1=j;}}
+
+            // Break sequence
+            if(min_index_occurence_0 == 0 && min_index_occurence_1 == 0 && min_pair_index_0 == -1 && min_pair_index_1 == -1){break;}
 
             // Creates the pair
             std::shared_ptr<__Huffman_Pair> new_pair = std::make_shared<__Huffman_Pair>();
             // Get the good attributions
-            if((min_pair_0.get() == 0 && min_pair_1 == 0) || (min_index_occurence_1 > 0 && min_pair_0.get()->total_occurences > min_index_occurence_1)){
+            if((min_pair_0.get() == 0 && min_pair_1.get() == 0) || (min_index_occurence_1 > 0 && min_pair_0.get()->total_occurences > min_index_occurence_1)){
                 new_pair.get()->chr_0 = min_index_0;new_pair.get()->chr_1 = min_index_1;
                 new_pair.get()->total_occurences = min_index_occurence_0 + min_index_occurence_1;
+                pairs_by_chr[min_index_0] = new_pair;pairs_by_chr[min_index_1] = new_pair;
 
                 // Delete the datas
                 occurences[min_index_0] = 0;
@@ -87,10 +114,11 @@ namespace scls {
             else if(min_pair_0.get()->total_occurences < min_index_occurence_1 || min_index_occurence_1 <= 0){
                 new_pair.get()->chr_0 = min_index_0;new_pair.get()->pair_0 = min_pair_0;
                 new_pair.get()->total_occurences = min_index_occurence_0 + min_pair_0.get()->total_occurences;
+                pairs_by_chr[min_index_0] = new_pair;
 
                 // Delete the datas
-                if(min_pair_0 != 0){pairs.erase(pairs.begin() + min_pair_index_0);}
-                occurences[min_index_0] = 0;
+                if(min_pair_0 != 0){min_pair_0.get()->set_parent(new_pair);}
+                pairs.erase(pairs.begin() + min_pair_index_0);occurences[min_index_0] = 0;
             }
             else {
                 new_pair.get()->pair_0 = min_pair_0;new_pair.get()->pair_1 = min_pair_1;
@@ -100,118 +128,31 @@ namespace scls {
                 new_pair.get()->total_occurences = total_occurences;
 
                 // Delete the datas
-                if(min_pair_0 != 0){pairs.erase(pairs.begin() + min_pair_index_0);}
-                if(min_pair_1 != 0){if(min_pair_index_0 < min_pair_index_1){min_pair_index_1--;}pairs.erase(pairs.begin() + min_pair_index_1);}
+                if(min_pair_0 != 0){min_pair_0.get()->set_parent(new_pair);}
+                if(min_pair_1 != 0){min_pair_1.get()->set_parent(new_pair);}
+                if(min_pair_index_0 < min_pair_index_1){min_pair_index_1--;}
+                pairs.erase(pairs.begin() + min_pair_index_0);pairs.erase(pairs.begin() + min_pair_index_1);
             }
             all_pairs.push_back(new_pair);pairs.push_back(new_pair);
-
-            /*// Get the minimum chars
-            unsigned int j = 0;
-            char minimum_1 = 0;
-            unsigned int minimum_occurences_1 = -1;
-            //unsigned int minimum_pos_1 = 0;
-            for(std::map<char, unsigned int>::iterator it = occurences.begin();it!=occurences.end();it++) {
-                if(it->second < minimum_occurences_1) {
-                    minimum_1 = it->first;
-                    minimum_occurences_1 = it->second;
-                    //minimum_pos_1 = j;
-                }
-                j++;
-            }
-            j = 0;
-            char minimum_2 = 0;
-            unsigned int minimum_occurences_2 = -1;
-            //unsigned int minimum_pos_2 = 0;
-            for(std::map<char, unsigned int>::iterator it = occurences.begin();it!=occurences.end();it++) {
-                if(it->second < minimum_occurences_2 && it->first != minimum_1) {
-                    minimum_2 = it->first;
-                    minimum_occurences_2 = it->second;
-                    //minimum_pos_2 = j;
-                }
-                j++;
-            }
-
-            // Get the minimum pairs
-            std::shared_ptr<_Huffman_Pair>* minimum_pair_1 = 0;
-            int minimum_pair_occurences_1 = -1;
-            unsigned int minimum_pair_pos_1 = 0;
-            for(int j = 0;j<static_cast<int>(pairs.size());j++) {
-                if(static_cast<int>(pairs[j].get()->total_occurences) < minimum_pair_occurences_1) {
-                    minimum_pair_1 = &pairs[j];
-                    minimum_pair_occurences_1 = pairs[j].get()->total_occurences;
-                    minimum_pair_pos_1 = j;
-                }
-            }
-            std::shared_ptr<_Huffman_Pair>* minimum_pair_2 = 0;
-            int minimum_pair_occurences_2 = -1;
-            unsigned int minimum_pair_pos_2 = 0;
-            for(int j = 0;j<static_cast<int>(pairs.size());j++) {
-                if(static_cast<int>(pairs[j].get()->total_occurences) < minimum_pair_occurences_2 && pairs[j].get() != minimum_pair_1->get()) {
-                    minimum_pair_2 = &pairs[j];
-                    minimum_pair_occurences_2 = pairs[j].get()->total_occurences;
-                    minimum_pair_pos_2 = j;
-                }
-            }
-
-            std::cout << "J " << pairs.size() << " " << minimum_pair_1 << " " << minimum_pair_2 << " " << minimum_pair_occurences_1  << std::endl;
-
-            // Use the neeeded datas
-            char checked_char[2];
-            checked_char[0] = minimum_1;
-            checked_char[1] = minimum_2;
-            unsigned int checked_char_occurences[2];
-            checked_char_occurences[0] = minimum_occurences_1;
-            checked_char_occurences[1] = minimum_occurences_2;
-            std::shared_ptr<_Huffman_Pair>* checked_pair[2];
-            checked_pair[0] = minimum_pair_1;
-            checked_pair[1] = minimum_pair_2;
-            unsigned int checked_pair_occurences[2];
-            checked_pair_occurences[0] = minimum_pair_occurences_1;
-            checked_pair_occurences[1] = minimum_pair_occurences_2;
-            unsigned int checked_pair_positions[2];
-            checked_pair_positions[0] = minimum_pair_pos_1;
-            checked_pair_positions[1] = minimum_pair_pos_2;
-            unsigned char current_checked_char = 0;
-            unsigned char current_checked_pair = 0;
-            std::shared_ptr<_Huffman_Pair> current_pair = std::make_shared<_Huffman_Pair>();
-            // First test
-            if(checked_char_occurences[current_checked_char] < checked_pair_occurences[current_checked_pair] || checked_pair[current_checked_pair] == 0) {
-                current_pair.get()->total_occurences += checked_char_occurences[current_checked_char];
-                if(current_checked_char == 0) current_pair.get()->chr_0 = minimum_1;
-                else current_pair.get()->chr_1 = minimum_2;
-                occurences.erase(checked_char[current_checked_char]);
-                current_checked_char++;
-            } else {
-                current_pair.get()->total_occurences += checked_pair_occurences[current_checked_pair];
-                if(current_checked_pair == 0) current_pair.get()->pair_0 = *minimum_pair_1;
-                else current_pair.get()->pair_1 = *minimum_pair_2;
-                pairs.erase(pairs.begin() + checked_pair_positions[current_checked_pair]);
-                current_checked_pair++;
-            }
-            // Second test
-            if(checked_char_occurences[current_checked_char] < checked_pair_occurences[current_checked_pair] || checked_pair[current_checked_pair] == 0) {
-                current_pair.get()->total_occurences += checked_char_occurences[current_checked_char];
-                if(current_checked_char == 0) current_pair.get()->chr_0 = minimum_1;
-                else current_pair.get()->chr_1 = minimum_2;
-                occurences.erase(checked_char[current_checked_char]);
-                current_checked_char++;
-            } else {
-                current_pair.get()->total_occurences += checked_pair_occurences[current_checked_pair];
-                if(current_checked_pair == 0) current_pair.get()->pair_0 = *minimum_pair_1;
-                else current_pair.get()->pair_1 = *minimum_pair_2;
-                pairs.erase(pairs.begin() + checked_pair_positions[current_checked_pair]);
-                current_checked_pair++;
-            }
-
-            // Create the pair
-            pairs.push_back(current_pair);
-            std::cout << "P " << pairs.size() << " " << current_pair.get()->chr_0 << " " << current_pair.get()->chr_1 << " " << current_pair.get()->pair_0.get() << " " << current_pair.get()->pair_1.get() << std::endl;
-            //*/
         }
 
-        // Says bakc the pairs
+        // Check the pairs
+        for(int i = 0;i<static_cast<int>(all_pairs.size());i++){
+            __Huffman_Pair* needed_parent = all_pairs.at(all_pairs.size() - (i + 1)).get()->parent();
+            if(needed_parent == 0){all_pairs.at(all_pairs.size() - (i + 1)).get()->hierarchy_position = 0;}
+            else{all_pairs.at(all_pairs.size() - (i + 1)).get()->hierarchy_position = needed_parent->hierarchy_position + 1;}
+        }
+
+        // Says back the pairs
         for(int i = 0;i<static_cast<int>(all_pairs.size());i++) {
             std::cout << "E " << all_pairs.at(all_pairs.size() - (i + 1))->total_occurences << " " << huffmain_pair_to_std_string(all_pairs.at(all_pairs.size() - (i + 1)).get()) << std::endl;
+        }
+
+        // Get the current result
+        for(int i = 0;i<static_cast<int>(to_compress->datas_size());i++){
+            char current_chr = to_compress->data_at(i);
+            std::shared_ptr<Bytes_Set> current_data;__Huffman_Pair* current_pair = pairs_by_chr[current_chr].get();
+            //if(current_pair != 0){current_data = current_pair->bytes_for_chr(current_chr);std::cout << "U " << current_chr << " " << current_pair->hierarchy_position << " " << current_data.get()->bits_to_std_string() << std::endl;}
         }
 
         return to_return;
