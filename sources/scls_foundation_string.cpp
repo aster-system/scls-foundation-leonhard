@@ -469,19 +469,23 @@ namespace scls {
             // Normal double
             to_return = std::to_string(number_to_format);
             to_return = replace(to_return, ",", ".");
+        }
+
+	    // Delete the useless part
+	    if(scls::contains_string(to_return, std::string("."))) {
+            if(max_size != -1) {
+                // Delete the useless numbers
+                int decimal_size = 0; for(;decimal_size<static_cast<int>(to_return.size());decimal_size++){if(to_return[decimal_size]=='.'){break;}}
+                decimal_size++;
+                while(to_return.size() > 0 && static_cast<int>(to_return.size()) - decimal_size > max_size) {to_return = to_return.substr(0, to_return.size() - 1);}
+            }
 
             // Delete the useless "0"
             while(to_return.size() > 0 && to_return[to_return.size() - 1] == '0') {to_return = to_return.substr(0, to_return.size() - 1);}
-        }
+	    }
 
 	    // Delete the useless "."
 	    if(to_return[to_return.size() - 1] == '.'){to_return = to_return.substr(0, to_return.size() - 1);}
-	    if(max_size != -1 && number_to_format - floor(number_to_format) != 0) {
-            // Delete the useless numbers
-            int decimal_size = 0; for(;decimal_size<static_cast<int>(to_return.size());decimal_size++){if(to_return[decimal_size]=='.'){break;}}
-            decimal_size++;
-            while(to_return.size() > 0 && static_cast<int>(to_return.size()) - decimal_size > max_size) {to_return = to_return.substr(0, to_return.size() - 1);}
-	    }
 
         return to_return;
 	};
