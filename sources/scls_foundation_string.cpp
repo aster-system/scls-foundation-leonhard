@@ -745,6 +745,9 @@ namespace scls {
             else break;
 	    }
 
+	    // TEMP
+        content = format_string_break_line(content, std::string(" "));
+
 	    // Erase the break line and space before the balises
 	    int i = 0;
 	    while(i < static_cast<int>(content.size())) {
