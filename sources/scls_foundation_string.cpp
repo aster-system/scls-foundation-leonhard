@@ -1089,14 +1089,13 @@ namespace scls {
         std::string to_return = std::string();
         if(add_balise && a_balise_name != ""){to_return = xml_balise();}
 
+        // Set the good text
+        bool use_inner_blocks = (a_balise_datas.get() == 0 && static_cast<int>(a_sub_xml_texts.size()) > 0) || (a_balise_datas.get() != 0 && a_balise_datas.get()->has_content);
         if(only_text()){to_return = to_return + text();}
-        else if(a_balise_datas.has_content) {
-            // Add the inner text
-            for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){to_return += a_sub_xml_texts[i].get()->full_text();}
-        }
+        else if(use_inner_blocks) {for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){to_return += a_sub_xml_texts[i].get()->full_text();}}
 
         // Add the closing balise
-        if(add_balise && a_balise_name != "" && a_balise_datas.has_content){to_return += xml_balise_end();}
+        if(add_balise && a_balise_name != "" && use_inner_blocks){to_return += xml_balise_end();}
 
         return to_return;
     }
@@ -1117,6 +1116,8 @@ namespace scls {
             else{to_return = xml_balise();}
         }
 
+        // Set the good text
+        bool use_inner_blocks = (a_balise_datas.get() == 0 && static_cast<int>(a_sub_xml_texts.size()) > 0) || (a_balise_datas.get() != 0 && a_balise_datas.get()->has_content);
         if(only_text()){
             if(text() != std::string("")){
                 if(break_line_in_between_final) {
@@ -1127,7 +1128,7 @@ namespace scls {
                 else{to_return += scls::replace(text(), std::string("\n"), std::string("\n") + level_diff_plus);}
             }
         }
-        else if(a_balise_datas.has_content){
+        else if(use_inner_blocks){
             for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){
                 if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
                 to_return += a_sub_xml_texts[i].get()->full_text_formatted(true, level + 1, &to_return);
@@ -1136,7 +1137,7 @@ namespace scls {
         }
 
         // Add the closing balise
-        if(add_balise && a_balise_name != "" && a_balise_datas.has_content){
+        if(add_balise && a_balise_name != "" && use_inner_blocks){
             if(break_line_in_between_final){
                 if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
                 to_return += level_diff;
@@ -1180,8 +1181,8 @@ namespace scls {
                 std::string needed_balise = formatted_balise(cutted[i].balise_content);
                 std::string needed_balise_name = balise_name(needed_balise);
                 std::vector<XML_Attribute> needed_balise_attributes = cut_balise_by_xml_attributes_out_of(needed_balise, "\"");
-                Balise_Datas* datas = balise_container()->defined_balise(needed_balise_name);
-                if(datas != 0 && datas->has_content) {
+                std::shared_ptr<Balise_Datas> datas = balise_container()->defined_balise_shared_ptr(needed_balise_name);
+                if(datas.get() != 0 && datas.get()->has_content) {
                     // The part is the end of an opened balise
 
                     // Get the content of the balise
@@ -1208,7 +1209,7 @@ namespace scls {
                     // Create the balise
                     std::shared_ptr<__XML_Text_Base> to_add = __XML_Text_Base::new_xml_text(a_balise_container, needed_balise_name, needed_balise_attributes, balise_content);
                     to_add.get()->set_parent(a_this_object);
-                    if(datas != 0){to_add.get()->set_xml_balise_datas(datas);}
+                    if(datas.get() != 0){to_add.get()->set_xml_balise_datas(datas);}
                     a_sub_xml_texts.push_back(to_add);
                 }
                 else {
@@ -1216,8 +1217,8 @@ namespace scls {
                     // Create the balise
                     std::shared_ptr<__XML_Text_Base> to_add = __XML_Text_Base::new_xml_text(a_balise_container, needed_balise_name, needed_balise_attributes, cutted[i].content);
                     to_add.get()->set_parent(a_this_object);
-                    if(datas != 0){to_add.get()->set_xml_balise_datas(datas);}
-                    else{Balise_Datas current_data = Balise_Datas(false);to_add.get()->set_xml_balise_datas(&current_data);}
+                    if(datas.get() != 0){to_add.get()->set_xml_balise_datas(datas);}
+                    else{std::shared_ptr<Balise_Datas> current_data = std::make_shared<Balise_Datas>(false);to_add.get()->set_xml_balise_datas(current_data);}
                     a_sub_xml_texts.push_back(to_add);
                 }
             }
@@ -1280,6 +1281,26 @@ namespace scls {
         }
         return std::string("<") + xml_balise_name() + attribute + std::string(">");
     };
+
+    // Getters and setter
+    Balise_Datas* __XML_Text_Base::balise_datas(){return a_balise_datas.get();};
+    __Balise_Container* __XML_Text_Base::balise_container() const {return a_balise_container.get();};
+    std::shared_ptr<__Balise_Container> __XML_Text_Base::balise_container_shared_ptr() const {return a_balise_container;};
+    bool __XML_Text_Base::break_line_in_between() const {return a_balise_datas.get() != 0 && a_balise_datas.get()->break_line_in_between;};
+    bool __XML_Text_Base::has_content() const {return a_balise_datas.get() != 0 && a_balise_datas.get()->has_content;};
+    bool __XML_Text_Base::only_text() const {return a_sub_xml_texts.size() <= 0;};
+    __XML_Text_Base* __XML_Text_Base::parent()const{return a_parent.lock().get();};
+    void __XML_Text_Base::set_this_object(std::weak_ptr<__XML_Text_Base> new_this_object){a_this_object = new_this_object;};
+    void __XML_Text_Base::set_xml_balise_datas(std::shared_ptr<Balise_Datas> new_xml_balise_datas){if(new_xml_balise_datas.get() == 0){a_balise_datas = std::make_shared<Balise_Datas>();}else{a_balise_datas = new_xml_balise_datas;}};
+    void __XML_Text_Base::set_xml_balise_name(std::string new_xml_balise_name){a_balise_name = new_xml_balise_name;set_xml_balise_datas(balise_container()->defined_balise_shared_ptr(new_xml_balise_name));};
+    void __XML_Text_Base::set_xml_text(std::string xml_text){a_xml_text = xml_text;};
+    __XML_Text_Base* __XML_Text_Base::sub_text(int index)const{if(index<static_cast<int>(a_sub_xml_texts.size())){return 0;}return a_sub_xml_texts[index].get();};
+    std::vector<std::shared_ptr<__XML_Text_Base>>& __XML_Text_Base::sub_texts() {return a_sub_xml_texts;};
+    std::string __XML_Text_Base::text() const {if(a_sub_xml_texts.size() <= 0){return a_xml_text;}return full_text(false);};
+    bool __XML_Text_Base::use_balise() const {return static_cast<int>(a_balise_name.size()) > 0;};
+    std::vector<XML_Attribute>& __XML_Text_Base::xml_attributes() {return a_balise_attributes;};
+    std::vector<XML_Attribute>& __XML_Text_Base::xml_balise_attributes() {return a_balise_attributes;};
+    std::string __XML_Text_Base::xml_balise_name() const {return a_balise_name;};
 
     // Returns the position of the first plain text character in a unformatted text from before a position
     unsigned int __Balise_Container::first_plain_text_character_before_position_in_informatted_text(const std::string& text_to_convert, int position) {

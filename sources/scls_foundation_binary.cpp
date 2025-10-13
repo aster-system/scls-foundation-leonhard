@@ -160,7 +160,7 @@ namespace scls {
     std::string Bytes_Set::bits_to_std_string() {
         std::string to_return = std::string();
 
-        for(int i = 0;i<datas_size() * 8;i++) {
+        for(int i = 0;i<static_cast<int>(datas_size()) * 8;i++) {
             if(data_at_bit_directly(i)){to_return += '1';}
             else{to_return += '0';}
         }
