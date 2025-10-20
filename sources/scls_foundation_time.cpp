@@ -34,9 +34,6 @@ namespace scls {
 	//
 	//*********
 
-    // Returns the number of milliseconds since a long date
-    long long time_ns() {timespec ts;clock_gettime(CLOCK_REALTIME, &ts);return static_cast<long long>(ts.tv_nsec) + static_cast<long long>(ts.tv_sec) * 1000000000;};
-
     // Returns if a year is bissextile or not
     bool year_is_bissextile(long long year){return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;};
 

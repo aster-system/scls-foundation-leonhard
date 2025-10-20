@@ -32,6 +32,14 @@
 #define SCLS_SECONDS_IN_DAY 86400
 #define SCLS_SECONDS_IN_YEAR 31536000
 
+#ifndef SCLS_FOUNDATION_TIME_INIT
+#if defined(__WIN32__) || defined(__WIN64__)
+#define SCLS_FOUNDATION_TIME_INIT long long scls::time_ns() {long long wintime;GetSystemTimeAsFileTime((FILETIME*)&wintime);wintime -= 116444736000000000LL;return wintime * 100;}
+#elif defined(__linux__)
+#define SCLS_FOUNDATION_TIME_INIT long long scls::time_ns() {timespec ts;clock_gettime(CLOCK_REALTIME, &ts);return static_cast<long long>(ts.tv_nsec) + static_cast<long long>(ts.tv_sec) * 1000000000;};
+#endif // defined
+#endif // SCLS_FOUNDATION_TIME_INIT
+
 // The namespace "scls" is used to simplify the all.
 namespace scls {
     //*********

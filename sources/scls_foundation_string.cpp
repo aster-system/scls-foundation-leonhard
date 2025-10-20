@@ -1009,6 +1009,12 @@ namespace scls {
         return std::shared_ptr<__XML_Text_Base>();
     }
 
+    // Adds some text in the XML balise text
+    void __XML_Text_Base::add_text(std::string text){a_xml_text+=text;};
+
+    // Returns if a balise is in the hierarchy
+    bool __XML_Text_Base::balise_in_hierarchy(std::string balise_name){return a_balise_name == balise_name || (parent() != 0 && parent()->balise_in_hierarchy(a_balise_name));}
+
 	// Checks the include in the text
     void __XML_Text_Base::check_include(std::string path) {
         // Analyse each balises
@@ -1712,4 +1718,6 @@ namespace scls {
 
     // Flux output operator of String
     std::ostream& operator<<(std::ostream& strm, const String& str) {const char* to_out = str.to_char_array();strm << to_out;return strm;}
+    // Operator == overload with std::string
+    bool operator==(std::string second, const String& s) { return s == second; };
 }

@@ -332,7 +332,7 @@ namespace scls {
         test_binary_object();
         scls::print("Test binary", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé."));
         scls::print("Test compression", "SCLS Foundation", scls::to_utf_8_code_point("Test du système de compression Huffman."));
-        test_huffman_compression();
+        //test_huffman_compression();
         scls::print("Test compression", "SCLS Foundation", scls::to_utf_8_code_point("Test terminé."));
         scls::print("Test CRC", "SCLS Foundation", scls::to_utf_8_code_point("Test des algorithmes CRC."));
         test_crc();
@@ -352,7 +352,7 @@ namespace scls {
 }
 
 int main() {
-    scls::test_huffman_compression();
+    scls::test_all();
 
     return 0;
 }

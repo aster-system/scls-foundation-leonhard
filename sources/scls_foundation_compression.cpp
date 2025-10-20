@@ -102,7 +102,7 @@ namespace scls {
             // Creates the pair
             std::shared_ptr<__Huffman_Pair> new_pair = std::make_shared<__Huffman_Pair>();
             // Get the good attributions
-            if((min_pair_0.get() == 0 && min_pair_1.get() == 0) || (min_index_occurence_1 > 0 && min_pair_0.get()->total_occurences > min_index_occurence_1)){
+            if((min_pair_0.get() == 0 && min_pair_1.get() == 0) || (min_index_occurence_1 > 0 && static_cast<int>(min_pair_0.get()->total_occurences) > min_index_occurence_1)){
                 new_pair.get()->chr_0 = min_index_0;new_pair.get()->chr_1 = min_index_1;
                 new_pair.get()->total_occurences = min_index_occurence_0 + min_index_occurence_1;
                 pairs_by_chr[min_index_0] = new_pair;pairs_by_chr[min_index_1] = new_pair;
@@ -111,7 +111,7 @@ namespace scls {
                 occurences[min_index_0] = 0;
                 occurences[min_index_1] = 0;
             }
-            else if(min_pair_0.get()->total_occurences < min_index_occurence_1 || min_index_occurence_1 <= 0){
+            else if(static_cast<int>(min_pair_0.get()->total_occurences) < min_index_occurence_1 || min_index_occurence_1 <= 0){
                 new_pair.get()->chr_0 = min_index_0;new_pair.get()->pair_0 = min_pair_0;
                 new_pair.get()->total_occurences = min_index_occurence_0 + min_pair_0.get()->total_occurences;
                 pairs_by_chr[min_index_0] = new_pair;

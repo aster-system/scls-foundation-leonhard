@@ -266,7 +266,9 @@ namespace scls {
         void add_sub_balise(std::shared_ptr<__XML_Text_Base> content);
         std::shared_ptr<__XML_Text_Base> add_sub_balise(std::string pure_text);
         // Adds some text in the XML balise text
-        inline void add_text(std::string text){a_xml_text+=text;};
+        void add_text(std::string text);
+        // Returns if a balise is in the hierarchy
+        bool balise_in_hierarchy(std::string balise_name);
         // Checks the include in the text
         void check_include(std::string path);
         // Clears the balise
@@ -465,6 +467,7 @@ namespace scls {
         inline bool operator==(const char* second) const { return a_content.c_str() == second; };
         // Operator == overload with std::string
         inline bool operator==(std::string second) const { return a_content == second; };
+        inline bool operator!=(std::string second) const { return a_content != second; };
         // Operator == overload with String
         inline bool operator==(const String& second) const { return a_content == second.a_content; };
 
@@ -480,6 +483,8 @@ namespace scls {
 
 	// Flux output operator of String
     std::ostream& operator<<(std::ostream& strm, const String& str);
+    // Operator == overload with std::string
+    bool operator==(std::string second, const String& s);
 }
 
 #endif // SCLS_FOUNDATION_STRING
