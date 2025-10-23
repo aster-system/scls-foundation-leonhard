@@ -1695,7 +1695,14 @@ namespace scls {
         std::string balise_content = xml.get()->xml_balise();
         std::string current_balise_name = xml.get()->xml_balise_name();
         std::vector<scls::XML_Attribute>& attributes = xml.get()->xml_balise_attributes();
-        if(current_balise_name == std::string("repeat")) {
+        if(current_balise_name == std::string("if")) {
+            // If instructions
+            to_return.type = SCLS_BALISE_IF;
+            for(int i = 0;i<static_cast<int>(attributes.size());i++) {
+                if(attributes[i].name == "condition") {to_return.content = attributes.at(i).value;}
+            }
+        }
+        else if(current_balise_name == std::string("repeat")) {
             // Repeat instructions
             to_return.type = SCLS_BALISE_REPEAT;
             for(int i = 0;i<static_cast<int>(attributes.size());i++) {

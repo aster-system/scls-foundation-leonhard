@@ -363,8 +363,9 @@ namespace scls {
 	};
 
 	// Handle utilities balises
-	#define SCLS_BALISE_REPEAT 0
-	struct Utility_Balise {int times = 1;int type = -1;int value_start = 0;int value_end=1;};
+	#define SCLS_BALISE_IF 0
+	#define SCLS_BALISE_REPEAT 1
+	struct Utility_Balise {std::string content = std::string();int times = 1;int type = -1;int value_start = 0;int value_end=1;};
     Utility_Balise utilities_balise(std::shared_ptr<scls::__XML_Text_Base> xml);
 
 	// Create an XML simply from a text (the returned XML is not a balise itself, but has balises children)
