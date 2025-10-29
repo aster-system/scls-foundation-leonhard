@@ -267,7 +267,7 @@ namespace scls {
             return extracted_datas;
         }
         inline double extract_double(unsigned int offset = 0, bool big_endian = false) const {return __extract_double_from_char_array(a_datas, offset, big_endian);};
-        inline float extract_float(unsigned int offset = 0, bool big_endian = false) const {return static_cast<float>(extract_double(offset, big_endian));};
+        inline float extract_float(unsigned int offset = 0, bool big_endian = false) const {int32_t i = __extract_4bytes_from_char_array(a_datas, offset, big_endian);float f;memcpy(&f, &i, sizeof(f));return f;};
         inline int extract_int(unsigned int offset = 0, bool big_endian = false) const {return __extract_4bytes_from_char_array(a_datas, offset, big_endian);};
         inline int64_t extract_int64(unsigned int offset = 0, bool big_endian = false) const {return __extract_8bytes_from_char_array(a_datas, offset, big_endian);};
         inline short extract_short(unsigned int offset = 0, bool big_endian = false) const {return __extract_2bytes_from_char_array(a_datas, offset, big_endian);}
