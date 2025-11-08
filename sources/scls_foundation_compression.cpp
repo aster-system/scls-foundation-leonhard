@@ -35,6 +35,7 @@ namespace scls {
 	//*********
 
 	// Returns the bytes for a specific character
+    std::string __Huffman_Pair::bytes_for_chr_str(char needed_chr){std::shared_ptr<Bytes_Set>current_data=bytes_for_chr(needed_chr);std::string b=current_data.get()->bits_to_std_string();return b.substr(b.size() - (hierarchy_position + 1), hierarchy_position + 1);}
     std::shared_ptr<Bytes_Set> __Huffman_Pair::bytes_for_chr(char needed_chr) {
         std::shared_ptr<Bytes_Set> needed_bytes = std::make_shared<Bytes_Set>((hierarchy_position + 1) / 8 + 1);needed_bytes.get()->fill(0);
         bytes_for_this(needed_bytes.get(), 1);
@@ -69,14 +70,14 @@ namespace scls {
 	}
 
 	// Do an huffman compression on a Byte_Set of datas
-	std::shared_ptr<Huffman_Tree> compress_huffman(std::string to_compress){Bytes_Set bytes = Bytes_Set(to_compress);return compress_huffman(&bytes);}
-    std::shared_ptr<Huffman_Tree> compress_huffman(Bytes_Set* to_compress) {
+	std::shared_ptr<Huffman_Tree> generate_huffman_tree(std::string to_compress){Bytes_Set bytes = Bytes_Set(to_compress);return generate_huffman_tree(&bytes);}
+    std::shared_ptr<Huffman_Tree> generate_huffman_tree(Bytes_Set* to_compress) {
         std::shared_ptr<Huffman_Tree> to_return = std::make_shared<Huffman_Tree>();
 
         // Search each occurences in the Bytes_Set to compress
-        int* occurences = new int[256];
-        for(int i = 0;i<256;i++){occurences[i] = 0;}
-        for(int i = 0;i<static_cast<int>(to_compress->datas_size());i++) {unsigned char chr = to_compress->data_at(i);occurences[chr]++;}
+        int* first_position = new int[256];int* occurences = new int[256];
+        for(int i = 0;i<256;i++){first_position[i] = -1;occurences[i] = 0;}
+        for(int i = 0;i<static_cast<int>(to_compress->datas_size());i++) {unsigned char chr = to_compress->data_at(i);occurences[chr]++;if(first_position[chr] <= -1){first_position[chr] = i;}}
         int occurences_size = 0;for(int i = 0;i<256;i++){if(occurences[i] != 0){occurences_size++;}}
 
         // Creates the pairs
@@ -86,24 +87,26 @@ namespace scls {
         unsigned int total_size = 256;
         for(unsigned int i = 0;i<total_size;i++) {
             // Get the minimum index
-            int min_index_0 = 0;int min_index_occurence_0 = 0;int min_index_1 = 0;int min_index_occurence_1 = 0;
-            for(int j = 0;j<256;j++){if(occurences[j] != 0 && (occurences[j] < occurences[min_index_0] || occurences[min_index_0] == 0)){min_index_0 = j;}}
-            for(int j = 0;j<256;j++){if(j != min_index_0 && occurences[j] != 0 && (occurences[j] < occurences[min_index_1] || occurences[min_index_1] == 0)){min_index_1 = j;}}
-            min_index_occurence_0 = occurences[min_index_0];min_index_occurence_1 = occurences[min_index_1];
+            int min_index_0 = -1;int min_index_occurence_0 = 0;int min_index_1 = -1;int min_index_occurence_1 = 0;
+            for(int j = 0;j<256;j++){if(occurences[j] != 0 && (min_index_0 < 0 || occurences[j] < occurences[min_index_0] || (occurences[j] == occurences[min_index_0] && first_position[j] < first_position[min_index_0]))){min_index_0 = j;}}
+            for(int j = 0;j<256;j++){if(j != min_index_0 && occurences[j] != 0 && (min_index_1 < 0 || occurences[j] < occurences[min_index_1] || (occurences[j] == occurences[min_index_1] && first_position[j] < first_position[min_index_1]))){min_index_1 = j;}}
+            if(min_index_0 > 0){min_index_occurence_0 = occurences[min_index_0];}
+            if(min_index_1 > 0){min_index_occurence_1 = occurences[min_index_1];}
 
             // Get the minimum pairs
             std::shared_ptr<__Huffman_Pair> min_pair_0 = 0;int min_pair_index_0 = -1;std::shared_ptr<__Huffman_Pair> min_pair_1 = 0;int min_pair_index_1 = -1;
-            for(int j = 0;j<static_cast<int>(pairs.size());j++){if(min_pair_0 == 0 || pairs.at(j).get()->total_occurences < min_pair_0->total_occurences){min_pair_0 = pairs.at(j);min_pair_index_0=j;}}
-            for(int j = 0;j<static_cast<int>(pairs.size());j++){if(j != min_pair_index_0 && (min_pair_1 == 0 || pairs.at(j).get()->total_occurences < min_pair_1->total_occurences)){min_pair_1 = pairs.at(j);min_pair_index_1=j;}}
+            for(int j = 0;j<static_cast<int>(pairs.size());j++){if(min_pair_0 == 0 || pairs.at(j).get()->total_occurences <= min_pair_0->total_occurences){min_pair_0 = pairs.at(j);min_pair_index_0=j;}}
+            for(int j = 0;j<static_cast<int>(pairs.size());j++){if(j != min_pair_index_0 && (min_pair_1 == 0 || pairs.at(j).get()->total_occurences <= min_pair_1->total_occurences)){min_pair_1 = pairs.at(j);min_pair_index_1=j;}}
 
             // Break sequence
-            if(min_index_occurence_0 == 0 && min_index_occurence_1 == 0 && min_pair_index_0 == -1 && min_pair_index_1 == -1){break;}
+            if(min_index_1 <= -1 && min_pair_index_1 <= -1 && (min_index_0 <= -1 || min_pair_index_0 <= -1)){break;}
 
             // Creates the pair
             std::shared_ptr<__Huffman_Pair> new_pair = std::make_shared<__Huffman_Pair>();
             // Get the good attributions
-            if((min_pair_0.get() == 0 && min_pair_1.get() == 0) || (min_index_occurence_1 > 0 && static_cast<int>(min_pair_0.get()->total_occurences) > min_index_occurence_1)){
+            if(min_index_0 != -1 && min_index_1 != -1 && (min_index_occurence_1 > 0 && (min_pair_0.get() == 0 || static_cast<int>(min_pair_0.get()->total_occurences) > min_index_occurence_1))){
                 new_pair.get()->chr_0 = min_index_0;new_pair.get()->chr_1 = min_index_1;
+                new_pair.get()->position = std::min(first_position[min_index_0], first_position[min_index_1]);
                 new_pair.get()->total_occurences = min_index_occurence_0 + min_index_occurence_1;
                 pairs_by_chr[min_index_0] = new_pair;pairs_by_chr[min_index_1] = new_pair;
 
@@ -111,8 +114,9 @@ namespace scls {
                 occurences[min_index_0] = 0;
                 occurences[min_index_1] = 0;
             }
-            else if(static_cast<int>(min_pair_0.get()->total_occurences) < min_index_occurence_1 || min_index_occurence_1 <= 0){
+            else if(min_index_0 != -1 && (static_cast<int>(min_pair_0.get()->total_occurences) < min_index_occurence_1 || min_index_occurence_1 <= 0)){
                 new_pair.get()->chr_0 = min_index_0;new_pair.get()->pair_0 = min_pair_0;
+                new_pair.get()->position = std::min(first_position[min_index_0], min_pair_0.get()->position);
                 new_pair.get()->total_occurences = min_index_occurence_0 + min_pair_0.get()->total_occurences;
                 pairs_by_chr[min_index_0] = new_pair;
 
@@ -121,7 +125,9 @@ namespace scls {
                 pairs.erase(pairs.begin() + min_pair_index_0);occurences[min_index_0] = 0;
             }
             else {
-                new_pair.get()->pair_0 = min_pair_0;new_pair.get()->pair_1 = min_pair_1;
+                if(min_pair_0.get()->total_occurences < min_pair_1.get()->total_occurences || min_pair_0.get()->position < min_pair_1.get()->position){new_pair.get()->pair_0 = min_pair_0;new_pair.get()->pair_1 = min_pair_1;}
+                else{new_pair.get()->pair_0 = min_pair_1;new_pair.get()->pair_1 = min_pair_0;}
+                new_pair.get()->position = new_pair.get()->pair_0.get()->position;
                 int total_occurences = 0;
                 if(min_pair_0.get() != 0){total_occurences += min_pair_0.get()->total_occurences;}
                 if(min_pair_1.get() != 0){total_occurences += min_pair_1.get()->total_occurences;}
@@ -145,16 +151,18 @@ namespace scls {
 
         // Says back the pairs
         for(int i = 0;i<static_cast<int>(all_pairs.size());i++) {
-            std::cout << "E " << all_pairs.at(all_pairs.size() - (i + 1))->total_occurences << " " << huffmain_pair_to_std_string(all_pairs.at(all_pairs.size() - (i + 1)).get()) << std::endl;
+            //std::cout << "E " << all_pairs.at(all_pairs.size() - (i + 1))->total_occurences << " " << huffmain_pair_to_std_string(all_pairs.at(all_pairs.size() - (i + 1)).get()) << std::endl;
         }
 
         // Get the current result
         for(int i = 0;i<static_cast<int>(to_compress->datas_size());i++){
             char current_chr = to_compress->data_at(i);
             std::shared_ptr<Bytes_Set> current_data;__Huffman_Pair* current_pair = pairs_by_chr[current_chr].get();
-            //if(current_pair != 0){current_data = current_pair->bytes_for_chr(current_chr);std::cout << "U " << current_chr << " " << current_pair->hierarchy_position << " " << current_data.get()->bits_to_std_string() << std::endl;}
+            if(current_pair != 0){std::cout << "U " << current_chr << " " << current_pair->hierarchy_position << " " << current_pair->bytes_for_chr_str(current_chr) << std::endl;}
         }
 
+        // Return the result
+        to_return.get()->set_pairs(pairs);
         return to_return;
     };
 }

@@ -230,10 +230,8 @@ namespace scls {
 
     // Test scls_foundation_compression.h
     void test_huffman_compression() {
-        //scls::Bytes_Set bs;
-        //bs.add_string("Hello world !");
-        //std::shared_ptr<scls::Huffman_Tree> ht = scls::compress_huffman(&bs);
-        scls::compress_huffman("Le Leclerc est le nouveau MBT de l'armée française.");
+        std::string to_compress = std::string("Vive le Leclerc");
+        std::shared_ptr<scls::Huffman_Tree> t = scls::generate_huffman_tree(to_compress);
     }
 
     // Test scls_foundation_file.h

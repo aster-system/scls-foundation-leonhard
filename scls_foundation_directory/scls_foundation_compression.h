@@ -39,6 +39,7 @@ namespace scls {
 
 	struct __Huffman_Pair {
         // Returns the bytes / this for a specific character
+        std::string bytes_for_chr_str(char needed_chr);
         std::shared_ptr<Bytes_Set> bytes_for_chr(char needed_chr);
         void bytes_for_this(Bytes_Set* to_add, int offset);
 
@@ -53,6 +54,7 @@ namespace scls {
         std::shared_ptr<__Huffman_Pair> pair_0;
         std::shared_ptr<__Huffman_Pair> pair_1;
         std::shared_ptr<__Huffman_Pair> pair_parent;
+        int position = 0;
         unsigned int total_occurences = 0;
 	};
 
@@ -62,15 +64,16 @@ namespace scls {
         Huffman_Tree(){};
 
         // Returns the pairs in the tree
-        std::vector<std::shared_ptr<__Huffman_Pair>>& pairs() {return a_pairs;};
+        inline std::vector<std::shared_ptr<__Huffman_Pair>>& pairs() {return a_pairs;};
+        inline void set_pairs(std::vector<std::shared_ptr<__Huffman_Pair>> new_pairs){a_pairs = new_pairs;};
     private:
         // Each pairs in the tree
         std::vector<std::shared_ptr<__Huffman_Pair>> a_pairs = std::vector<std::shared_ptr<__Huffman_Pair>>();
 	};
 
-	// Do an huffman compression on a Byte_Set of datas
-    std::shared_ptr<Huffman_Tree> compress_huffman(Bytes_Set* to_compress);
-    std::shared_ptr<Huffman_Tree> compress_huffman(std::string to_compress);
+	// Generate an huffman tree on a Byte_Set of datas
+    std::shared_ptr<Huffman_Tree> generate_huffman_tree(Bytes_Set* to_compress);
+    std::shared_ptr<Huffman_Tree> generate_huffman_tree(std::string to_compress);
 }
 
 #endif // SCLS_FOUNDATION_COMPRESSION
