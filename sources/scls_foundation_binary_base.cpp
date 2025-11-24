@@ -77,48 +77,48 @@ namespace scls {
 	};
 
 	// Extract a 4 bytes variable from a char array
-    int __extract_4bytes_from_char_array(char* result, unsigned int offset, bool big_endian) {
-		int number_1 = 0;
-		int number_2 = 0;
-		int number_3 = 0;
-		int number_4 = 0;
+    int32_t __extract_4bytes_from_char_array(char* result, unsigned int offset, bool big_endian) {
+		int32_t number_1 = 0;
+		int32_t number_2 = 0;
+		int32_t number_3 = 0;
+		int32_t number_4 = 0;
 		if (big_endian)
 		{
-			number_1 = ((static_cast<int>(result[offset + 0]) << 24) & 0xff000000);
-			number_2 = ((static_cast<int>(result[offset + 1]) << 16) & 0x00ff0000);
-			number_3 = ((static_cast<int>(result[offset + 2]) << 8) & 0x0000ff00);
-			number_4 = (static_cast<int>(result[offset + 3]) & 0x000000ff);
+			number_1 = ((static_cast<int32_t>(result[offset + 0]) << 24) & 0xff000000);
+			number_2 = ((static_cast<int32_t>(result[offset + 1]) << 16) & 0x00ff0000);
+			number_3 = ((static_cast<int32_t>(result[offset + 2]) << 8) & 0x0000ff00);
+			number_4 = (static_cast<int32_t>(result[offset + 3]) & 0x000000ff);
 		}
 		else
 		{
-			number_1 = ((static_cast<int>(result[offset + 3]) << 24) & 0xff000000);
-			number_2 = ((static_cast<int>(result[offset + 2]) << 16) & 0x00ff0000);
-			number_3 = ((static_cast<int>(result[offset + 1]) << 8) & 0x0000ff00);
-			number_4 = (static_cast<int>(result[offset]) & 0x000000ff);
+			number_1 = ((static_cast<int32_t>(result[offset + 3]) << 24) & 0xff000000);
+			number_2 = ((static_cast<int32_t>(result[offset + 2]) << 16) & 0x00ff0000);
+			number_3 = ((static_cast<int32_t>(result[offset + 1]) << 8) & 0x0000ff00);
+			number_4 = (static_cast<int32_t>(result[offset]) & 0x000000ff);
 		}
 
 		return number_1 + number_2 + number_3 + number_4;
 	};
 
 	// Extract a 4 bytes unsigned variable from a char array
-    unsigned int __extract_u4bytes_from_char_array(char* result, unsigned int offset, bool big_endian) {
-		unsigned int number_1 = 0;
-		unsigned int number_2 = 0;
-		unsigned int number_3 = 0;
-		unsigned int number_4 = 0;
+    uint32_t __extract_u4bytes_from_char_array(char* result, unsigned int offset, bool big_endian) {
+		uint32_t number_1 = 0;
+		uint32_t number_2 = 0;
+		uint32_t number_3 = 0;
+		uint32_t number_4 = 0;
 		if (big_endian)
 		{
-			number_1 = ((static_cast<unsigned int>(result[offset + 0]) << 24) & 0xff000000);
-			number_2 = ((static_cast<unsigned int>(result[offset + 1]) << 16) & 0x00ff0000);
-			number_3 = ((static_cast<unsigned int>(result[offset + 2]) << 8) & 0x0000ff00);
-			number_4 = (static_cast<unsigned int>(result[offset + 3]) & 0x000000ff);
+			number_1 = ((static_cast<uint32_t>(result[offset + 0]) << 24) & 0xff000000);
+			number_2 = ((static_cast<uint32_t>(result[offset + 1]) << 16) & 0x00ff0000);
+			number_3 = ((static_cast<uint32_t>(result[offset + 2]) << 8) & 0x0000ff00);
+			number_4 = (static_cast<uint32_t>(result[offset + 3]) & 0x000000ff);
 		}
 		else
 		{
-			number_1 = ((static_cast<unsigned int>(result[offset + 3]) << 24) & 0xff000000);
-			number_2 = ((static_cast<unsigned int>(result[offset + 2]) << 16) & 0x00ff0000);
-			number_3 = ((static_cast<unsigned int>(result[offset + 1]) << 8) & 0x0000ff00);
-			number_4 = (static_cast<unsigned int>(result[offset]) & 0x000000ff);
+			number_1 = ((static_cast<uint32_t>(result[offset + 3]) << 24) & 0xff000000);
+			number_2 = ((static_cast<uint32_t>(result[offset + 2]) << 16) & 0x00ff0000);
+			number_3 = ((static_cast<uint32_t>(result[offset + 1]) << 8) & 0x0000ff00);
+			number_4 = (static_cast<uint32_t>(result[offset]) & 0x000000ff);
 		}
 
 		return number_1 + number_2 + number_3 + number_4;
@@ -165,6 +165,15 @@ namespace scls {
 		int64_t number_1 = __extract_8bytes_from_char_array(result, offset, big_endian);
 		double* d = (double*)(&number_1);
 		double number = (*d);
+
+		return number;
+	};
+
+	// Extract a float variable from a char array
+    float __extract_float_from_char_array(char* result, unsigned int offset, bool big_endian) {
+		int32_t number_1 = __extract_4bytes_from_char_array(result, offset, big_endian);
+		float* d = (float*)(&number_1);
+		float number = (*d);
 
 		return number;
 	};
@@ -254,7 +263,10 @@ namespace scls {
 	}
 
 	// Convert a float to a char array and put it in the char array
-    void __put_4bytes_float_to_char_array(float n, char* result, unsigned int offset, bool big_endian) {int32_t* n_p = reinterpret_cast<int32_t*>(&n);__put_4bytes_to_char_array(*n_p, result, offset, big_endian);}
+    void __put_4bytes_float_to_char_array(float n, char* result, unsigned int offset, bool big_endian) {
+        if(offset % 4 == 0){(reinterpret_cast<float*>(result))[offset / 4] = n;}
+        else{int32_t* n_p = reinterpret_cast<int32_t*>(&n);__put_4bytes_to_char_array(*n_p, result, offset, big_endian);}
+    }
 
 	// Convert an double to a char array and put it in the char array
     void __put_8bytes_double_to_char_array(double n, char* result, unsigned int offset, bool big_endian) {int64_t* n_p = (int64_t*)(&n);__put_8bytes_to_char_array(*n_p, result, offset, big_endian);}

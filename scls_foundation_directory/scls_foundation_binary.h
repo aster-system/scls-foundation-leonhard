@@ -51,11 +51,12 @@ namespace scls {
     short __extract_2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false);
 	unsigned short __extract_u2bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false);
 	// Extract a 4 bytes variable (unsigned or signed int) from a char array
-    int __extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false);
-    unsigned int __extract_u4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false);
+    int32_t __extract_4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false);
+    uint32_t __extract_u4bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false);
 	// Extract a 8 bytes variable from a char array
     int64_t __extract_8bytes_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false);
-	// Extract a double variable from a char array
+	// Extract a double / float variable from a char array
+	float __extract_float_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false);
     double __extract_double_from_char_array(char* result, unsigned int offset = 0, bool big_endian = false);
 
 	// Convert an (possible unsigned) integer to a char array and put it in the char array
@@ -162,6 +163,9 @@ namespace scls {
         // Fills the Bytes_Set with a single value
         void fill(char value){for(int i = 0;i<static_cast<int>(a_datas_size);i++){a_datas[i] = value;}};
 
+        // Pastes Bytes_Set datas to this one
+        void paste(Bytes_Set* to_paste){free_memory();add_datas(to_paste->datas(), to_paste->datas_size());};
+
         //*********
         //
         // Datas manipulation
@@ -267,7 +271,7 @@ namespace scls {
             return extracted_datas;
         }
         inline double extract_double(unsigned int offset = 0, bool big_endian = false) const {return __extract_double_from_char_array(a_datas, offset, big_endian);};
-        inline float extract_float(unsigned int offset = 0, bool big_endian = false) const {int32_t i = __extract_4bytes_from_char_array(a_datas, offset, big_endian);float f;memcpy(&f, &i, sizeof(f));return f;};
+        inline float extract_float(unsigned int offset = 0, bool big_endian = false) const {return __extract_float_from_char_array(a_datas, offset, big_endian);};
         inline int extract_int(unsigned int offset = 0, bool big_endian = false) const {return __extract_4bytes_from_char_array(a_datas, offset, big_endian);};
         inline int64_t extract_int64(unsigned int offset = 0, bool big_endian = false) const {return __extract_8bytes_from_char_array(a_datas, offset, big_endian);};
         inline short extract_short(unsigned int offset = 0, bool big_endian = false) const {return __extract_2bytes_from_char_array(a_datas, offset, big_endian);}
