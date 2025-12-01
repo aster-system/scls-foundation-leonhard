@@ -1174,6 +1174,9 @@ namespace scls {
         return created_balise;
     }
 
+    // Inserts a sub-balise in the XML balise
+    std::shared_ptr<__XML_Text_Base> __XML_Text_Base::insert_sub_balise(int pos, std::string pure_text){std::shared_ptr<__XML_Text_Base> needed_text = new_xml_text(a_balise_container, pure_text);needed_text.get()->set_parent(a_this_object);a_sub_xml_texts.insert(a_sub_xml_texts.begin() + pos, needed_text);return needed_text;};
+
     // Parse the text
     void __XML_Text_Base::parse_text(std::string new_text) {
         // Cut by balises

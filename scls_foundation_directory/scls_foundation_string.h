@@ -275,6 +275,8 @@ namespace scls {
         void clear();
         // First text balise at left
         __XML_Text_Base* first_balise_at_left();
+        // Inserts a sub-balise in the XML balise
+        std::shared_ptr<__XML_Text_Base> insert_sub_balise(int pos, std::string pure_text);
         // Parses the text
         void parse_text(std::string new_text);
         // Returns the full text in the XML text
