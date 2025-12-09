@@ -716,16 +716,16 @@ namespace scls {
     // Parses text as a function called
     Function_Called_Text parse_function_call(std::string base) {
         // Search a function opening / closing
-        int closing = -1;int opening = -1;int error = 0;
-        for(int i = 0;i<static_cast<int>(base.size());i++){if(base.at(i) == '('){opening = i;break;}else if(base.at(i) == ')'){error = 1;return Function_Called_Text();}}
-        if(opening == -1){return Function_Called_Text();}
+        Function_Called_Text to_return;
+        int closing = -1;int opening = -1;int& error = to_return.error;
+        for(int i = 0;i<static_cast<int>(base.size());i++){if(base.at(i) == '('){opening = i;break;}else if(base.at(i) == ')'){error = 1;return to_return;}}
+        if(opening == -1){error=SCLS_FUNCTION_CALLED_TEXT_NOT_FUNCTION;return to_return;}
         for(int i = opening;i<static_cast<int>(base.size());i++){if(base.at(i) == ')'){closing = i;break;}}
         if(closing == -1){return Function_Called_Text();}
 
         // Get the datas
-        Function_Called_Text to_return;
         to_return.name = base.substr(0, opening);
-        to_return.parameters = scls::cut_string(base.substr(opening + 1, closing), std::string(","));
+        to_return.parameters = scls::cut_string(base.substr(opening + 1, closing - (opening + 1)), std::string(","));
         return to_return;
     }
 

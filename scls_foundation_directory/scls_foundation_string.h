@@ -124,7 +124,8 @@ namespace scls {
     unsigned int utf_8_code_point_size_offset(std::string utf_8, int analyse_end_code_point = -1);
 
     // Parses text as a function called
-    struct Function_Called_Text{std::string name = std::string();std::vector<std::string> parameters;};
+    #define SCLS_FUNCTION_CALLED_TEXT_NOT_FUNCTION -1
+    struct Function_Called_Text{int error = 0;std::string name = std::string();std::vector<std::string> parameters;};
     Function_Called_Text parse_function_call(std::string base);
 
 	//*********
