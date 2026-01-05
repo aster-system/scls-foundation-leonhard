@@ -1334,7 +1334,7 @@ namespace scls {
         } return position;
     };
     // Returns a html text in plain text
-    std::string __Balise_Container::plain_text(std::string text_to_convert) {
+    std::string __Balise_Container::to_plain_text(std::string text_to_convert) {
         std::string final_text = "";
         std::stack<std::string> found_balises = std::stack<std::string>();
         std::string last_balise = "";

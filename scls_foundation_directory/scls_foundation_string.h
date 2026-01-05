@@ -212,12 +212,12 @@ namespace scls {
 
         // Returns the position of the first plain text character in a unformatted text from before a position
         unsigned int first_plain_text_character_before_position_in_informatted_text(const std::string& text_to_convert, int position);
-        // Returns a html text in plain text
-        std::string plain_text(std::string text_to_convert);
         // Returns a unformatted text position in a plain text
         unsigned int plain_text_position_to_unformatted_text_position(std::string text_to_convert, int position);
         // Return the size of the text
-        inline unsigned int plain_text_size(std::string text_to_check) { return plain_text(text_to_check).size(); };
+        inline unsigned int plain_text_size(std::string text_to_check) { return to_plain_text(text_to_check).size(); };
+        // Returns a html text in plain text
+        std::string to_plain_text(std::string text_to_convert);
 
         // Returns the balise of the block or a blank string if it is not
         std::string __block_balise(std::vector<_Text_Balise_Part>& cutted);
