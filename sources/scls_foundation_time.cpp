@@ -24,7 +24,7 @@
 // You should have received a copy of the GNU General Public License along with SCLS. If not, see <https://www.gnu.org/licenses/>.
 //
 
-#include "../scls_foundation_directory/scls_foundation_time.h"
+#include "../scls_foundation.h"
 
 // The namespace "scls" is used to simplify the all.
 namespace scls {

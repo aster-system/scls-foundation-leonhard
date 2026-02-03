@@ -31,4 +31,8 @@
 namespace scls {
     // Returns a random int between two included numbers
     int random_int_between_included(int min_number, int max_number);
+
+    // Returns a random int between two included numbers
+    int random_int_between_included_normal(int min_number, int max_number);
+    int random_int_between_included_normal(int min_number, int max_number, double mean, double dev);
 }

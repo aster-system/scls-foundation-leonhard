@@ -37,4 +37,8 @@ namespace scls {
 
     // Returns a random int between two included numbers
     int random_int_between_included(int min_number, int max_number){double d = dis(gen);if(d == 1){return max_number;}return min_number + std::floor(static_cast<double>((max_number - min_number) + 1) * d);}
+
+    // Returns a random int between two included numbers
+    int random_int_between_included_normal(int min_number, int max_number, double mean, double dev){std::normal_distribution dis = std::normal_distribution(mean, dev);double d = dis(gen);if(d <= 0){return min_number;}if(d >= 1){return max_number;}return min_number + std::floor(static_cast<double>((max_number - min_number) + 1) * d);}
+    int random_int_between_included_normal(int min_number, int max_number) {std::normal_distribution dis = std::normal_distribution(0.5, 0.3);double d = dis(gen);if(d == 1){return max_number;}return min_number + std::floor(static_cast<double>((max_number - min_number) + 1) * d);}
 }

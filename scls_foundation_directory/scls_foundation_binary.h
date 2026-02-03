@@ -146,25 +146,25 @@ namespace scls {
         //*********
 
         // Bytes_Set constructor
-        Bytes_Set() {};
-        Bytes_Set(std::string new_datas) : Bytes_Set() {add_string(new_datas);};
-        Bytes_Set(unsigned int new_datas_size) : Bytes_Set() {a_datas = new char[new_datas_size];a_datas_size = new_datas_size;};
-        Bytes_Set(char* new_datas, unsigned int new_datas_size) : Bytes_Set() {a_datas = new_datas;a_datas_size = new_datas_size;};
-        Bytes_Set(const Bytes_Set& binary) : Bytes_Set() {add_datas(binary.datas(), binary.datas_size());};
+        Bytes_Set();
+        Bytes_Set(std::string new_datas);
+        Bytes_Set(unsigned int new_datas_size);
+        Bytes_Set(char* new_datas, unsigned int new_datas_size);
+        Bytes_Set(const Bytes_Set& binary);
         // Bytes_Set destructor
-        ~Bytes_Set() {free_memory();};
+        virtual ~Bytes_Set();
 
         // Returns the bit to std::string
         std::string bits_to_std_string();
 
         // Returns a Byte Set by what is needed in it
-        static Bytes_Set from_char(char chr){Bytes_Set to_return;to_return.add_data(chr);return to_return;};
+        static Bytes_Set from_char(char chr);
 
         // Fills the Bytes_Set with a single value
-        void fill(char value){for(int i = 0;i<static_cast<int>(a_datas_size);i++){a_datas[i] = value;}};
+        void fill(char value);
 
         // Pastes Bytes_Set datas to this one
-        void paste(Bytes_Set* to_paste){free_memory();add_datas(to_paste->datas(), to_paste->datas_size());};
+        void paste(Bytes_Set* to_paste);
 
         //*********
         //
@@ -307,17 +307,9 @@ namespace scls {
 
         // File manipulation
         // Read the datas from a file
-        inline bool load_from_file(std::string path) {
-            if(std::filesystem::exists(path)) {
-                free_memory();
-                unsigned int total_size = 0;
-                a_datas = read_entire_file_binary(path, total_size);
-                a_datas_size = total_size;
-                return true;
-            } scls::print("Error", "SCLS", "The path \"" + path + "\" you want to open does not exist."); return false;
-        };
+        bool load_from_file(std::string path);
         // Save the datas in a file
-        inline void save(std::string path) const { write_in_file_binary(path, datas(), datas_size()); };
+        void save(std::string path) const;
 
         // Operator overloading
         // Operator to access to a char

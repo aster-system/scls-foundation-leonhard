@@ -31,7 +31,7 @@
 //
 
 // Include the good header file
-#include "../scls_foundation_directory/scls_foundation_binary.h"
+#include "../scls_foundation.h"
 
 // The namespace "scls" is used to simplify the all.
 namespace scls {
@@ -156,6 +156,24 @@ namespace scls {
 	//
 	//*********
 
+	// Bytes_Set constructor
+    Bytes_Set::Bytes_Set() {};
+    Bytes_Set::Bytes_Set(std::string new_datas) : Bytes_Set() {add_string(new_datas);};
+    Bytes_Set::Bytes_Set(unsigned int new_datas_size) : Bytes_Set() {a_datas = new char[new_datas_size];a_datas_size = new_datas_size;};
+    Bytes_Set::Bytes_Set(char* new_datas, unsigned int new_datas_size) : Bytes_Set() {a_datas = new_datas;a_datas_size = new_datas_size;};
+    Bytes_Set::Bytes_Set(const Bytes_Set& binary) : Bytes_Set() {add_datas(binary.datas(), binary.datas_size());};
+    // Bytes_Set destructor
+    Bytes_Set::~Bytes_Set() {free_memory();};
+
+    // Returns a Byte Set by what is needed in it
+    Bytes_Set Bytes_Set::from_char(char chr){Bytes_Set to_return;to_return.add_data(chr);return to_return;};
+
+    // Fills the Bytes_Set with a single value
+    void Bytes_Set::fill(char value){for(int i = 0;i<static_cast<int>(a_datas_size);i++){a_datas[i] = value;}};
+
+    // Pastes Bytes_Set datas to this one
+    void Bytes_Set::paste(Bytes_Set* to_paste){free_memory();add_datas(to_paste->datas(), to_paste->datas_size());};
+
 	// Returns the bit to std::string
     std::string Bytes_Set::bits_to_std_string() {
         std::string to_return = std::string();
@@ -190,9 +208,22 @@ namespace scls {
         int byte_position = position / 8;
         unsigned char temp = std::pow(2, 7 - position % 8);
         char final_data = *reinterpret_cast<char*>(&temp);
-        //std::cout << "J " << (data ? "1" : "0") << " " << Bytes_Set::from_char(a_datas[byte_position]).bits_to_std_string() << std::endl;
         if(data){a_datas[byte_position] = (a_datas[byte_position] | final_data);}
         else{a_datas[byte_position] = (a_datas[byte_position] & ~final_data);}
-        //std::cout << "I " << Bytes_Set::from_char(final_data).bits_to_std_string() << " " << Bytes_Set::from_char(a_datas[byte_position]).bits_to_std_string() << std::endl;
     }
+
+    // File manipulation
+    // Read the datas from a file
+    bool Bytes_Set::load_from_file(std::string path) {
+        if(std::filesystem::exists(path)) {
+            free_memory();
+            unsigned int total_size = 0;
+            a_datas = read_entire_file_binary(path, total_size);
+            a_datas_size = total_size;
+            return true;
+        }
+        scls::print("Error", "SCLS", "The path \"" + path + "\" you want to open does not exist."); return false;
+    };
+    // Save the datas in a file
+    void Bytes_Set::save(std::string path) const { write_in_file_binary(path, datas(), datas_size()); };
 }
