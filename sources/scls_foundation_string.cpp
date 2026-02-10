@@ -468,8 +468,15 @@ namespace scls {
             }
         }
         else {
-            // Normal double
-            to_return = std::to_string(number_to_format);
+            if(max_size <= 5) {
+                // Normal double
+                to_return = std::to_string(number_to_format);
+            }
+            else {
+                // Normal double
+                std::stringstream stream;stream << std::fixed << std::setprecision(max_size) << number_to_format;
+                to_return = stream.str();
+            }
             to_return = replace(to_return, ",", ".");
         }
 
