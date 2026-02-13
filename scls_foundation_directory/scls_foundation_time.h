@@ -72,12 +72,18 @@ namespace scls {
         // Adds days to the date
         void add_days(long long days);
 
+        // Hour, minut, second of the time
+        int hour();
+        int minut();
+        int second();
+
         // Day / month / year of the date
         int day();
         int month();
         int year();
 
-        // Returns the number of second since the start of the year
+        // Returns the number of second since the start of the day / year
+        long long number_of_second_since_start_of_day();
         long long number_of_second_since_start_of_year();
 
         // Returns the date to an std::string
@@ -88,6 +94,7 @@ namespace scls {
 
         // Getters and setters
         inline long long seconds_since_1970() const {return a_time;};
+        inline void set_time(long long new_time){a_time = new_time;};
     private:
         // Nanosecondes since 1970
         long long a_time;
@@ -95,6 +102,9 @@ namespace scls {
 
     // Operators
     bool operator<(Date date_1, Date date_2);
+
+    // Returns the current date
+    Date current_date();
 
     // Returns the date of easter at year
     Date ascension_date_at_year(int year);

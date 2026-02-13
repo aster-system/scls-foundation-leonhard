@@ -101,6 +101,19 @@ namespace scls {
 	//
 	//*********
 
+	// Append something in a file
+    void append_in_file(std::string path, std::string to_write, std::ios::openmode opening_mode) {
+		std::ofstream file;
+		file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+		try {
+			file.open(path, opening_mode);
+			file << to_write;
+			file.close();
+		} catch (std::ofstream::failure& e) {
+			print("Error", "SCLS", "The file \"" + path + "\" can't be written in error -> " + e.what() + ".");
+		}
+	}
+
 	// Return the content of a file.
     std::string read_file(std::string path) {
 		std::string file_content = ""; unsigned int total_size = 0;

@@ -60,7 +60,21 @@ namespace scls {
     void Date::add_days(long long days){a_time += days * SCLS_SECONDS_IN_DAY;}
 
     // Returns the date to an std::string
-    std::string Date::to_std_string(){return std::to_string(day()) + std::string("/") + std::to_string(month()) + std::string("/") + std::to_string(year());};
+    std::string Date::to_std_string(){return std::to_string(day() + 1) + std::string("/") + std::to_string(month() + 1) + std::string("/") + std::to_string(year()) + "-" + std::to_string(hour() + 1) + ":" + std::to_string(minut()) + ":" + std::to_string(second());};
+
+    // Hour, minut, second of the time
+    int Date::hour() {return number_of_second_since_start_of_day() / 3600;}
+    int Date::minut() {
+        long long v = number_of_second_since_start_of_day();
+        v -= hour() * 3600;
+        return v / 60;
+    }
+    int Date::second() {
+        long long v = number_of_second_since_start_of_day();
+        v -= hour() * 3600;
+        v -= minut() * 60;
+        return v;
+    }
 
     // Month / year of the date
     int Date::day(){
@@ -102,6 +116,19 @@ namespace scls {
     }
 
     // Returns the number of second since the start of the year
+    long long Date::number_of_second_since_start_of_day() {
+        long long needed_time = number_of_second_since_start_of_year();
+        for(int i = 0;i<12;i++){
+            long long current_month_duration = month_duration[i];if(i == 1 && year_is_bissextile(year())){current_month_duration++;}
+            if(needed_time < current_month_duration * SCLS_SECONDS_IN_DAY){break;}
+            needed_time -= current_month_duration * SCLS_SECONDS_IN_DAY;
+        }
+        for(int i = 0;i<31;i++){
+            if(needed_time < SCLS_SECONDS_IN_DAY){break;}
+            needed_time -= SCLS_SECONDS_IN_DAY;
+        }
+        return needed_time;
+    }
     long long Date::number_of_second_since_start_of_year() {
         if(a_time >= 0) {
             long long needed_time = a_time;
@@ -127,6 +154,9 @@ namespace scls {
 
     // Operators
     bool operator<(Date date_1, Date date_2){return date_1.seconds_since_1970() < date_2.seconds_since_1970(); }
+
+    // Returns the current date
+    Date current_date() {Date d;d.set_time(time_ns()/1000000000);return d;}
 
     // Returns the date of easter at year
     Date ascension_date_at_year(int year){Date needed_date = easter_date_at_year(year);needed_date.add_days(39);return needed_date;}
