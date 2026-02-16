@@ -434,7 +434,7 @@ namespace scls {
     bool string_is_complex_number(std::string to_test){for(int i = 0;i<static_cast<int>(to_test.size());i++){if(!(string_is_number(to_test[i]) || to_test == 'i'))return false;}return true;}
 	// Returns if a string is a number or not
     bool string_is_number(char to_test) {return to_test == '0' || to_test == '1' || to_test == '2' || to_test == '3' || to_test == '4' || to_test == '5' || to_test == '6' || to_test == '7' ||to_test == '8' || to_test == '9';};
-    bool string_is_number(std::string to_test) {for(int i = 0;i<static_cast<int>(to_test.size());i++){if(!string_is_number(to_test[i]))return false;}return true;}
+    bool string_is_number(std::string to_test) {std::size_t i = 0;while(i < to_test.size() && to_test[i] == '-'){i++;}to_test=to_test.substr(i, to_test.size() - i);for(i = 0;i<to_test.size();i++){if(!string_is_number(to_test[i]))return false;}return true;}
     // Convert a string to a double
     double string_to_double(std::string str) {if (__float_character == "") {__test_separation_character();}return std::stod(replace(str, __non_float_character, __float_character));}
 
