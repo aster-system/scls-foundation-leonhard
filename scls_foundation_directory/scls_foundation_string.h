@@ -299,6 +299,8 @@ namespace scls {
         // Returns the first balise with the name
         XML_Text_Base* balise_by_name(std::string name);
         std::shared_ptr<XML_Text_Base> balise_by_name_shared_ptr(std::string name);
+        // Clones this XML base
+        std::shared_ptr<XML_Text_Base> clone();
         // Removes the first balise with a precise name and returns it
         std::shared_ptr<XML_Text_Base> remove_balise_by_name(std::string name);
         // Replace all balise with another balise

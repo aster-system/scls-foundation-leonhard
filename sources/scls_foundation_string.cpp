@@ -434,7 +434,7 @@ namespace scls {
     bool string_is_complex_number(std::string to_test){for(int i = 0;i<static_cast<int>(to_test.size());i++){if(!(string_is_number(to_test[i]) || to_test == 'i'))return false;}return true;}
 	// Returns if a string is a number or not
     bool string_is_number(char to_test) {return to_test == '0' || to_test == '1' || to_test == '2' || to_test == '3' || to_test == '4' || to_test == '5' || to_test == '6' || to_test == '7' ||to_test == '8' || to_test == '9';};
-    bool string_is_number(std::string to_test) {std::size_t i = 0;while(i < to_test.size() && to_test[i] == '-'){i++;}to_test=to_test.substr(i, to_test.size() - i);for(i = 0;i<to_test.size();i++){if(!string_is_number(to_test[i]))return false;}return true;}
+    bool string_is_number(std::string to_test) {std::size_t i = 0;while(i < to_test.size() && to_test[i] == '-'){i++;}to_test=to_test.substr(i, to_test.size() - i);for(i = 0;i<to_test.size();i++){if(!string_is_number(to_test[i]) && to_test[i] != '/')return false;}return true;}
     // Convert a string to a double
     double string_to_double(std::string str) {if (__float_character == "") {__test_separation_character();}return std::stod(replace(str, __non_float_character, __float_character));}
 
@@ -1078,6 +1078,26 @@ namespace scls {
     // Clears the balise
     void XML_Text_Base::clear(){a_sub_xml_texts.clear();a_balise_attributes.clear();a_xml_text = std::string();}
 
+    // Clones this XML base
+    std::shared_ptr<XML_Text_Base> XML_Text_Base::clone() {
+        std::shared_ptr<XML_Text_Base> created_balise = std::shared_ptr<XML_Text_Base>(new XML_Text_Base(a_balise_container));
+        created_balise.get()->set_this_object(created_balise);
+
+        // Clone the datas
+        created_balise.get()->a_balise_attributes = a_balise_attributes;
+        created_balise.get()->a_balise_datas = a_balise_datas;
+        created_balise.get()->a_balise_name = a_balise_name;
+        created_balise.get()->a_xml_text = a_xml_text;
+
+        // Clone the children
+        for(std::size_t i = 0;i<a_sub_xml_texts.size();i++) {
+            created_balise.get()->a_sub_xml_texts.push_back(a_sub_xml_texts.at(i).get()->clone());
+            created_balise.get()->a_sub_xml_texts.at(i).get()->set_parent(created_balise);
+        }
+
+        return created_balise;
+    }
+
     // First text balise at left
     XML_Text_Base* XML_Text_Base::first_balise_at_left() {
         XML_Text_Base* current_child = this;
@@ -1170,6 +1190,8 @@ namespace scls {
         created_balise.get()->set_this_object(created_balise);
         created_balise.get()->a_xml_text = format_for_xml(format_string_break_line(text, "\n"));
         if(!only_text) {created_balise.get()->parse_text(created_balise.get()->a_xml_text);}
+        while(created_balise.get()->a_sub_xml_texts.size() == 1 && created_balise.get()->xml_balise_name() == std::string_view()){created_balise = created_balise.get()->a_sub_xml_texts.at(0);}
+        created_balise.get()->a_parent.reset();
         return created_balise;
     }
     std::shared_ptr<XML_Text_Base> XML_Text_Base::new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string text) {
@@ -1179,6 +1201,8 @@ namespace scls {
             created_balise.get()->a_xml_text = format_for_xml(format_string_break_line(text, "\n"));
             created_balise.get()->parse_text(created_balise.get()->a_xml_text);
         }
+        while(created_balise.get()->a_sub_xml_texts.size() == 1 && created_balise.get()->xml_balise_name() == std::string_view()){created_balise = created_balise.get()->a_sub_xml_texts.at(0);}
+        created_balise.get()->a_parent.reset();
         return created_balise;
     }
 
