@@ -1681,6 +1681,10 @@ namespace scls {
         current_balise = std::make_shared<Balise_Datas>();
         current_balise.get()->has_content = true;
         set_defined_balise("munder", current_balise);
+        // Create the <munderover> style
+        current_balise = std::make_shared<Balise_Datas>();
+        current_balise.get()->has_content = true;
+        set_defined_balise("munderover", current_balise);
         // Create the <sub> style
         current_balise = std::make_shared<Balise_Datas>();
         current_balise.get()->has_content = true;
