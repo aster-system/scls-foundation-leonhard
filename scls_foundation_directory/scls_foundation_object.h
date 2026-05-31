@@ -1,6 +1,6 @@
 //******************
 //
-// scls_foundation.h
+// scls_foundation_object.h
 //
 //******************
 // Presentation :
@@ -11,7 +11,7 @@
 // The Foundation "Leonhard" part represents the foundation of SCLS.
 // It is named after the "Father of modern mathematics", Leonhard Euler.
 //
-// This file contains the includes to all the others SCLS Foundation files.
+// This file contains a class representing the "root class" of SCLS.
 //
 //******************
 //
@@ -24,29 +24,19 @@
 // You should have received a copy of the GNU General Public License along with SCLS. If not, see <https://www.gnu.org/licenses/>.
 //
 
-#ifndef SCLS_FOUNDATION
-#define SCLS_FOUNDATION
+// The namespace "scls" is used to simplify the all.
+namespace scls {
+    //******************
+    //
+    // The "Object" class
+    //
+    //******************
 
-// Include every needed SLCS Foundation files
-#include "scls_foundation_directory/scls_foundation_binary.h"
-#include "scls_foundation_directory/scls_foundation_core.h"
-#include "scls_foundation_directory/scls_foundation_file.h"
-#include "scls_foundation_directory/scls_foundation_math.h"
-#include "scls_foundation_directory/scls_foundation_object.h"
-#include "scls_foundation_directory/scls_foundation_random.h"
-#include "scls_foundation_directory/scls_foundation_string.h"
-#include "scls_foundation_directory/scls_foundation_time.h"
-// Include every needed SLCS Foundation files (indev)
-#ifdef __ASTER_DEV
-
-#endif // __ASTER_DEV
-
-// Define SCLS_INIT
-#ifndef SCLS_FOUNDATION_INIT
-#define SCLS_FOUNDATION_INIT SCLS_FOUNDATION_FILE_INIT SCLS_FOUNDATION_TIME_INIT
-#endif // SCLS_FOUNDATION_INIT
-#ifndef SCLS_INIT
-#define SCLS_INIT SCLS_FOUNDATION_INIT
-#endif // SCLS_INIT
-
-#endif // SCLS_FOUNDATION
+    class Object {
+        // Root class of SCLS
+    public:
+        // Object constructor
+        Object() = default;
+        virtual ~Object() = default;
+    };
+}
