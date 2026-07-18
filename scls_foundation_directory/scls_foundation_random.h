@@ -29,6 +29,9 @@
 
 // The namespace "scls" is used to simplify the all.
 namespace scls {
+    // Generator
+    std::default_random_engine& generator();
+
     // Returns a random int between two included numbers
     int random_int_between_included(int min_number, int max_number);
 

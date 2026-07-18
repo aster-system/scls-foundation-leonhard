@@ -29,1741 +29,2478 @@
 
 // The namespace "scls" is used to simplify the all.
 namespace scls {
-    //*********
-	//
-	// "std::string" manipulation
-	//
-	//*********
+//*********
+//
+// "std::string" manipulation
+//
+//*********
 
-	// Variables used to define a float separation character
-	std::string __float_character = "";
-	std::string __non_float_character = "";
+// Variables used to define a float separation character
+std::string __float_character = "";
+std::string __non_float_character = "";
 
-	// Test and choose the separation character in a double
-    void __test_separation_character() {__float_character = ".";__non_float_character = ",";if (std::stod("0.25") != 0.25){__float_character = ",";__non_float_character = ".";}};
+// Test and choose the separation character in a double
+void __test_separation_character() {
+	__float_character = ".";
+	__non_float_character = ",";
+	if (std::stod("0.25") != 0.25) {
+		__float_character = ",";
+		__non_float_character = ".";
+	}
+}
+;
 
-	// Convert a char array to a string and return it
-    std::string char_array_to_string(const char* c_a, unsigned int c_a_size) {std::string result = "";for(unsigned int i = 0;i<c_a_size;i++) {result += c_a[i];}return result;}
+// Convert a char array to a string and return it
+std::string char_array_to_string(const char *c_a, unsigned int c_a_size) {
+	std::string result = "";
+	for (unsigned int i = 0; i < c_a_size; i++) {
+		result += c_a[i];
+	}
+	return result;
+}
 
-	// Return if a string contains an another string
-    bool contains_string(std::string str, std::string part) {
-	    std::string last_string = ""; // String since the last cut
-		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
-		{
-			last_string += str[i];
-			if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
+// Return if a string contains an another string
+bool contains_string(std::string str, std::string part) {
+	std::string last_string = ""; // String since the last cut
+	for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
 			{
-				last_string = last_string.substr(1, part.size());
-			}
-
-			if (last_string == part) // If the string which allows to know where to find the equality is true, return true
-			{
-				return true;
-			}
-		}
-	    return false;
-	};
-
-	// Returns if a string contains an another string out of a string
-    bool contains_string(std::string str, std::string part, std::string out_of) {
-        // If the loop is out of the string or not
-	    bool in_out_of = false;
-	    // Last sequence of string for check with part
-	    std::string last_string = "";
-	    // Last sequence of string for check with out offset
-	    std::string last_string_out_of_offset = "";
-		for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
-		{
-		    // Check the last string with out of offset start
-		    last_string_out_of_offset += str[i];
-		    if(last_string_out_of_offset.size() > out_of.size()) {
-                last_string_out_of_offset = last_string_out_of_offset.substr(last_string_out_of_offset.size() - out_of.size(), out_of.size());
-		    }
-
-		    // Check the last string
-		    last_string += str[i];
-			if (last_string.size() > part.size())
-			{
-				last_string = last_string.substr(last_string.size() - part.size(), part.size());
-			}
-
-			if(last_string_out_of_offset == out_of) {
-                last_string = "";
-                last_string_out_of_offset = "";
-                in_out_of = !in_out_of;
-			}
-
-			if (last_string == part && !in_out_of) // If the string which allows to know where to find the equality is true, return true
-			{
-				return true;
-			}
-		}
-	    return false;
-	};
-
-	// Returns if a string contains an another string out of 2 different string
-    bool contains_string(std::string str, std::string part, std::string out_of_start, std::string out_of_end) {
-	    // If the loop is out of the string or not
-	    int in_out_of = 0;
-	    // Last sequence of string for check with part
-	    std::string last_string = "";
-	    // Last sequence of string for check with out offset end
-	    std::string last_string_out_of_offset_e = "";
-	    // Last sequence of string for check with out offset start
-	    std::string last_string_out_of_offset_s = "";
-		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
-            // Check the last string with out of offset start
-		    last_string_out_of_offset_e += str[i];
-		    if(last_string_out_of_offset_e.size() > out_of_end.size()) {
-                last_string_out_of_offset_e = last_string_out_of_offset_e.substr(last_string_out_of_offset_e.size() - out_of_end.size(), out_of_end.size());
-		    }
-		    // Check the last string with out of offset start
-		    last_string_out_of_offset_s += str[i];
-		    if(last_string_out_of_offset_s.size() > out_of_start.size()) {
-                last_string_out_of_offset_s = last_string_out_of_offset_s.substr(last_string_out_of_offset_s.size() - out_of_start.size(), out_of_start.size());
-		    }
-
-		    // Check the last string
-		    last_string += str[i];
-			if (last_string.size() > part.size()) {
-				last_string = last_string.substr(last_string.size() - part.size(), part.size());
-			}
-
-			if(last_string_out_of_offset_s == out_of_start) {
-                last_string = "";
-                last_string_out_of_offset_e = "";
-                last_string_out_of_offset_s = "";
-                in_out_of++;
-			}
-			else if(last_string_out_of_offset_e == out_of_end) {
-			    last_string = "";
-			    last_string_out_of_offset_e = "";
-			    last_string_out_of_offset_s = "";
-                if(in_out_of > 0) in_out_of--;
-			}
-
-			if (last_string == part && in_out_of == 0) // If the string which allows to know where to find the equality is true, return true
-			{
-				return true;
-			}
-		}
-	    return false;
-	};
-
-	// Returns the number occurrence of a string in an another string
-    unsigned int count_string(std::string str, std::string part) {
-	    std::string last_string = ""; // String since the last cut
-	    unsigned int occurence = 0;
-		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
-			last_string += str[i];
-			if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
-			{
-				last_string = last_string.substr(1, part.size());
-			}
-
-			if (last_string == part) // If the string which allows to know where to find the equality is true, return true
-			{
-			    last_string = "";
-				occurence++;
-			}
-		}
-	    return occurence;
-	};
-
-	// Returns the number occurrence of a string in an another string out of a string
-    unsigned int count_string(std::string str, std::string part, std::string out_of) {
-	    // If the loop is out of the string or not
-	    bool in_out_of = false;
-	    // Last sequence of string for check with part
-	    std::string last_string = "";
-	    // Last sequence of string for check with out offset
-	    std::string last_string_out_of_offset = "";
-	    unsigned int occurence = 0;
-		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
-            // Check the last string with out of offset start
-		    last_string_out_of_offset += str[i];
-		    if(last_string_out_of_offset.size() > out_of.size()) {
-                last_string_out_of_offset = last_string_out_of_offset.substr(last_string_out_of_offset.size() - out_of.size(), out_of.size());
-		    }
-
-			last_string += str[i];
-			if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
-			{
-				last_string = last_string.substr(1, part.size());
-			}
-
-            if(last_string_out_of_offset == out_of) {
-                last_string = "";
-                last_string_out_of_offset = "";
-                in_out_of = !in_out_of;
-			}
-
-			if (last_string == part && !in_out_of) // If the string which allows to know where to find the equality is true, return true
-			{
-			    last_string = "";
-				occurence++;
-			}
-		}
-	    return occurence;
-	};
-
-	// Returns the number occurrence of a string in an another string out of 2 different string
-    unsigned int count_string(std::string str, std::string part, std::string out_of_start, std::string out_of_end) {
-	    // If the loop is out of the string or not
-	    int in_out_of = 0;
-	    // Last sequence of string for check with part
-	    std::string last_string = "";
-	    // Last sequence of string for check with out offset end
-	    std::string last_string_out_of_offset_e = "";
-	    // Last sequence of string for check with out offset start
-	    std::string last_string_out_of_offset_s = "";
-	    unsigned int occurence = 0;
-		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
-            // Check the last string with out of offset start
-		    last_string_out_of_offset_e += str[i];
-		    if(last_string_out_of_offset_e.size() > out_of_end.size()) {
-                last_string_out_of_offset_e = last_string_out_of_offset_e.substr(last_string_out_of_offset_e.size() - out_of_end.size(), out_of_end.size());
-		    }
-		    // Check the last string with out of offset start
-		    last_string_out_of_offset_s += str[i];
-		    if(last_string_out_of_offset_s.size() > out_of_start.size()) {
-                last_string_out_of_offset_s = last_string_out_of_offset_s.substr(last_string_out_of_offset_s.size() - out_of_start.size(), out_of_start.size());
-		    }
-
-			last_string += str[i];
-			if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
-			{
-				last_string = last_string.substr(1, part.size());
-			}
-
-            if(last_string_out_of_offset_s == out_of_start) {
-                last_string = "";
-                last_string_out_of_offset_e = "";
-                last_string_out_of_offset_s = "";
-                in_out_of++;
-			}
-			else if(last_string_out_of_offset_e == out_of_end) {
-			    last_string = "";
-			    last_string_out_of_offset_e = "";
-			    last_string_out_of_offset_s = "";
-                if(in_out_of > 0) in_out_of--;
-			}
-
-			if (last_string == part && in_out_of == 0) // If the string which allows to know where to find the equality is true, return true
-			{
-			    last_string = "";
-				occurence++;
-			}
-		}
-	    return occurence;
-	};
-
-	// Cut a string in a vector where there are the "cut" part
-    std::vector<std::string> cut_string(std::string string, std::string cut, bool erase_blank, bool erase_last_if_blank) {
-		std::string last_string = ""; // String since the last cut
-		std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
-		std::vector<std::string> result = std::vector<std::string>();
-		for (int i = 0; i < static_cast<int>(string.size()); i++) // Browse the string char by char
-		{
-			last_string_cut += string[i];
-			if (last_string_cut.size() > cut.size()) // If the string which allows to know where to cut is too long, cut him
-			{
-				last_string_cut = last_string_cut.substr(1, cut.size());
-			}
-
-			if (last_string_cut == cut) // If the string which allows to know where to cut is equal to the part to cut, do a cut
-			{
-				std::string final_string = last_string.substr(0, last_string.size() - (cut.size() - 1));
-				if (erase_blank)
+		last_string += str[i];
+		if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
 				{
-					if (final_string != "")
-					{
-						result.push_back(final_string);
-					}
-				}
-				else
+			last_string = last_string.substr(1, part.size());
+		}
+
+		if (last_string == part) // If the string which allows to know where to find the equality is true, return true
 				{
+			return true;
+		}
+	}
+	return false;
+}
+;
+
+// Returns if a string contains an another string out of a string
+bool contains_string(std::string str, std::string part, std::string out_of) {
+	// If the loop is out of the string or not
+	bool in_out_of = false;
+	// Last sequence of string for check with part
+	std::string last_string = "";
+	// Last sequence of string for check with out offset
+	std::string last_string_out_of_offset = "";
+	for (int i = 0; i < static_cast<int>(str.size()); i++) // Browse the string char by char
+			{
+		// Check the last string with out of offset start
+		last_string_out_of_offset += str[i];
+		if (last_string_out_of_offset.size() > out_of.size()) {
+			last_string_out_of_offset = last_string_out_of_offset.substr(
+					last_string_out_of_offset.size() - out_of.size(),
+					out_of.size());
+		}
+
+		// Check the last string
+		last_string += str[i];
+		if (last_string.size() > part.size()) {
+			last_string = last_string.substr(last_string.size() - part.size(),
+					part.size());
+		}
+
+		if (last_string_out_of_offset == out_of) {
+			last_string = "";
+			last_string_out_of_offset = "";
+			in_out_of = !in_out_of;
+		}
+
+		if (last_string == part && !in_out_of) // If the string which allows to know where to find the equality is true, return true
+				{
+			return true;
+		}
+	}
+	return false;
+}
+;
+
+// Returns if a string contains an another string out of 2 different string
+bool contains_string(std::string str, std::string part,
+		std::string out_of_start, std::string out_of_end) {
+	// If the loop is out of the string or not
+	int in_out_of = 0;
+	// Last sequence of string for check with part
+	std::string last_string = "";
+	// Last sequence of string for check with out offset end
+	std::string last_string_out_of_offset_e = "";
+	// Last sequence of string for check with out offset start
+	std::string last_string_out_of_offset_s = "";
+	for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+		// Check the last string with out of offset start
+		last_string_out_of_offset_e += str[i];
+		if (last_string_out_of_offset_e.size() > out_of_end.size()) {
+			last_string_out_of_offset_e = last_string_out_of_offset_e.substr(
+					last_string_out_of_offset_e.size() - out_of_end.size(),
+					out_of_end.size());
+		}
+		// Check the last string with out of offset start
+		last_string_out_of_offset_s += str[i];
+		if (last_string_out_of_offset_s.size() > out_of_start.size()) {
+			last_string_out_of_offset_s = last_string_out_of_offset_s.substr(
+					last_string_out_of_offset_s.size() - out_of_start.size(),
+					out_of_start.size());
+		}
+
+		// Check the last string
+		last_string += str[i];
+		if (last_string.size() > part.size()) {
+			last_string = last_string.substr(last_string.size() - part.size(),
+					part.size());
+		}
+
+		if (last_string_out_of_offset_s == out_of_start) {
+			last_string = "";
+			last_string_out_of_offset_e = "";
+			last_string_out_of_offset_s = "";
+			in_out_of++;
+		} else if (last_string_out_of_offset_e == out_of_end) {
+			last_string = "";
+			last_string_out_of_offset_e = "";
+			last_string_out_of_offset_s = "";
+			if (in_out_of > 0)
+				in_out_of--;
+		}
+
+		if (last_string == part && in_out_of == 0) // If the string which allows to know where to find the equality is true, return true
+				{
+			return true;
+		}
+	}
+	return false;
+}
+;
+
+// Returns the number occurrence of a string in an another string
+unsigned int count_string(std::string str, std::string part) {
+	std::string last_string = ""; // String since the last cut
+	unsigned int occurence = 0;
+	for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+		last_string += str[i];
+		if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
+				{
+			last_string = last_string.substr(1, part.size());
+		}
+
+		if (last_string == part) // If the string which allows to know where to find the equality is true, return true
+				{
+			last_string = "";
+			occurence++;
+		}
+	}
+	return occurence;
+}
+;
+
+// Returns the number occurrence of a string in an another string out of a string
+unsigned int count_string(std::string str, std::string part,
+		std::string out_of) {
+	// If the loop is out of the string or not
+	bool in_out_of = false;
+	// Last sequence of string for check with part
+	std::string last_string = "";
+	// Last sequence of string for check with out offset
+	std::string last_string_out_of_offset = "";
+	unsigned int occurence = 0;
+	for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+		// Check the last string with out of offset start
+		last_string_out_of_offset += str[i];
+		if (last_string_out_of_offset.size() > out_of.size()) {
+			last_string_out_of_offset = last_string_out_of_offset.substr(
+					last_string_out_of_offset.size() - out_of.size(),
+					out_of.size());
+		}
+
+		last_string += str[i];
+		if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
+				{
+			last_string = last_string.substr(1, part.size());
+		}
+
+		if (last_string_out_of_offset == out_of) {
+			last_string = "";
+			last_string_out_of_offset = "";
+			in_out_of = !in_out_of;
+		}
+
+		if (last_string == part && !in_out_of) // If the string which allows to know where to find the equality is true, return true
+				{
+			last_string = "";
+			occurence++;
+		}
+	}
+	return occurence;
+}
+;
+
+// Returns the number occurrence of a string in an another string out of 2 different string
+unsigned int count_string(std::string str, std::string part,
+		std::string out_of_start, std::string out_of_end) {
+	// If the loop is out of the string or not
+	int in_out_of = 0;
+	// Last sequence of string for check with part
+	std::string last_string = "";
+	// Last sequence of string for check with out offset end
+	std::string last_string_out_of_offset_e = "";
+	// Last sequence of string for check with out offset start
+	std::string last_string_out_of_offset_s = "";
+	unsigned int occurence = 0;
+	for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+		// Check the last string with out of offset start
+		last_string_out_of_offset_e += str[i];
+		if (last_string_out_of_offset_e.size() > out_of_end.size()) {
+			last_string_out_of_offset_e = last_string_out_of_offset_e.substr(
+					last_string_out_of_offset_e.size() - out_of_end.size(),
+					out_of_end.size());
+		}
+		// Check the last string with out of offset start
+		last_string_out_of_offset_s += str[i];
+		if (last_string_out_of_offset_s.size() > out_of_start.size()) {
+			last_string_out_of_offset_s = last_string_out_of_offset_s.substr(
+					last_string_out_of_offset_s.size() - out_of_start.size(),
+					out_of_start.size());
+		}
+
+		last_string += str[i];
+		if (last_string.size() > part.size()) // If the string which allows to know where to cut is too long, cut him
+				{
+			last_string = last_string.substr(1, part.size());
+		}
+
+		if (last_string_out_of_offset_s == out_of_start) {
+			last_string = "";
+			last_string_out_of_offset_e = "";
+			last_string_out_of_offset_s = "";
+			in_out_of++;
+		} else if (last_string_out_of_offset_e == out_of_end) {
+			last_string = "";
+			last_string_out_of_offset_e = "";
+			last_string_out_of_offset_s = "";
+			if (in_out_of > 0)
+				in_out_of--;
+		}
+
+		if (last_string == part && in_out_of == 0) // If the string which allows to know where to find the equality is true, return true
+				{
+			last_string = "";
+			occurence++;
+		}
+	}
+	return occurence;
+}
+;
+
+// Cut a string in a vector where there are the "cut" part
+std::vector<std::string> cut_string(std::string string, std::string cut,
+		bool erase_blank, bool erase_last_if_blank) {
+	std::string last_string = ""; // String since the last cut
+	std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
+	std::vector<std::string> result = std::vector<std::string>();
+	for (int i = 0; i < static_cast<int>(string.size()); i++) // Browse the string char by char
+			{
+		last_string_cut += string[i];
+		if (last_string_cut.size() > cut.size()) // If the string which allows to know where to cut is too long, cut him
+				{
+			last_string_cut = last_string_cut.substr(1, cut.size());
+		}
+
+		if (last_string_cut == cut) // If the string which allows to know where to cut is equal to the part to cut, do a cut
+				{
+			std::string final_string = last_string.substr(0,
+					last_string.size() - (cut.size() - 1));
+			if (erase_blank) {
+				if (final_string != "") {
 					result.push_back(final_string);
 				}
-				last_string = "";
-				last_string_cut = "";
+			} else {
+				result.push_back(final_string);
 			}
-			else
-			{
-				last_string += string[i];
+			last_string = "";
+			last_string_cut = "";
+		} else {
+			last_string += string[i];
+		}
+	}
+
+	if (last_string.size() > 0 || !erase_last_if_blank) {
+		result.push_back(last_string);
+	} // Add the last non-cutted element
+	return result;
+}
+;
+
+// Cut a string in a vector where there are the "cut" part out of a string
+std::vector<std::string> cut_string_out_of(std::string str, std::string cut,
+		std::string out_of, bool erase_blank, bool erase_last_if_blank) {
+	// If the loop is out of the string or not
+	bool in_out_of = false;
+	std::string last_string = ""; // String since the last cut
+	// Last sequence of string for check with out offset
+	std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
+	std::vector<std::string> result = std::vector<std::string>();
+	for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+		last_string_cut += str[i];
+
+		// If the string which allows to know where to cut is too long, cut him
+		if (last_string_cut.size() > cut.size()) {
+			last_string_cut = last_string_cut.substr(1, cut.size());
+		}
+
+		// Check the off-part
+		if (i >= static_cast<int>(out_of.size())
+				&& str.substr(i - static_cast<int>(out_of.size()),
+						static_cast<int>(out_of.size())) == out_of) {
+			in_out_of = !in_out_of;
+		}
+
+		// If the string which allows to know where to cut is equal to the part to cut, do a cut
+		if (last_string_cut == cut && !in_out_of) {
+			std::string final_string = last_string.substr(0,
+					last_string.size() - (cut.size() - 1));
+			if (erase_blank) {
+				if (final_string != "") {
+					result.push_back(final_string);
+				}
+			} else {
+				result.push_back(final_string);
+			}
+			last_string = "";
+			last_string_cut = "";
+		} else {
+			last_string += str[i];
+		}
+	}
+
+	if (last_string.size() > 0 || !erase_last_if_blank) {
+		result.push_back(last_string);
+	} // Add the last non-cutted element
+	return result;
+}
+;
+
+// Cut a string in a vector where there are the "cut" part out of 2 different string
+std::vector<std::string> cut_string_out_of_2(std::string str, std::string cut,
+		std::string out_of_start, std::string out_of_end, bool erase_blank,
+		bool erase_last_if_blank) {
+	// If the loop is out of the string or not
+	int in_out_of = 0;
+	std::string last_string = ""; // String since the last cut
+	// Last sequence of string for check with out offset end
+	std::string last_string_out_of_offset_e = "";
+	// Last sequence of string for check with out offset start
+	std::string last_string_out_of_offset_s = "";
+	std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
+	std::vector<std::string> result = std::vector<std::string>();
+	for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+		// Check the last string with out of offset start
+		last_string_out_of_offset_e += str[i];
+		if (last_string_out_of_offset_e.size() > out_of_end.size()) {
+			last_string_out_of_offset_e = last_string_out_of_offset_e.substr(
+					last_string_out_of_offset_e.size() - out_of_end.size(),
+					out_of_end.size());
+		}
+		// Check the last string with out of offset start
+		last_string_out_of_offset_s += str[i];
+		if (last_string_out_of_offset_s.size() > out_of_start.size()) {
+			last_string_out_of_offset_s = last_string_out_of_offset_s.substr(
+					last_string_out_of_offset_s.size() - out_of_start.size(),
+					out_of_start.size());
+		}
+
+		last_string_cut += str[i];
+		if (last_string_cut.size() > cut.size()) // If the string which allows to know where to cut is too long, cut him
+				{
+			last_string_cut = last_string_cut.substr(1, cut.size());
+		}
+
+		if (last_string_out_of_offset_s == out_of_start) {
+			last_string_cut = "";
+			last_string_out_of_offset_e = "";
+			last_string_out_of_offset_s = "";
+			in_out_of++;
+		} else if (last_string_out_of_offset_e == out_of_end) {
+			last_string_cut = "";
+			last_string_out_of_offset_e = "";
+			last_string_out_of_offset_s = "";
+			if (in_out_of > 0)
+				in_out_of--;
+		}
+
+		if (last_string_cut == cut && in_out_of == 0) // If the string which allows to know where to cut is equal to the part to cut, do a cut
+				{
+			std::string final_string = last_string.substr(0,
+					last_string.size() - (cut.size() - 1));
+			if (erase_blank) {
+				if (final_string != "") {
+					result.push_back(final_string);
+				}
+			} else {
+				result.push_back(final_string);
+			}
+			last_string = "";
+			last_string_cut = "";
+		} else {
+			last_string += str[i];
+		}
+	}
+
+	if (last_string.size() > 0 || !erase_last_if_blank) {
+		result.push_back(last_string);
+	} // Add the last non-cutted element
+	return result;
+}
+;
+
+// Join a vector of string into one string.
+std::string join_string(std::vector<std::string> strings,
+		std::string separation) {
+	std::string result = "";
+	for (int i = 0; i < static_cast<int>(strings.size()); i++) {
+		result += strings[i]; // Concatenate each strings
+		if (i != static_cast<int>(strings.size()) - 1) {
+			result += separation; // Add the separation between strings
+		}
+	}
+
+	return result;
+}
+
+// Return the string with only lower case
+std::string lowercase_string(std::string str) {
+	for (int i = 0; i < static_cast<int>(str.size()); i++) {
+		if (str[i] >= 65 && str[i] <= 90) {
+			str[i] += 32;
+		}
+	}
+	return str;
+}
+;
+
+// Replace a string in an another string.
+std::string replace(std::string str, std::string to_replace,
+		std::string new_str) {
+	return join_string(cut_string(str, to_replace, false, false), new_str);
+}
+;
+
+// Returns if a string is a complex number or not
+bool string_is_complex_number(std::string to_test) {
+	for (int i = 0; i < static_cast<int>(to_test.size()); i++) {
+		if (!(string_is_number(to_test[i]) || to_test == 'i'))
+			return false;
+	}
+	return true;
+}
+// Returns if a string is a number or not
+bool string_is_number(char to_test) {
+	return to_test == '0' || to_test == '1' || to_test == '2' || to_test == '3'
+			|| to_test == '4' || to_test == '5' || to_test == '6'
+			|| to_test == '7' || to_test == '8' || to_test == '9';
+}
+;
+bool string_is_number(std::string to_test) {
+	std::size_t i = 0;
+	while (i < to_test.size() && to_test[i] == '-') {
+		i++;
+	}
+	to_test = to_test.substr(i, to_test.size() - i);
+	for (i = 0; i < to_test.size(); i++) {
+		if (!string_is_number(to_test[i]) && to_test[i] != '/')
+			return false;
+	}
+	return true;
+}
+// Convert a string to a double
+double string_to_double(std::string str) {
+	if (__float_character == "") {
+		__test_separation_character();
+	}
+	return std::stod(replace(str, __non_float_character, __float_character));
+}
+
+//*********
+//
+// "std::string" formatting
+//
+//*********
+
+// Capitalize a character of a std::string
+std::string capitalise_first_letter(std::string str) {
+	return capitalise_letter(str, 0);
+}
+std::string capitalise_letter(std::string str, int position) {
+	if (utf_8_level(str[position]) == 0) {
+		char to_convert = str[position];
+		to_convert -= 32;
+		str = str.substr(0, position) + to_convert
+				+ str.substr(position + 1, str.size() - (position + 1));
+	}
+	return str;
+}
+
+// Format a number to a text
+char __format_number_to_text[] =
+		"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+std::string format_number_to_text(double number_to_format) {
+	return format_number_to_text(number_to_format, -1, 10);
+}
+;
+std::string format_number_to_text(double number_to_format, int max_size) {
+	return format_number_to_text(number_to_format, max_size, 10);
+}
+;
+std::string format_number_to_text(double number_to_format, int max_size,
+		int base) {
+	std::string to_return = std::string();
+	if (base != 10 && number_to_format == floor(number_to_format)) {
+		// Integer double
+		int p = std::floor(number_to_format / base);
+		int r = static_cast<int>(number_to_format) % base;
+		to_return = __format_number_to_text[r];
+		while (p != 0) {
+			r = p % base;
+			p = std::floor(p / base);
+			to_return = __format_number_to_text[r] + to_return;
+		}
+	} else {
+		if (max_size <= 5) {
+			// Normal double
+			to_return = std::to_string(number_to_format);
+		} else {
+			// Normal double
+			std::stringstream stream;
+			stream << std::fixed << std::setprecision(max_size)
+					<< number_to_format;
+			to_return = stream.str();
+		}
+		to_return = replace(to_return, ",", ".");
+	}
+
+	// Delete the useless part
+	if (scls::contains_string(to_return, std::string("."))) {
+		if (max_size != -1) {
+			// Delete the useless numbers
+			int decimal_size = 0;
+			for (; decimal_size < static_cast<int>(to_return.size());
+					decimal_size++) {
+				if (to_return[decimal_size] == '.') {
+					break;
+				}
+			}
+			decimal_size++;
+			while (to_return.size() > 0
+					&& static_cast<int>(to_return.size()) - decimal_size
+							> max_size) {
+				to_return = to_return.substr(0, to_return.size() - 1);
 			}
 		}
 
-		if (last_string.size() > 0 || !erase_last_if_blank) { result.push_back(last_string); } // Add the last non-cutted element
-		return result;
-	};
+		// Delete the useless "0"
+		while (to_return.size() > 0 && to_return[to_return.size() - 1] == '0') {
+			to_return = to_return.substr(0, to_return.size() - 1);
+		}
+	}
 
-	// Cut a string in a vector where there are the "cut" part out of a string
-    std::vector<std::string> cut_string_out_of(std::string str, std::string cut, std::string out_of, bool erase_blank, bool erase_last_if_blank) {
-		// If the loop is out of the string or not
-	    bool in_out_of = false;
-		std::string last_string = ""; // String since the last cut
-		// Last sequence of string for check with out offset
-		std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
-		std::vector<std::string> result = std::vector<std::string>();
-		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
-            last_string_cut += str[i];
+	// Delete the useless "."
+	if (to_return[to_return.size() - 1] == '.') {
+		to_return = to_return.substr(0, to_return.size() - 1);
+	}
 
-            // If the string which allows to know where to cut is too long, cut him
-			if (last_string_cut.size() > cut.size()) {
-				last_string_cut = last_string_cut.substr(1, cut.size());
-			}
+	return to_return;
+}
+;
+std::string format_number_to_text_strict(double number_to_format, int unit_size,
+		int decimal_size) {
+	std::string to_return = std::to_string(number_to_format);
+	to_return = replace(to_return, ",", ".");
+	std::vector<std::string> splited = cut_string(to_return, std::string("."));
+	if (splited.size() == 1) {
+		splited.insert(splited.begin(), std::string(""));
+	}
 
-			// Check the off-part
-            if(i >= static_cast<int>(out_of.size()) && str.substr(i - static_cast<int>(out_of.size()), static_cast<int>(out_of.size())) == out_of) { in_out_of = !in_out_of; }
+	// Handle unit part
+	while (splited[0].size() > 0
+			&& static_cast<int>(splited[0].size()) > unit_size) {
+		splited[0] = splited[0].substr(1, splited[0].size() - 1);
+	}
+	while (static_cast<int>(splited[0].size()) < unit_size) {
+		splited[0].insert(splited[0].begin(), '0');
+	}
+	if (decimal_size == 0) {
+		return splited[0];
+	}
 
-            // If the string which allows to know where to cut is equal to the part to cut, do a cut
-			if (last_string_cut == cut && !in_out_of) {
-				std::string final_string = last_string.substr(0, last_string.size() - (cut.size() - 1));
-				if (erase_blank) {
-					if (final_string != "") {
-						result.push_back(final_string);
-					}
+	// Handle decimal part
+	while (splited[1].size() > 0
+			&& static_cast<int>(splited[1].size()) > decimal_size) {
+		splited[1] = splited[1].substr(0, splited[1].size() - 1);
+	}
+	while (static_cast<int>(splited[1].size()) < decimal_size) {
+		splited[1].push_back('0');
+	}
+
+	return splited[0] + std::string(".") + splited[1];
+}
+
+// Format a std::string and its break lines
+std::string format_string_break_line(std::string str,
+		std::string new_break_line) {
+	std::string nl = "";
+	nl += static_cast<char>(10);
+	std::string np = "";
+	np += static_cast<char>(13);
+	std::string nb = np + nl;
+	if (new_break_line != nb) {
+		str = replace(str, nb, new_break_line);
+	}
+	if (new_break_line != nl && new_break_line != nb) {
+		str = replace(str, nl, new_break_line);
+	}
+	if (new_break_line != np && new_break_line != nb) {
+		str = replace(str, np, new_break_line);
+	}
+	return str;
+}
+;
+std::string format_string(std::string str) {
+	return format_string_break_line(str, "");
+}
+;
+// Format a std::string and its tabulations
+std::string format_string_tabulations(std::string str,
+		std::string new_tabulation) {
+	std::string nl = "";
+	nl += static_cast<char>(9);
+	if (new_tabulation != nl)
+		str = replace(str, nl, new_tabulation);
+	return str;
+}
+;
+
+// Format an unformatted text to a plain text
+std::string format_string_as_plain_text(std::string str) {
+	std::string to_return = "";
+	// Handle each characters
+	for (int i = 0; i < static_cast<int>(str.size()); i++) {
+		if (str[i] == '&') {
+			// A special character is handled
+			if (i + 1 < static_cast<int>(str.size()) && str[i + 1] == '&') {
+				to_return += "&";
+				i++;
+			} else {
+				// Get the needed character
+				std::string special = "";
+				i++;
+				while (i < static_cast<int>(str.size()) && str[i] != ';') {
+					special += str[i];
+					i++;
 				}
-				else {
-					result.push_back(final_string);
+				if (special == "gt") {
+					to_return += ">";
+				} else if (special == "lt") {
+					to_return += "<";
+				} else if (special == "nbsp") {
+					to_return += " ";
 				}
-				last_string = "";
-				last_string_cut = "";
 			}
-			else {
+		} else {
+			to_return += str[i];
+		}
+	}
+	return to_return;
+}
+;
+// Format a plain text to an unformatted text
+std::string format_string_from_plain_text(std::string str) {
+	std::string to_return = "";
+	// Handle each characters
+	for (int i = 0; i < static_cast<int>(str.size()); i++) {
+		if (str[i] == '&') {
+			to_return += std::string("&&");
+		} else if (str[i] == '<') {
+			to_return += std::string("&lt;");
+		} else if (str[i] == '>') {
+			to_return += std::string("&gt;");
+		} else {
+			to_return += str[i];
+		}
+	}
+	return to_return;
+}
+;
+
+// Remove the comment in a text, out of a text
+std::string remove_comment_out_of(std::string str, std::string out_of) {
+	std::string to_return = "";
+	std::vector<std::string> cutted = cut_string(str, "\n");
+	for (int i = 0; i < static_cast<int>(cutted.size()); i++) {
+		std::vector<std::string> cutted_for_comment = cut_string_out_of(
+				cutted[i], "//", out_of);
+		if (cutted_for_comment.size() > 0)
+			to_return += cutted_for_comment[0];
+		if (i < static_cast<int>(cutted.size() - 1))
+			to_return += "\n";
+	}
+	return to_return;
+}
+;
+
+// Remove spaces from a text
+std::string remove_space(std::string str) {
+	std::string to_return = "";
+	for (int i = 0; i < static_cast<int>(str.size()); i++) {
+		if (str[i] != ' ')
+			to_return += str[i];
+	}
+	return to_return;
+}
+;
+
+//*********
+//
+// Text encoding system
+//
+//*********
+
+// Adds a specific character in UTF-8 with his UTF-8 code
+void add_utf_8(std::string &to_add, unsigned int code) {
+	// Convert the number
+	std::string result = std::string("");
+	if (code > 127) {
+		if (code < 2047) {
+			unsigned char first_part = 0;
+			unsigned char second_part = 0;
+
+			first_part = (code & 0b00000000000000000000000000111111)
+					| 0b10000000;
+			second_part = ((code >> 6) & 0b00000000000000000000000000011111)
+					| 0b11000000;
+			result += second_part;
+			result += first_part;
+		} else {
+			unsigned char first_part = 0;
+			unsigned char second_part = 0;
+			unsigned char third_part = 0;
+
+			first_part = (code & 0b00000000000000000000000000111111)
+					| 0b10000000;
+			second_part = ((code >> 6) & 0b00000000000000000000000000011111)
+					| 0b11000000;
+			third_part = ((code >> 12) & 0b00000000000000000000000000001111)
+					| 0b11100000;
+			result += third_part;
+			result += second_part;
+			result += first_part;
+		}
+	} else {
+		result += static_cast<unsigned char>(code);
+	}
+	// Add the part
+	to_add += result;
+}
+
+// Convert a string in UTF-8 code point to an UTF-8
+std::string to_utf_8(std::string str) {
+	std::string result = "";
+	for (int i = 0; i < static_cast<int>(str.size()); i++) {
+		unsigned char number = str[i];
+		if (number < 128) {
+			result += number;
+		} else {
+			unsigned char first_part = 0;
+			unsigned char second_part = 0;
+
+			first_part = (number & 0b00111111) | 0b10000000;
+			second_part = ((number & 0b11000000) >> 6) | 0b11000000;
+			result += second_part;
+			result += first_part;
+		}
+	}
+	return result;
+}
+;
+
+// Convert a string in UTF-8 to an UTF-8 code point
+bool is_character_utf_8(char chr) {
+	if (chr & 0b10000000)
+		return true;
+	return false;
+}
+;
+unsigned char utf_8_level(char character) {
+	if (~character & 0b10000000)
+		return 0;
+	else if ((character & 0b11100000) == 0b11000000)
+		return 1;
+	else if ((character & 0b11110000) == 0b11100000)
+		return 2;
+	return 3;
+}
+;
+std::string to_utf_8_code_point(std::string str) {
+	std::string result = "";
+	for (int i = 0; i < static_cast<int>(str.size()); i++) {
+		if (~str[i] & 0b10000000) {
+			result += str[i];
+		} else if ((str[i] & 0b11100000) == 0b11100000) {
+			unsigned short final_character_1 = 0;
+			unsigned short final_character_2 = 0;
+			unsigned short final_character_3 = 0;
+			final_character_1 = (str[i]) & 0b00001111;
+			final_character_1 = final_character_1 << 11;
+			i++;
+			final_character_2 = (str[i]) & 0b00011111;
+			final_character_2 = final_character_2 << 6;
+			i++;
+			final_character_3 = str[i] & 0b00111111;
+			result += static_cast<char>(final_character_1 + final_character_2
+					+ final_character_3);
+		} else if ((str[i] & 0b11000000) == 0b11000000) {
+			unsigned short final_character_1 = 0;
+			unsigned short final_character_2 = 0;
+			final_character_1 = (str[i]) & 0b00011111;
+			final_character_1 = final_character_1 << 6;
+			i++;
+			final_character_2 = str[i] & 0b00111111;
+			result += static_cast<char>(final_character_1 + final_character_2);
+		}
+	}
+	return result;
+}
+;
+std::string to_utf_8_code_point(const char *character, unsigned int text_size) {
+	std::string result = "";
+	unsigned int current_pos = 0;
+	for (int i = 0; i < static_cast<int>(text_size); i++) {
+		if (~character[current_pos] & 0b10000000) {
+			result += character[current_pos];
+		} else if ((character[current_pos] & 0b11100000) == 0b11100000) {
+			unsigned short final_character_1 = 0;
+			unsigned short final_character_2 = 0;
+			unsigned short final_character_3 = 0;
+			final_character_1 = (character[current_pos]) & 0b00001111;
+			final_character_1 = final_character_1 << 11;
+			current_pos++;
+			final_character_2 = (character[current_pos]) & 0b00011111;
+			final_character_2 = final_character_2 << 6;
+			current_pos++;
+			final_character_3 = character[current_pos] & 0b00111111;
+			result += static_cast<char>(final_character_1 + final_character_2
+					+ final_character_3);
+		} else if ((character[current_pos] & 0b11000000) == 0b11000000) {
+			unsigned short final_character_1 = 0;
+			unsigned short final_character_2 = 0;
+			final_character_1 = (character[current_pos]) & 0b00011111;
+			final_character_1 = final_character_1 << 6;
+			current_pos++;
+			final_character_2 = character[current_pos] & 0b00111111;
+			result += static_cast<char>(final_character_1 + final_character_2);
+		}
+		current_pos++;
+	}
+	return result;
+}
+;
+
+// Returns the offset of size between two position in an utf 8 and code point text
+unsigned int code_point_utf_8_size_offset(std::string utf_8,
+		int analyse_end_utf_8) {
+	unsigned int to_return = 0;
+	if (analyse_end_utf_8 == -1) {
+		for (int i = 0; i < static_cast<int>(utf_8.size()); i++) {
+			if (static_cast<int>(utf_8[i]) >= 128) {
+				to_return++;
+			}
+		}
+	} else {
+		for (int i = 0;
+				i < static_cast<int>(utf_8.size()) && i < analyse_end_utf_8;
+				i++) {
+			if (static_cast<int>(utf_8[i]) >= 128) {
+				to_return++;
+			}
+		}
+	}
+	return to_return;
+}
+;
+unsigned int utf_8_code_point_size_offset(std::string utf_8,
+		int analyse_end_code_point) {
+	unsigned int to_return = 0;
+	if (analyse_end_code_point <= -1) {
+		for (int i = 0; i < static_cast<int>(utf_8.size()); i++) {
+			if (!(~utf_8[i] & 0b10000000)) {
+				to_return++;
+				i++;
+			}
+		}
+	} else {
+		for (int i = 0;
+				i < static_cast<int>(utf_8.size())
+						&& i
+								< analyse_end_code_point
+										+ static_cast<int>(to_return); i++) {
+			if (!(~utf_8[i] & 0b10000000)) {
+				to_return++;
+				i++;
+			}
+		}
+	}
+	return to_return;
+}
+;
+
+// Parses text as a function called
+Function_Called_Text parse_function_call(std::string base) {
+	// Search a function opening / closing
+	Function_Called_Text to_return;
+	int closing = -1;
+	int opening = -1;
+	int &error = to_return.error;
+	for (int i = 0; i < static_cast<int>(base.size()); i++) {
+		if (base.at(i) == '(') {
+			opening = i;
+			break;
+		} else if (base.at(i) == ')') {
+			error = 1;
+			return to_return;
+		}
+	}
+	if (opening == -1) {
+		error = SCLS_FUNCTION_CALLED_TEXT_NOT_FUNCTION;
+		return to_return;
+	}
+	for (int i = opening; i < static_cast<int>(base.size()); i++) {
+		if (base.at(i) == ')') {
+			closing = i;
+			break;
+		}
+	}
+	if (closing == -1) {
+		return Function_Called_Text();
+	}
+
+	// Get the datas
+	to_return.name = base.substr(0, opening);
+	to_return.parameters = scls::cut_string(
+			base.substr(opening + 1, closing - (opening + 1)),
+			std::string(","));
+	return to_return;
+}
+
+//*********
+//
+// XML system
+//
+//*********
+
+// Format a text for being usable with XLM
+std::string format_for_xml(std::string content) {
+	// Erase the first spaces (if there are)
+	while (static_cast<int>(content.size()) > 0) {
+		if (content[0] == ' ' || content[0] == '\n'
+				|| content[0] == static_cast<char>(9)) {
+			content = content.substr(1, content.size() - 1);
+		} else
+			break;
+	}
+
+	// TEMP
+	content = format_string_break_line(content, std::string(" "));
+
+	// Erase the break line and space before the balises
+	int i = 0;
+	while (i < static_cast<int>(content.size())) {
+		if (i > 0) {
+			if (content[i - 1] == '>'
+					&& (content[i] == ' ' || content[i] == '\n')) {
+				content.erase(content.begin() + i);
+				continue;
+			}
+		}
+		i++;
+	}
+	return content;
+}
+;
+
+// Returns the name of an attribute of a balise
+std::string attribute_name(std::string attribute) {
+	std::string to_return = "";
+	for (int i = 0;
+			i < static_cast<int>(attribute.size()) && attribute[i] != '=';
+			i++) {
+		to_return += attribute[i];
+	}
+
+	return to_return;
+}
+;
+
+// Returns the value of an attribute of a balise
+std::string attribute_value(std::string attribute) {
+	int i = 0;
+	for (; i < static_cast<int>(attribute.size()) && attribute[i] != '='; i++) {
+	}
+	i++;
+	std::string to_return = "";
+	if (i < static_cast<int>(attribute.size()))
+		to_return = attribute.substr(i, attribute.size() - i);
+
+	return to_return;
+}
+;
+
+// Return the name of a formatted balise
+std::string balise_name(std::string balise_formatted) {
+	if (balise_formatted[0] == '<')
+		balise_formatted = balise_formatted.substr(1,
+				balise_formatted.size() - 1);
+	if (balise_formatted[0] == '/')
+		balise_formatted = balise_formatted.substr(1,
+				balise_formatted.size() - 1);
+	if (balise_formatted[balise_formatted.size() - 1] == '>')
+		balise_formatted = balise_formatted.substr(0,
+				balise_formatted.size() - 1);
+	// Remove useless spaces
+	while (balise_formatted.size() > 0 && balise_formatted[0] == ' ') {
+		balise_formatted = balise_formatted.substr(1,
+				balise_formatted.size() - 1);
+	}
+
+	std::vector<std::string> cutted = cut_string(balise_formatted, " ");
+	if (cutted.size() <= 0)
+		return "";
+	return cutted[0];
+}
+;
+
+// Returns if a formated balise is a closing balise or not
+bool closing_balise(std::string balise) {
+	return balise.size() > 1 && balise[1] == '/';
+}
+
+// Cut a balise by its attributes
+std::vector<std::string> cut_balise_by_attributes(std::string str) {
+	// Cut the balise
+	std::vector<std::string> result = cut_string(str, " ", true);
+	if (result.size() > 0)
+		result.erase(result.begin());
+
+	// Erase the last '>' if necessary
+	if (result.size() > 0
+			&& result[result.size() - 1][result[result.size() - 1].size() - 1]
+					== '>')
+		result[result.size() - 1].erase(result[result.size() - 1].end() - 1);
+
+	return result;
+}
+;
+
+// Cut a balise by its attributes out of a certain pattern
+std::vector<std::string> cut_balise_by_attributes_out_of(std::string str,
+		std::string out) {
+	// Cut the balise
+	std::vector<std::string> result = cut_string_out_of(str, " ", out, true);
+	int result_size = result.size() - 1;
+	if (result_size >= 0) {
+		result.erase(result.begin());
+	}
+
+	// Erase the last '>' if necessary
+	result_size = result.size() - 1;
+	if (result_size >= 0
+			&& result[result_size][result[result_size].size() - 1] == '>') {
+		result[result_size] = result[result_size].substr(0,
+				result[result_size].size() - 1);
+	}
+
+	return result;
+}
+;
+
+// Cut a string by its balises (including the balises in the vector)
+std::vector<_Text_Balise_Part> cut_string_by_balise(std::string str,
+		bool erase_blank, bool erase_last_if_blank) {
+	bool last_is_balise = false;
+	std::string last_string = ""; // String since the last cut
+	std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
+
+	// Browse the string char by char
+	for (int i = 0; i < static_cast<int>(str.size()); i++) {
+		if (str[i] == '<') {
+			_Text_Balise_Part part_to_add;
+			part_to_add.content = last_string;
+			part_to_add.start_position = i;
+			if (!last_is_balise && last_string == "") {
+				if (!erase_blank
+						&& (result.size() > 0
+								|| (i + 1 < static_cast<int>(str.size())
+										&& str[i + 1] == '/')))
+					result.push_back(part_to_add);
+			} else {
+				result.push_back(part_to_add);
+			}
+			last_string = "";
+			part_to_add.content = "";
+
+			int balise_level = 1;
+			i++;
+			while (i < static_cast<int>(str.size())) {
+				if (str[i] == '<')
+					balise_level++;
+				else if (str[i] == '>') {
+					balise_level--;
+					if (balise_level <= 0)
+						break;
+				}
 				last_string += str[i];
+				i++;
 			}
+
+			part_to_add.balise_content = std::string("<") + last_string
+					+ std::string(">");
+			result.push_back(part_to_add);
+			last_is_balise = true;
+			last_string = "";
+			continue;
 		}
 
-		if (last_string.size() > 0 || !erase_last_if_blank) { result.push_back(last_string); } // Add the last non-cutted element
-		return result;
-	};
+		last_is_balise = false;
+		last_string += str[i];
+	}
 
-	// Cut a string in a vector where there are the "cut" part out of 2 different string
-    std::vector<std::string> cut_string_out_of_2(std::string str, std::string cut, std::string out_of_start, std::string out_of_end, bool erase_blank, bool erase_last_if_blank) {
-		// If the loop is out of the string or not
-	    int in_out_of = 0;
-		std::string last_string = ""; // String since the last cut
-		// Last sequence of string for check with out offset end
-	    std::string last_string_out_of_offset_e = "";
-	    // Last sequence of string for check with out offset start
-	    std::string last_string_out_of_offset_s = "";
-		std::string last_string_cut = ""; // String of the "cut" size which allows to know where to cut
-		std::vector<std::string> result = std::vector<std::string>();
-		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
-            // Check the last string with out of offset start
-		    last_string_out_of_offset_e += str[i];
-		    if(last_string_out_of_offset_e.size() > out_of_end.size()) {
-                last_string_out_of_offset_e = last_string_out_of_offset_e.substr(last_string_out_of_offset_e.size() - out_of_end.size(), out_of_end.size());
-		    }
-		    // Check the last string with out of offset start
-		    last_string_out_of_offset_s += str[i];
-		    if(last_string_out_of_offset_s.size() > out_of_start.size()) {
-                last_string_out_of_offset_s = last_string_out_of_offset_s.substr(last_string_out_of_offset_s.size() - out_of_start.size(), out_of_start.size());
-		    }
+	if (last_string.size() > 0 || !erase_last_if_blank) {
+		_Text_Balise_Part part_to_add;
+		part_to_add.content = last_string;
+		result.push_back(part_to_add);
+	} // Add the last non-cutted element
+	return result;
+}
+;
 
-			last_string_cut += str[i];
-			if (last_string_cut.size() > cut.size()) // If the string which allows to know where to cut is too long, cut him
-			{
-				last_string_cut = last_string_cut.substr(1, cut.size());
+// Cut a string by its balises (including the balises in the vector) out of a certain pattern
+std::vector<_Text_Balise_Part> cut_string_by_balise_out_of(std::string str,
+		std::string out, bool erase_blank, bool erase_last_if_blank) {
+	bool can_cut = true;
+	bool last_is_balise = false;
+	std::string last_string = ""; // String since the last cut
+	std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
+
+	for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
+		if (i >= static_cast<int>(out.size())
+				&& i
+						<= static_cast<int>(str.size())
+								- static_cast<int>(out.size())
+				&& str.substr(i - static_cast<int>(out.size()),
+						static_cast<int>(out.size())) == out)
+			can_cut = !can_cut;
+		else if (str[i] == '<' && can_cut) {
+			_Text_Balise_Part part_to_add;
+			part_to_add.content = last_string;
+			part_to_add.start_position = i;
+			if (!last_is_balise && last_string == "") {
+				if (!erase_blank
+						&& (result.size() > 0
+								|| (i + 1 < static_cast<int>(str.size())
+										&& str[i + 1] == '/')))
+					result.push_back(part_to_add);
+			} else
+				result.push_back(part_to_add);
+			last_string = "";
+
+			int balise_level = 1;
+			bool can_stop = true;
+			i++;
+			while (i < static_cast<int>(str.size())) {
+				// Check the "out" character
+				if (i >= static_cast<int>(out.size())
+						&& i
+								<= static_cast<int>(str.size())
+										- static_cast<int>(out.size())
+						&& str.substr(i - static_cast<int>(out.size()),
+								static_cast<int>(out.size())) == out)
+					can_stop = !can_stop;
+
+				if (str[i] == '<' && can_stop)
+					balise_level++;
+				else if (str[i] == '>' && can_stop) {
+					balise_level--;
+					if (balise_level <= 0)
+						break;
+				}
+				last_string += str[i];
+				i++;
 			}
 
-            if(last_string_out_of_offset_s == out_of_start) {
-                last_string_cut = "";
-                last_string_out_of_offset_e = "";
-                last_string_out_of_offset_s = "";
-                in_out_of++;
-			}
-			else if(last_string_out_of_offset_e == out_of_end) {
-			    last_string_cut = "";
-			    last_string_out_of_offset_e = "";
-			    last_string_out_of_offset_s = "";
-                if(in_out_of > 0) in_out_of--;
+			part_to_add.balise_content = std::string("<") + last_string
+					+ std::string(">");
+			result.push_back(part_to_add);
+			last_is_balise = true;
+			last_string = "";
+			continue;
+		}
+
+		last_is_balise = false;
+		last_string += str[i];
+	}
+
+	if (last_string.size() > 0 || !erase_last_if_blank) {
+		_Text_Balise_Part part_to_add;
+		part_to_add.content = last_string;
+		result.push_back(part_to_add);
+	} // Add the last non-cutted element
+	return result;
+}
+;
+
+// Format a balise and return it
+std::string formatted_balise(std::string str) {
+	// Remove useless spaces
+	while (str.size() > 0 && str[0] == ' ') {
+		str = str.substr(1, str.size() - 1);
+	}
+	while (str.size() > 0 && str[str.size() - 1] == ' ') {
+		str = str.substr(0, str.size() - 1);
+	}
+
+	if (str.size() < 2 || str[0] != '<' || str[str.size() - 1] != '>')
+		return "";
+
+	// Get the position of the / if there is one
+	int slash_position = 0;
+	bool slash_position_founded = false;
+	if (str[1] == '/') {
+		slash_position = 1;
+		slash_position_founded = true;
+	} else if (str[str.size() - 2] == '/') {
+		slash_position = str.size() - 2;
+	}
+
+	// Format the balise
+	std::string final_balise = "";
+	if (slash_position_founded)
+		final_balise = std::string("<") + "/"
+				+ str.substr(slash_position + 1,
+						str.size() - (2 + slash_position)) + std::string(">");
+	else
+		final_balise = std::string("<") + str.substr(1, str.size() - 2)
+				+ std::string(">");
+
+	// Format the formatted balise (help)
+	while (final_balise.size() > 0 && final_balise[0] == ' ') {
+		final_balise = final_balise.substr(1, final_balise.size() - 1);
+	}
+	while (final_balise.size() > 0
+			&& final_balise[final_balise.size() - 1] == ' ') {
+		final_balise = final_balise.substr(0, final_balise.size() - 1);
+	}
+
+	return final_balise;
+}
+;
+
+// Cut a balise by its XML attributes out of a certain pattern
+std::vector<XML_Attribute> cut_balise_by_xml_attributes_out_of(std::string str,
+		std::string out) {
+	// Cut the balise
+	std::vector<std::string> result = cut_balise_by_attributes_out_of(str, out);
+	std::vector<XML_Attribute> to_return = std::vector<XML_Attribute>();
+
+	// Create the attributes
+	for (int i = 0; i < static_cast<int>(result.size()); i++) {
+		// Create the attribute
+		std::vector<std::string> cutted = cut_string_out_of(result[i], "=",
+				"\"");
+		XML_Attribute current_attribute;
+		current_attribute.name = attribute_name(result[i]);
+		current_attribute.value = attribute_value(result[i]);
+
+		// Remove the quotes
+		if (current_attribute.value.size() > 1
+				&& current_attribute.value[0] == '\"'
+				&& current_attribute.value[current_attribute.value.size() - 1]
+						== '\"') {
+			current_attribute.value = current_attribute.value.substr(1,
+					current_attribute.value.size() - 2);
+			current_attribute.value_use_quotes = true;
+		}
+
+		// Add the attribute
+		if (current_attribute.name != std::string("")) {
+			to_return.push_back(current_attribute);
+		}
+	}
+
+	return to_return;
+}
+;
+
+// Adds a sub-balise in the XML balise
+void XML_Text_Base::add_sub_balise(std::shared_ptr<XML_Text_Base> content) {
+	content.get()->set_parent(a_this_object);
+	a_sub_xml_texts.push_back(content);
+}
+;
+std::shared_ptr<XML_Text_Base> XML_Text_Base::add_sub_balise(
+		std::string pure_text) {
+	std::shared_ptr<XML_Text_Base> needed_text = new_xml_text(
+			a_balise_container, pure_text);
+	needed_text.get()->set_parent(a_this_object);
+	a_sub_xml_texts.push_back(needed_text);
+	return needed_text;
+}
+;
+
+// Returns an attribute by its name
+XML_Attribute XML_Text_Base::attribute_by_name(std::string attribute_name) {
+	for (int i = 0; i < static_cast<int>(a_balise_attributes.size()); i++) {
+		if (a_balise_attributes.at(i).name == attribute_name) {
+			return a_balise_attributes.at(i);
+		}
+	}
+	return XML_Attribute();
+}
+;
+
+// Returns the first balise with the name
+XML_Text_Base* XML_Text_Base::balise_by_name(std::string name) {
+	return balise_by_name_shared_ptr(name).get();
+}
+std::shared_ptr<XML_Text_Base> XML_Text_Base::balise_by_name_shared_ptr(
+		std::string name) {
+	for (int i = 0; i < static_cast<int>(sub_texts().size()); i++) {
+		if (sub_texts().at(i).get()->xml_balise_name() == name) {
+			return sub_texts().at(i);
+		}
+		std::shared_ptr<XML_Text_Base> child =
+				sub_texts().at(i).get()->balise_by_name_shared_ptr(name);
+		if (child.get() != 0) {
+			return child;
+		}
+	}
+	return std::shared_ptr<XML_Text_Base>();
+}
+
+// Adds some text in the XML balise text
+void XML_Text_Base::add_text(std::string text) {
+	a_xml_text += text;
+}
+;
+
+// Returns if a balise is in the hierarchy
+bool XML_Text_Base::balise_in_hierarchy(std::string balise_name) {
+	return a_balise_name == balise_name
+			|| (parent() != 0 && parent()->balise_in_hierarchy(a_balise_name));
+}
+
+// Checks the include in the text
+void XML_Text_Base::check_include(std::string path) {
+	// Analyse each balises
+	for (int i = 0; i < static_cast<int>(sub_texts().size()); i++) {
+		std::shared_ptr<XML_Text_Base> current_text = sub_texts()[i];
+		std::string current_balise_name = current_text.get()->xml_balise_name();
+
+		// Add an include
+		if (current_balise_name == "include") {
+			// Include a part to the XML loading
+			std::string src = std::string("");
+			for (int j = 0;
+					j
+							< static_cast<int>(current_text.get()->xml_balise_attributes().size());
+					j++) {
+				std::string current_attribute_name =
+						current_text.get()->xml_balise_attributes()[j].name;
+				std::string current_attribute_value =
+						current_text.get()->xml_balise_attributes()[j].value;
+				if (current_attribute_value.size() > 0
+						&& current_attribute_value[0] == '\"') {
+					current_attribute_value = current_attribute_value.substr(1,
+							current_attribute_value.size() - 1);
+				}
+				if (current_attribute_value.size() > 0
+						&& current_attribute_value[current_attribute_value.size()
+								- 1] == '\"') {
+					current_attribute_value = current_attribute_value.substr(0,
+							current_attribute_value.size() - 1);
+				}
+				if (current_attribute_name == "src") {
+					// Get the src of the include
+					src = current_attribute_value;
+				}
 			}
 
-			if (last_string_cut == cut && in_out_of == 0) // If the string which allows to know where to cut is equal to the part to cut, do a cut
-			{
-				std::string final_string = last_string.substr(0, last_string.size() - (cut.size() - 1));
-				if (erase_blank)
-				{
-					if (final_string != "")
-					{
-						result.push_back(final_string);
+			// Include the part
+			std::string base_src = src;
+			if (!std::filesystem::exists(src)) {
+				std::filesystem::path p = path;
+				src = p.parent_path().string() + "/" + src;
+			}
+			if (std::filesystem::exists(src)) {
+				unsigned int total_size = 0;
+				char *binary_content = read_entire_file_binary(src, total_size);
+				std::string content_to_parse = std::string();
+				if (binary_content != 0) {
+					for (unsigned int i = 0; i < total_size; i++) {
+						if (binary_content[i] != static_cast<char>(10)
+								&& binary_content[i] != static_cast<char>(13)) {
+							content_to_parse += binary_content[i];
+						} else if (i <= 0
+								|| (binary_content[i - 1]
+										!= static_cast<char>(10)
+										&& binary_content[i - 1]
+												!= static_cast<char>(13))) {
+							content_to_parse += ' ';
+						}
+					}
+					delete[] binary_content;
+					binary_content = 0;
+				}
+
+				// Add the new balises
+				std::shared_ptr<XML_Text_Base> content = new_xml_text(
+						balise_container_shared_ptr(), content_to_parse);
+				content.get()->set_parent(a_this_object);
+				content.get()->set_this_object(content);
+				if (content.get()->sub_texts().size() > 0) {
+					sub_texts()[i] = content.get()->sub_texts()[0];
+					for (int j = 1;
+							j
+									< static_cast<int>(content.get()->sub_texts().size());
+							j++) {
+						sub_texts().insert(sub_texts().begin() + i + 1,
+								content.get()->sub_texts()[j]);
+						i++;
 					}
 				}
-				else
-				{
-					result.push_back(final_string);
+			} else {
+				print("Warning", "SCLS XML System",
+						"The \"" + base_src
+								+ "\" path you want to include does not exist.");
+			}
+		} else {
+			current_text.get()->check_include(path);
+		}
+	}
+}
+
+// Clears the balise
+void XML_Text_Base::clear() {
+	a_sub_xml_texts.clear();
+	a_balise_attributes.clear();
+	a_xml_text = std::string();
+}
+
+// Clones this XML base
+std::shared_ptr<XML_Text_Base> XML_Text_Base::clone() {
+	std::shared_ptr<XML_Text_Base> created_balise = std::shared_ptr<
+			XML_Text_Base>(new XML_Text_Base(a_balise_container));
+	created_balise.get()->set_this_object(created_balise);
+
+	// Clone the datas
+	created_balise.get()->a_balise_attributes = a_balise_attributes;
+	created_balise.get()->a_balise_datas = a_balise_datas;
+	created_balise.get()->a_balise_name = a_balise_name;
+	created_balise.get()->a_xml_text = a_xml_text;
+
+	// Clone the children
+	for (std::size_t i = 0; i < a_sub_xml_texts.size(); i++) {
+		created_balise.get()->a_sub_xml_texts.push_back(
+				a_sub_xml_texts.at(i).get()->clone());
+		created_balise.get()->a_sub_xml_texts.at(i).get()->set_parent(
+				created_balise);
+	}
+
+	return created_balise;
+}
+
+// First text balise at left
+XML_Text_Base* XML_Text_Base::first_balise_at_left() {
+	XML_Text_Base *current_child = this;
+	XML_Text_Base *current_parent = parent();
+	XML_Text_Base *to_return = 0;
+
+	// Get the needed parent
+	while (current_parent != 0) {
+		int i = 0;
+		for (; i < static_cast<int>(current_parent->sub_texts().size()); i++) {
+			if (current_parent->sub_texts().at(i).get() == current_child) {
+				i--;
+				break;
+			}
+		}
+		if (current_child == this && i > 0) {
+			to_return = current_parent->sub_texts().at(i - 1).get();
+			break;
+		} else if (current_child != this && i >= 0) {
+			to_return = current_parent->sub_texts().at(i).get();
+			break;
+		} else {
+			current_child = current_parent;
+			current_parent = current_parent->parent();
+			i = -1;
+		}
+	}
+
+	// Get the needed children
+	while (to_return != 0 && !to_return->only_text()) {
+		if (to_return->sub_texts().size() > 0) {
+			to_return = to_return->sub_texts().at(
+					to_return->sub_texts().size() - 1).get();
+		} else {
+			to_return = 0;
+		}
+	}
+
+	return to_return;
+}
+
+// Returns the full text in the XML text
+std::string XML_Text_Base::full_text(bool add_balise) const {
+	std::string to_return = std::string();
+	if (add_balise && a_balise_name != "") {
+		to_return = xml_balise();
+	}
+
+	// Set the good text
+	bool use_inner_blocks = (a_balise_datas.get() == 0
+			&& static_cast<int>(a_sub_xml_texts.size()) > 0)
+			|| (a_balise_datas.get() != 0 && a_balise_datas.get()->has_content);
+	if (only_text()) {
+		to_return = to_return + text();
+	} else if (use_inner_blocks) {
+		for (int i = 0; i < static_cast<int>(a_sub_xml_texts.size()); i++) {
+			to_return += a_sub_xml_texts[i].get()->full_text();
+		}
+	}
+
+	// Add the closing balise
+	if (add_balise && a_balise_name != "" && use_inner_blocks) {
+		to_return += xml_balise_end();
+	}
+
+	return to_return;
+}
+
+// Returns the full text formatted in the XML text
+std::string XML_Text_Base::full_text_formatted() const {
+	return full_text_formatted(true, -1, 0);
+}
+std::string XML_Text_Base::full_text_formatted(bool add_balise) const {
+	return full_text_formatted(add_balise, -1, 0);
+}
+std::string XML_Text_Base::full_text_formatted(bool add_balise, int level,
+		std::string *parent_text) const {
+	bool break_line_in_between_final =
+			!(!break_line_in_between() && only_text());
+	std::string level_diff = std::string();
+	for (int i = 0; i < static_cast<int>(level * 4); i++) {
+		level_diff += std::string(" ");
+	}
+	std::string level_diff_plus = std::string("    ") + level_diff;
+	if (a_balise_name == std::string()) {
+		level_diff_plus = level_diff;
+	}
+	std::string to_return = std::string();
+
+	// Add the opening balise
+	if (add_balise && a_balise_name != "") {
+		if (parent_text == 0 || parent_text->size() == 0
+				|| parent_text->at(parent_text->size() - 1) == '\n') {
+			to_return = level_diff + xml_balise();
+		} else {
+			to_return = xml_balise();
+		}
+	}
+
+	// Set the good text
+	bool use_inner_blocks = (a_balise_datas.get() == 0
+			&& static_cast<int>(a_sub_xml_texts.size()) > 0)
+			|| (a_balise_datas.get() != 0 && a_balise_datas.get()->has_content);
+	if (only_text()) {
+		if (text() != std::string("")) {
+			if (break_line_in_between_final) {
+				if (to_return.size() > 0
+						&& to_return.at(to_return.size() - 1) != '\n') {
+					to_return += std::string("\n");
 				}
-				last_string = "";
-				last_string_cut = "";
-			}
-			else
-			{
-				last_string += str[i];
-			}
-		}
-
-		if (last_string.size() > 0 || !erase_last_if_blank) { result.push_back(last_string); } // Add the last non-cutted element
-		return result;
-	};
-
-	// Join a vector of string into one string.
-    std::string join_string(std::vector<std::string> strings, std::string separation) {
-		std::string result = "";
-		for (int i = 0; i < static_cast<int>(strings.size()); i++)
-		{
-			result += strings[i]; // Concatenate each strings
-			if (i != static_cast<int>(strings.size()) - 1)
-			{
-				result += separation; // Add the separation between strings
+				to_return += level_diff_plus
+						+ scls::replace(text(), std::string("\n"),
+								std::string("\n") + level_diff_plus)
+						+ std::string("\n");
+				if (to_return.size() > 0
+						&& to_return.at(to_return.size() - 1) != '\n') {
+					to_return += std::string("\n");
+				}
+			} else {
+				to_return += scls::replace(text(), std::string("\n"),
+						std::string("\n") + level_diff_plus);
 			}
 		}
-
-		return result;
+	} else if (use_inner_blocks) {
+		for (int i = 0; i < static_cast<int>(a_sub_xml_texts.size()); i++) {
+			if (to_return.size() > 0
+					&& to_return.at(to_return.size() - 1) != '\n') {
+				to_return += std::string("\n");
+			}
+			to_return += a_sub_xml_texts[i].get()->full_text_formatted(true,
+					level + 1, &to_return);
+			if (to_return.size() > 0
+					&& to_return.at(to_return.size() - 1) != '\n') {
+				to_return += std::string("\n");
+			}
+		}
 	}
 
-	// Return the string with only lower case
-    std::string lowercase_string(std::string str) {for(int i = 0;i<static_cast<int>(str.size());i++) {if(str[i] >= 65 && str[i] <= 90){str[i] += 32;}}return str;};
-
-	// Replace a string in an another string.
-    std::string replace(std::string str, std::string to_replace, std::string new_str) {return join_string(cut_string(str, to_replace, false, false), new_str);};
-
-    // Returns if a string is a complex number or not
-    bool string_is_complex_number(std::string to_test){for(int i = 0;i<static_cast<int>(to_test.size());i++){if(!(string_is_number(to_test[i]) || to_test == 'i'))return false;}return true;}
-	// Returns if a string is a number or not
-    bool string_is_number(char to_test) {return to_test == '0' || to_test == '1' || to_test == '2' || to_test == '3' || to_test == '4' || to_test == '5' || to_test == '6' || to_test == '7' ||to_test == '8' || to_test == '9';};
-    bool string_is_number(std::string to_test) {std::size_t i = 0;while(i < to_test.size() && to_test[i] == '-'){i++;}to_test=to_test.substr(i, to_test.size() - i);for(i = 0;i<to_test.size();i++){if(!string_is_number(to_test[i]) && to_test[i] != '/')return false;}return true;}
-    // Convert a string to a double
-    double string_to_double(std::string str) {if (__float_character == "") {__test_separation_character();}return std::stod(replace(str, __non_float_character, __float_character));}
-
-    //*********
-	//
-	// "std::string" formatting
-	//
-	//*********
-
-	// Capitalize a character of a std::string
-	std::string capitalise_first_letter(std::string str){return capitalise_letter(str, 0);}
-	std::string capitalise_letter(std::string str, int position) {
-	    if(utf_8_level(str[position]) == 0){char to_convert = str[position];to_convert-=32;str = str.substr(0, position) + to_convert + str.substr(position + 1, str.size() - (position + 1)); }
-	    return str;
+	// Add the closing balise
+	if (add_balise && a_balise_name != "" && use_inner_blocks) {
+		if (break_line_in_between_final) {
+			if (to_return.size() > 0
+					&& to_return.at(to_return.size() - 1) != '\n') {
+				to_return += std::string("\n");
+			}
+			to_return += level_diff;
+		}
+		to_return += xml_balise_end();
 	}
 
-	// Format a number to a text
-	char __format_number_to_text[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    std::string format_number_to_text(double number_to_format){return format_number_to_text(number_to_format, -1, 10);};
-    std::string format_number_to_text(double number_to_format, int max_size){return format_number_to_text(number_to_format, max_size, 10);};
-    std::string format_number_to_text(double number_to_format, int max_size, int base) {
-        std::string to_return = std::string();
-        if(base != 10 && number_to_format == floor(number_to_format)) {
-            // Integer double
-            int p = std::floor(number_to_format / base);
-            int r = static_cast<int>(number_to_format) % base;
-            to_return = __format_number_to_text[r];
-            while(p != 0) {
-                r = p % base;p = std::floor(p / base);
-                to_return = __format_number_to_text[r] + to_return;
-            }
-        }
-        else {
-            if(max_size <= 5) {
-                // Normal double
-                to_return = std::to_string(number_to_format);
-            }
-            else {
-                // Normal double
-                std::stringstream stream;stream << std::fixed << std::setprecision(max_size) << number_to_format;
-                to_return = stream.str();
-            }
-            to_return = replace(to_return, ",", ".");
-        }
+	return to_return;
+}
 
-	    // Delete the useless part
-	    if(scls::contains_string(to_return, std::string("."))) {
-            if(max_size != -1) {
-                // Delete the useless numbers
-                int decimal_size = 0; for(;decimal_size<static_cast<int>(to_return.size());decimal_size++){if(to_return[decimal_size]=='.'){break;}}
-                decimal_size++;
-                while(to_return.size() > 0 && static_cast<int>(to_return.size()) - decimal_size > max_size) {to_return = to_return.substr(0, to_return.size() - 1);}
-            }
-
-            // Delete the useless "0"
-            while(to_return.size() > 0 && to_return[to_return.size() - 1] == '0') {to_return = to_return.substr(0, to_return.size() - 1);}
-	    }
-
-	    // Delete the useless "."
-	    if(to_return[to_return.size() - 1] == '.'){to_return = to_return.substr(0, to_return.size() - 1);}
-
-        return to_return;
-	};
-	std::string format_number_to_text_strict(double number_to_format, int unit_size, int decimal_size) {
-	    std::string to_return = std::to_string(number_to_format);
-	    to_return = replace(to_return, ",", ".");
-	    std::vector<std::string> splited = cut_string(to_return, std::string("."));
-	    if(splited.size() == 1){splited.insert(splited.begin(), std::string(""));}
-
-	    // Handle unit part
-	    while(splited[0].size() > 0 && static_cast<int>(splited[0].size()) > unit_size){splited[0] = splited[0].substr(1, splited[0].size() - 1);}
-	    while(static_cast<int>(splited[0].size()) < unit_size){splited[0].insert(splited[0].begin(), '0');}
-	    if(decimal_size == 0){return splited[0];}
-
-	    // Handle decimal part
-	    while(splited[1].size() > 0 && static_cast<int>(splited[1].size()) > decimal_size){splited[1] = splited[1].substr(0, splited[1].size() - 1);}
-	    while(static_cast<int>(splited[1].size()) < decimal_size){splited[1].push_back('0');}
-
-        return splited[0] + std::string(".") + splited[1];
+// Creates and return a new XML_Text_Base
+std::shared_ptr<XML_Text_Base> XML_Text_Base::new_xml_text(
+		std::shared_ptr<__Balise_Container> balise_container, std::string text) {
+	return new_xml_text(balise_container, text, false);
+}
+std::shared_ptr<XML_Text_Base> XML_Text_Base::new_xml_text(
+		std::shared_ptr<__Balise_Container> balise_container,
+		std::string balise_name, std::vector<XML_Attribute> balise_attributes) {
+	return new_xml_text(balise_container, balise_name, balise_attributes,
+			std::string());
+}
+std::shared_ptr<XML_Text_Base> XML_Text_Base::new_xml_text(
+		std::shared_ptr<__Balise_Container> balise_container, std::string text,
+		bool only_text) {
+	std::shared_ptr<XML_Text_Base> created_balise = std::shared_ptr<
+			XML_Text_Base>(new XML_Text_Base(balise_container));
+	created_balise.get()->set_this_object(created_balise);
+	created_balise.get()->a_xml_text = format_for_xml(
+			format_string_break_line(text, "\n"));
+	if (!only_text) {
+		created_balise.get()->parse_text(created_balise.get()->a_xml_text);
 	}
-
-    // Format a std::string and its break lines
-    std::string format_string_break_line(std::string str, std::string new_break_line) {
-	    std::string nl = ""; nl += static_cast<char>(10);
-	    std::string np = ""; np += static_cast<char>(13);
-	    std::string nb = np + nl;
-	    if(new_break_line != nb) {str = replace(str, nb, new_break_line);}
-	    if(new_break_line != nl && new_break_line != nb) {str = replace(str, nl, new_break_line);}
-	    if(new_break_line != np && new_break_line != nb) {str = replace(str, np, new_break_line);}
-	    return str;
-	};
-    std::string format_string(std::string str) {return format_string_break_line(str, "");};
-	// Format a std::string and its tabulations
-    std::string format_string_tabulations(std::string str, std::string new_tabulation) {std::string nl = ""; nl += static_cast<char>(9);if(new_tabulation != nl) str = replace(str, nl, new_tabulation);return str;};
-
-	// Format an unformatted text to a plain text
-    std::string format_string_as_plain_text(std::string str) {
-	    std::string to_return = "";
-	    // Handle each characters
-	    for(int i = 0;i<static_cast<int>(str.size());i++) {
-            if(str[i] == '&') {
-                // A special character is handled
-                if(i + 1 < static_cast<int>(str.size()) && str[i + 1] == '&') {to_return += "&";i++;}
-                else {
-                    // Get the needed character
-                    std::string special = ""; i++;
-                    while(i < static_cast<int>(str.size()) && str[i] != ';') {
-                        special += str[i];
-                        i++;
-                    }
-                    if(special == "gt") {to_return += ">";}
-                    else if(special == "lt") {to_return += "<";}
-                    else if(special == "nbsp") {to_return += " ";}
-                }
-            } else {to_return += str[i];}
-	    } return to_return;
-	};
-	// Format a plain text to an unformatted text
-    std::string format_string_from_plain_text(std::string str) {
-	    std::string to_return = "";
-	    // Handle each characters
-	    for(int i = 0;i<static_cast<int>(str.size());i++) {
-            if(str[i] == '&') { to_return += std::string("&&"); }
-            else if(str[i] == '<') { to_return += std::string("&lt;"); }
-            else if(str[i] == '>') { to_return += std::string("&gt;"); }
-            else {to_return += str[i];}
-	    } return to_return;
-	};
-
-	// Remove the comment in a text, out of a text
-    std::string remove_comment_out_of(std::string str, std::string out_of) {
-        std::string to_return = "";
-        std::vector<std::string> cutted = cut_string(str, "\n");
-        for(int i = 0;i<static_cast<int>(cutted.size());i++) {
-            std::vector<std::string> cutted_for_comment = cut_string_out_of(cutted[i], "//", out_of);
-            if(cutted_for_comment.size() > 0)to_return += cutted_for_comment[0];
-            if(i < static_cast<int>(cutted.size() - 1)) to_return += "\n";
-        }
-        return to_return;
-    };
-
-    // Remove spaces from a text
-    std::string remove_space(std::string str) {std::string to_return = "";for(int i = 0;i<static_cast<int>(str.size());i++) {if(str[i] != ' ') to_return += str[i];}return to_return;};
-
-    //*********
-	//
-	// Text encoding system
-	//
-	//*********
-
-	// Adds a specific character in UTF-8 with his UTF-8 code
-	void add_utf_8(std::string& to_add, unsigned int code) {
-	    // Convert the number
-        std::string result = std::string("");
-        if(code > 127) {
-            if(code < 2047) {
-                unsigned char first_part = 0;
-                unsigned char second_part = 0;
-
-                first_part = (code & 0b00000000000000000000000000111111) | 0b10000000;
-                second_part = ((code >> 6) & 0b00000000000000000000000000011111) | 0b11000000;
-                result += second_part;
-                result += first_part;
-            }
-            else {
-                unsigned char first_part = 0;
-                unsigned char second_part = 0;
-                unsigned char third_part = 0;
-
-                first_part = (code & 0b00000000000000000000000000111111) | 0b10000000;
-                second_part = ((code >> 6) & 0b00000000000000000000000000011111) | 0b11000000;
-                third_part = ((code >> 12) & 0b00000000000000000000000000001111) | 0b11100000;
-                result += third_part;
-                result += second_part;
-                result += first_part;
-            }
-        }
-        else {result += static_cast<unsigned char>(code);}
-        // Add the part
-        to_add += result;
+	while (created_balise.get()->a_sub_xml_texts.size() == 1
+			&& created_balise.get()->xml_balise_name() == std::string_view()) {
+		created_balise = created_balise.get()->a_sub_xml_texts.at(0);
 	}
+	created_balise.get()->a_parent.reset();
+	return created_balise;
+}
+std::shared_ptr<XML_Text_Base> XML_Text_Base::new_xml_text(
+		std::shared_ptr<__Balise_Container> balise_container,
+		std::string balise_name, std::vector<XML_Attribute> balise_attributes,
+		std::string text) {
+	std::shared_ptr<XML_Text_Base> created_balise = std::shared_ptr<
+			XML_Text_Base>(
+			new XML_Text_Base(balise_container, balise_name,
+					balise_attributes));
+	created_balise.get()->set_this_object(created_balise);
+	if (text != std::string()) {
+		created_balise.get()->a_xml_text = format_for_xml(
+				format_string_break_line(text, "\n"));
+		created_balise.get()->parse_text(created_balise.get()->a_xml_text);
+	}
+	while (created_balise.get()->a_sub_xml_texts.size() == 1
+			&& created_balise.get()->xml_balise_name() == std::string_view()) {
+		created_balise = created_balise.get()->a_sub_xml_texts.at(0);
+	}
+	created_balise.get()->a_parent.reset();
+	return created_balise;
+}
 
-	// Convert a string in UTF-8 code point to an UTF-8
-    std::string to_utf_8(std::string str) {
-        std::string result = "";
-        for(int i = 0;i<static_cast<int>(str.size());i++) {
-            unsigned char number = str[i];
-            if(number < 128) {
-                result += number;
-            }
-            else {
-                unsigned char first_part = 0;
-                unsigned char second_part = 0;
+// Inserts a sub-balise in the XML balise
+std::shared_ptr<XML_Text_Base> XML_Text_Base::insert_sub_balise(int pos,
+		std::string pure_text) {
+	std::shared_ptr<XML_Text_Base> needed_text = new_xml_text(
+			a_balise_container, pure_text);
+	needed_text.get()->set_parent(a_this_object);
+	a_sub_xml_texts.insert(a_sub_xml_texts.begin() + pos, needed_text);
+	return needed_text;
+}
+;
 
-                first_part = (number & 0b00111111) | 0b10000000;
-                second_part = ((number & 0b11000000) >> 6) | 0b11000000;
-                result += second_part;
-                result += first_part;
-            }
-        }
-        return result;
-    };
+// Parse the text
+void XML_Text_Base::parse_text(std::string new_text) {
+	// Cut by balises
+	std::vector<_Text_Balise_Part> cutted = cut_string_by_balise(new_text,
+			true);
+	a_sub_xml_texts.clear();
 
-	// Convert a string in UTF-8 to an UTF-8 code point
-    bool is_character_utf_8(char chr) {if(chr & 0b10000000)return true;return false;};
-    unsigned char utf_8_level(char character) {if(~character & 0b10000000)return 0;else if((character & 0b11100000) == 0b11000000)return 1;else if((character & 0b11110000) == 0b11100000)return 2;return 3;};
-    std::string to_utf_8_code_point(std::string str) {
-        std::string result = "";
-        for(int i = 0;i<static_cast<int>(str.size());i++) {
-            if(~str[i] & 0b10000000) {
-                result += str[i];
-            }
-            else if((str[i] & 0b11100000) == 0b11100000) {
-                unsigned short final_character_1 = 0;
-                unsigned short final_character_2 = 0;
-                unsigned short final_character_3 = 0;
-                final_character_1 = (str[i]) & 0b00001111; final_character_1 = final_character_1 << 11; i++;
-                final_character_2 = (str[i]) & 0b00011111; final_character_2 = final_character_2 << 6; i++;
-                final_character_3 = str[i] & 0b00111111;
-                result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
-            }
-            else if((str[i] & 0b11000000) == 0b11000000) {
-                unsigned short final_character_1 = 0;
-                unsigned short final_character_2 = 0;
-                final_character_1 = (str[i]) & 0b00011111; final_character_1 = final_character_1 << 6; i++;
-                final_character_2 = str[i] & 0b00111111;
-                result += static_cast<char>(final_character_1 + final_character_2);
-            }
-        }
-        return result;
-    };
-    std::string to_utf_8_code_point(const char* character, unsigned int text_size) {
-        std::string result = "";
-        unsigned int current_pos = 0;
-        for(int i = 0;i<static_cast<int>(text_size);i++) {
-            if(~character[current_pos] & 0b10000000) {
-                result += character[current_pos];
-            }
-            else if((character[current_pos] & 0b11100000) == 0b11100000)
-            {
-                unsigned short final_character_1 = 0;
-                unsigned short final_character_2 = 0;
-                unsigned short final_character_3 = 0;
-                final_character_1 = (character[current_pos]) & 0b00001111; final_character_1 = final_character_1 << 11; current_pos++;
-                final_character_2 = (character[current_pos]) & 0b00011111; final_character_2 = final_character_2 << 6; current_pos++;
-                final_character_3 = character[current_pos] & 0b00111111;
-                result += static_cast<char>(final_character_1 + final_character_2 + final_character_3);
-            }
-            else if((character[current_pos] & 0b11000000) == 0b11000000)
-            {
-                unsigned short final_character_1 = 0;
-                unsigned short final_character_2 = 0;
-                final_character_1 = (character[current_pos]) & 0b00011111; final_character_1 = final_character_1 << 6; current_pos++;
-                final_character_2 = character[current_pos] & 0b00111111;
-                result += static_cast<char>(final_character_1 + final_character_2);
-            }
-            current_pos++;
-        }
-        return result;
-    };
+	// Create each sub-text
+	for (int i = 0; i < static_cast<int>(cutted.size()); i++) {
+		if (cutted[i].balise_content.size() > 0
+				&& cutted[i].balise_content[0] == '<') {
+			// Create the balise
+			std::string needed_balise = formatted_balise(
+					cutted[i].balise_content);
+			std::string needed_balise_name = balise_name(needed_balise);
+			std::vector<XML_Attribute> needed_balise_attributes =
+					cut_balise_by_xml_attributes_out_of(needed_balise, "\"");
+			std::shared_ptr<Balise_Datas> datas =
+					balise_container()->defined_balise_shared_ptr(
+							needed_balise_name);
+			if (datas.get() != 0 && datas.get()->has_content) {
+				// The part is the end of an opened balise
 
-    // Returns the offset of size between two position in an utf 8 and code point text
-    unsigned int code_point_utf_8_size_offset(std::string utf_8, int analyse_end_utf_8) {
-        unsigned int to_return = 0;
-        if(analyse_end_utf_8 == -1) {
-            for(int i = 0;i<static_cast<int>(utf_8.size());i++) {
-                if(static_cast<int>(utf_8[i]) >= 128) {to_return++;}
-            }
-        } else {
-            for(int i = 0;i<static_cast<int>(utf_8.size()) && i < analyse_end_utf_8;i++) {
-                if(static_cast<int>(utf_8[i]) >= 128) {to_return++;}
-            }
-        } return to_return;
-    };
-    unsigned int utf_8_code_point_size_offset(std::string utf_8, int analyse_end_code_point) {
-        unsigned int to_return = 0;
-        if(analyse_end_code_point <= -1) {
-            for(int i = 0;i<static_cast<int>(utf_8.size());i++) {
-                if(!(~utf_8[i] & 0b10000000)) {to_return++;i++;}
-            }
-        } else {
-            for(int i = 0;i<static_cast<int>(utf_8.size()) && i < analyse_end_code_point + static_cast<int>(to_return);i++) {
-                if(!(~utf_8[i] & 0b10000000)) {to_return++;i++;}
-            }
-        } return to_return;
-    };
+				// Get the content of the balise
+				std::string balise_content = "";
+				unsigned int current_level = 1;
+				i++;
+				while (i < static_cast<int>(cutted.size())) {
+					if (cutted[i].balise_content.size() > 0
+							&& cutted[i].balise_content[0] == '<') {
+						std::string current_balise = formatted_balise(
+								cutted[i].balise_content);
+						std::string current_balise_name = balise_name(
+								current_balise);
+						if (current_balise_name == needed_balise_name) {
+							if (closing_balise(current_balise)) {
+								current_level--;
+							} else {
+								current_level++;
+							}
 
-    // Parses text as a function called
-    Function_Called_Text parse_function_call(std::string base) {
-        // Search a function opening / closing
-        Function_Called_Text to_return;
-        int closing = -1;int opening = -1;int& error = to_return.error;
-        for(int i = 0;i<static_cast<int>(base.size());i++){if(base.at(i) == '('){opening = i;break;}else if(base.at(i) == ')'){error = 1;return to_return;}}
-        if(opening == -1){error=SCLS_FUNCTION_CALLED_TEXT_NOT_FUNCTION;return to_return;}
-        for(int i = opening;i<static_cast<int>(base.size());i++){if(base.at(i) == ')'){closing = i;break;}}
-        if(closing == -1){return Function_Called_Text();}
+							if (current_level <= 0) {
+								break;
+							} else {
+								balise_content += cutted[i].total_content();
+							}
+						} else {
+							balise_content += cutted[i].total_content();
+						}
+					} else {
+						balise_content += cutted[i].total_content();
+					}
+					i++;
+				}
+				balise_content = format_for_xml(balise_content);
 
-        // Get the datas
-        to_return.name = base.substr(0, opening);
-        to_return.parameters = scls::cut_string(base.substr(opening + 1, closing - (opening + 1)), std::string(","));
-        return to_return;
-    }
+				// Create the balise
+				std::shared_ptr<XML_Text_Base> to_add =
+						XML_Text_Base::new_xml_text(a_balise_container,
+								needed_balise_name, needed_balise_attributes,
+								balise_content);
+				to_add.get()->set_parent(a_this_object);
+				if (datas.get() != 0) {
+					to_add.get()->set_xml_balise_datas(datas);
+				}
+				a_sub_xml_texts.push_back(to_add);
+			} else {
+				// The part is a single balise
+				// Create the balise
+				std::shared_ptr<XML_Text_Base> to_add =
+						XML_Text_Base::new_xml_text(a_balise_container,
+								needed_balise_name, needed_balise_attributes,
+								cutted[i].content);
+				to_add.get()->set_parent(a_this_object);
+				if (datas.get() != 0) {
+					to_add.get()->set_xml_balise_datas(datas);
+				} else {
+					std::shared_ptr<Balise_Datas> current_data =
+							std::make_shared<Balise_Datas>(false);
+					to_add.get()->set_xml_balise_datas(current_data);
+				}
+				a_sub_xml_texts.push_back(to_add);
+			}
+		} else {
+			std::string content = format_for_xml(cutted[i].total_content());
+			if (static_cast<int>(cutted.size()) <= 1) {
+				a_xml_text = content;
+			} else {
+				if (content != "") {
+					// The part is not a balise
+					std::shared_ptr<XML_Text_Base> to_add = new_xml_text(
+							a_balise_container, content, true);
+					to_add.get()->set_parent(a_this_object);
+					a_sub_xml_texts.push_back(to_add);
+				}
+			}
+		}
+	}
+}
+;
 
-    //*********
-	//
-	// XML system
-	//
-	//*********
+// Removes the first balise with a precise name and returns it
+std::shared_ptr<XML_Text_Base> XML_Text_Base::remove_balise_by_name(
+		std::string name) {
+	std::shared_ptr<XML_Text_Base> to_return;
+	for (int i = 0; i < static_cast<int>(sub_texts().size()); i++) {
+		if (sub_texts().at(i).get()->xml_balise_name() == name) {
+			to_return = sub_texts().at(i);
+			sub_texts().erase(sub_texts().begin() + i);
+			break;
+		}
+	}
+	return to_return;
+}
 
-	// Format a text for being usable with XLM
-    std::string format_for_xml(std::string content) {
-	    // Erase the first spaces (if there are)
-	    while(static_cast<int>(content.size()) > 0) {
-            if(content[0] == ' ' || content[0] == '\n' || content[0] == static_cast<char>(9)) {
-                content = content.substr(1, content.size() - 1);
-            }
-            else break;
-	    }
+// Replace all balise with another balise
+void XML_Text_Base::replace_balise_by_name(std::string name,
+		std::string new_balise_name,
+		std::vector<XML_Attribute> &new_balise_attributes) {
+	for (int i = 0; i < static_cast<int>(sub_texts().size()); i++) {
+		if (sub_texts().at(i).get()->xml_balise_name() == name) {
+			sub_texts().at(i).get()->set_xml_balise_name(new_balise_name);
+			sub_texts().at(i).get()->xml_attributes() = new_balise_attributes;
+		}
+		sub_texts().at(i).get()->replace_balise_by_name(name, new_balise_name,
+				new_balise_attributes);
+	}
+}
+void XML_Text_Base::replace_balise_by_name(std::string name,
+		std::string new_name) {
+	std::vector<XML_Attribute> new_balise_attributes =
+			cut_balise_by_xml_attributes_out_of(new_name, "\"");
+	std::string new_balise_name = balise_name(new_name);
+	replace_balise_by_name(name, new_balise_name, new_balise_attributes);
+}
 
-	    // TEMP
-        content = format_string_break_line(content, std::string(" "));
+// Sets new datas for the text
+void XML_Text_Base::set_text(std::string new_text) {
+	a_xml_text = format_for_xml(format_string_break_line(new_text, "\n"));
+	parse_text(a_xml_text);
+}
+;
 
-	    // Erase the break line and space before the balises
-	    int i = 0;
-	    while(i < static_cast<int>(content.size())) {
-            if(i > 0) {
-                if(content[i - 1] == '>' && (content[i] == ' ' || content[i] == '\n')) {
-                    content.erase(content.begin() + i); continue;
-                }
-            }
-            i++;
-	    }
-	    return content;
-	};
+// Returns the text in the balise
+std::string XML_Text_Base::xml_balise() const {
+	std::string attribute = "";
+	for (int i = 0; i < static_cast<int>(a_balise_attributes.size()); i++) {
+		attribute += a_balise_attributes.at(i).name + std::string("=");
 
-    // Returns the name of an attribute of a balise
-    std::string attribute_name(std::string attribute) {
-        std::string to_return = "";
-        for(int i = 0;i<static_cast<int>(attribute.size()) && attribute[i] != '=';i++) {
-            to_return += attribute[i];
-        }
-
-        return to_return;
-    };
-
-    // Returns the value of an attribute of a balise
-    std::string attribute_value(std::string attribute) {
-        int i = 0;
-        for(;i<static_cast<int>(attribute.size()) && attribute[i] != '=';i++) {} i++;
-        std::string to_return = "";
-        if(i<static_cast<int>(attribute.size())) to_return = attribute.substr(i, attribute.size() - i);
-
-        return to_return;
-    };
-
-	// Return the name of a formatted balise
-    std::string balise_name(std::string balise_formatted) {
-	    if(balise_formatted[0] == '<') balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
-	    if(balise_formatted[0] == '/') balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
-	    if(balise_formatted[balise_formatted.size() - 1] == '>') balise_formatted = balise_formatted.substr(0, balise_formatted.size() - 1);
-	    // Remove useless spaces
-	    while(balise_formatted.size() > 0 && balise_formatted[0] == ' ') {
-            balise_formatted = balise_formatted.substr(1, balise_formatted.size() - 1);
-	    }
-
-	    std::vector<std::string> cutted = cut_string(balise_formatted, " ");
-	    if(cutted.size() <= 0) return "";
-	    return cutted[0];
-	};
-
-	// Returns if a formated balise is a closing balise or not
-    bool closing_balise(std::string balise) {return balise.size() > 1 && balise[1] == '/';}
-
-	// Cut a balise by its attributes
-    std::vector<std::string> cut_balise_by_attributes(std::string str) {
-	    // Cut the balise
-	    std::vector<std::string> result = cut_string(str, " ", true);
-	    if(result.size() > 0)result.erase(result.begin());
-
-	    // Erase the last '>' if necessary
-        if(result.size() > 0 && result[result.size() - 1][result[result.size() - 1].size() - 1] == '>') result[result.size() - 1].erase(result[result.size() - 1].end() - 1);
-
-	    return result;
-	};
-
-	// Cut a balise by its attributes out of a certain pattern
-    std::vector<std::string> cut_balise_by_attributes_out_of(std::string str, std::string out) {
-	    // Cut the balise
-	    std::vector<std::string> result = cut_string_out_of(str, " ", out, true);
-        int result_size = result.size() - 1;
-	    if(result_size >= 0){result.erase(result.begin());}
-
-	    // Erase the last '>' if necessary
-	    result_size = result.size() - 1;
-        if(result_size >= 0 && result[result_size][result[result_size].size() - 1] == '>'){result[result_size] = result[result_size].substr(0, result[result_size].size() - 1);}
-
-	    return result;
-	};
-
-	// Cut a string by its balises (including the balises in the vector)
-    std::vector<_Text_Balise_Part> cut_string_by_balise(std::string str, bool erase_blank, bool erase_last_if_blank) {
-	    bool last_is_balise = false;
-		std::string last_string = ""; // String since the last cut
-		std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
-
-		// Browse the string char by char
-		for (int i = 0; i < static_cast<int>(str.size()); i++) {
-		    if(str[i] == '<') {
-                _Text_Balise_Part part_to_add;
-                part_to_add.content = last_string;
-                part_to_add.start_position = i;
-                if(!last_is_balise && last_string == "") {
-                    if(!erase_blank && (result.size() > 0 || (i + 1 < static_cast<int>(str.size()) && str[i + 1] == '/')))result.push_back(part_to_add);
-                }
-                else {result.push_back(part_to_add);}
-                last_string = "";
-                part_to_add.content = "";
-
-                int balise_level = 1;
-                i++;
-                while(i < static_cast<int>(str.size())) {
-                    if(str[i] == '<') balise_level++;
-                    else if(str[i] == '>') {
-                        balise_level--;
-                        if(balise_level <= 0) break;
-                    }
-                    last_string += str[i];
-                    i++;
-                }
-
-                part_to_add.balise_content = std::string("<") + last_string + std::string(">");
-                result.push_back(part_to_add);
-                last_is_balise = true;
-                last_string = "";
-                continue;
-		    }
-
-		    last_is_balise = false;
-			last_string += str[i];
+		// Add the value
+		bool contains_space = scls::contains_string(
+				a_balise_attributes.at(i).value, std::string(" "));
+		if (contains_space) {
+			attribute += "\"";
+		}
+		attribute += a_balise_attributes.at(i).value;
+		if (contains_space) {
+			attribute += "\"";
 		}
 
-		if (last_string.size() > 0 || !erase_last_if_blank) {
-            _Text_Balise_Part part_to_add;
-            part_to_add.content = last_string;
-            result.push_back(part_to_add);
-        } // Add the last non-cutted element
-		return result;
-	};
+		if (i < static_cast<int>(a_balise_attributes.size()) - 1) {
+			attribute += std::string(" ");
+		}
+	}
+	if (attribute.size() > 0) {
+		attribute = std::string(" ") + attribute;
+	}
+	return std::string("<") + xml_balise_name() + attribute + std::string(">");
+}
+;
 
-	// Cut a string by its balises (including the balises in the vector) out of a certain pattern
-    std::vector<_Text_Balise_Part> cut_string_by_balise_out_of(std::string str, std::string out, bool erase_blank, bool erase_last_if_blank) {
-	    bool can_cut = true;
-	    bool last_is_balise = false;
-		std::string last_string = ""; // String since the last cut
-		std::vector<_Text_Balise_Part> result = std::vector<_Text_Balise_Part>();
+// Getters and setter
+Balise_Datas* XML_Text_Base::balise_datas() {
+	return a_balise_datas.get();
+}
+;
+__Balise_Container* XML_Text_Base::balise_container() const {
+	return a_balise_container.get();
+}
+;
+std::shared_ptr<__Balise_Container> XML_Text_Base::balise_container_shared_ptr() const {
+	return a_balise_container;
+}
+;
+bool XML_Text_Base::break_line_in_between() const {
+	return a_balise_datas.get() != 0
+			&& a_balise_datas.get()->break_line_in_between;
+}
+;
+bool XML_Text_Base::has_content() const {
+	return a_balise_datas.get() != 0 && a_balise_datas.get()->has_content;
+}
+;
+bool XML_Text_Base::only_text() const {
+	return a_sub_xml_texts.size() <= 0;
+}
+;
+XML_Text_Base* XML_Text_Base::parent() const {
+	return a_parent.lock().get();
+}
+;
+void XML_Text_Base::set_this_object(
+		std::weak_ptr<XML_Text_Base> new_this_object) {
+	a_this_object = new_this_object;
+}
+;
+void XML_Text_Base::set_xml_balise_datas(
+		std::shared_ptr<Balise_Datas> new_xml_balise_datas) {
+	if (new_xml_balise_datas.get() == 0) {
+		a_balise_datas = std::make_shared<Balise_Datas>();
+	} else {
+		a_balise_datas = new_xml_balise_datas;
+	}
+}
+;
+void XML_Text_Base::set_xml_balise_name(std::string new_xml_balise_name) {
+	a_balise_name = new_xml_balise_name;
+	set_xml_balise_datas(
+			balise_container()->defined_balise_shared_ptr(new_xml_balise_name));
+}
+;
+void XML_Text_Base::set_xml_text(std::string xml_text) {
+	a_xml_text = xml_text;
+}
+;
+XML_Text_Base* XML_Text_Base::sub_text(int index) const {
+	if (index < static_cast<int>(a_sub_xml_texts.size())) {
+		return 0;
+	}
+	return a_sub_xml_texts[index].get();
+}
+;
+std::vector<std::shared_ptr<XML_Text_Base>>& XML_Text_Base::sub_texts() {
+	return a_sub_xml_texts;
+}
+;
+std::string XML_Text_Base::text() const {
+	if (a_sub_xml_texts.size() <= 0) {
+		return a_xml_text;
+	}
+	return full_text(false);
+}
+;
+bool XML_Text_Base::use_balise() const {
+	return static_cast<int>(a_balise_name.size()) > 0;
+}
+;
+std::vector<XML_Attribute>& XML_Text_Base::xml_attributes() {
+	return a_balise_attributes;
+}
+;
+std::vector<XML_Attribute>& XML_Text_Base::xml_balise_attributes() {
+	return a_balise_attributes;
+}
+;
+std::string XML_Text_Base::xml_balise_name() const {
+	return a_balise_name;
+}
+;
 
-		for (int i = 0; i < static_cast<int>(str.size()); i++) { // Browse the string char by char
-            if(i >= static_cast<int>(out.size()) && i <= static_cast<int>(str.size()) - static_cast<int>(out.size()) &&
-               str.substr(i - static_cast<int>(out.size()), static_cast<int>(out.size())) == out) can_cut = !can_cut;
-            else if(str[i] == '<' && can_cut) {
-                _Text_Balise_Part part_to_add;
-                part_to_add.content = last_string;
-                part_to_add.start_position = i;
-                if(!last_is_balise && last_string == "") {
-                    if(!erase_blank && (result.size() > 0 || (i + 1 < static_cast<int>(str.size()) && str[i + 1] == '/')))result.push_back(part_to_add);
-                }
-                else result.push_back(part_to_add);
-                last_string = "";
+// Returns the position of the first plain text character in a unformatted text from before a position
+unsigned int __Balise_Container::first_plain_text_character_before_position_in_informatted_text(
+		const std::string &text_to_convert, int position) {
+	if (text_to_convert[position] == '>') {
+		// Remove balises
+		while (text_to_convert[position] != '<' && position > 0) {
+			position--;
+		}
+	} else if (text_to_convert[position] == ';') {
+		// Remove special insertion
+		std::string part_content = "";
+		const unsigned int start_position = position;
+		while (position >= 0 && text_to_convert[position] != '&') {
+			part_content = text_to_convert[position] + part_content;
+			position--;
+		}
+		part_content = part_content.substr(0, part_content.size() - 1);
 
-                int balise_level = 1;
-                bool can_stop = true;
-                i++;
-                while(i < static_cast<int>(str.size())) {
-                    // Check the "out" character
-                    if(i >= static_cast<int>(out.size()) && i <= static_cast<int>(str.size()) - static_cast<int>(out.size()) && str.substr(i - static_cast<int>(out.size()), static_cast<int>(out.size())) == out) can_stop = !can_stop;
+		if (!(part_content == "lt" || part_content == "gt") || position < 0) {
+			position = start_position;
+		}
+	} else if (text_to_convert[position] == '&') {
+		// Handle & character
+		position--;
+	}
+	return position;
+}
+;
+// Returns a html text in plain text
+std::string __Balise_Container::to_plain_text(std::string text_to_convert) {
+	std::string final_text = "";
+	std::stack<std::string> found_balises = std::stack<std::string>();
+	std::string last_balise = "";
+	text_to_convert = replace(format_string(text_to_convert), "</br>", "\n");
+	for (int i = 0; i < static_cast<int>(text_to_convert.size()); i++) {
+		if (text_to_convert[i] == '<') {
+			std::string balise = "";
+			unsigned int start = i;
+			while (text_to_convert[i] != '>'
+					&& i < static_cast<int>(text_to_convert.size())) {
+				balise += text_to_convert[i];
+				i++;
+			}
+			balise += ">";
+			balise = formatted_balise(balise);
 
-                    if(str[i] == '<' && can_stop) balise_level++;
-                    else if(str[i] == '>' && can_stop) {
-                        balise_level--;
-                        if(balise_level <= 0) break;
-                    }
-                    last_string += str[i];
-                    i++;
-                }
+			if (start != 0) {
+				// Check the balise
+				std::string current_balise_name = balise_name(balise);
 
-                part_to_add.balise_content = std::string("<") + last_string + std::string(">");
-                result.push_back(part_to_add);
-                last_is_balise = true;
-                last_string = "";
-                continue;
-		    }
+				if (contains_defined_balise(current_balise_name)) {
+					if (defined_balise(current_balise_name)->is_paragraph
+							&& final_text != ""
+							&& i < static_cast<int>(text_to_convert.size()) - 1
+							&& (!contains_defined_balise(last_balise)
+									|| !defined_balise(last_balise)->is_paragraph)) {
+						final_text += "\n";
+					} else if (defined_balise(current_balise_name)->is_break_line) {
+						final_text += "\n";
+					}
+				}
 
-		    last_is_balise = false;
-			last_string += str[i];
+				// Check in the balise stack
+				if (balise[1] == '/') {
+					if (found_balises.size() > 0
+							&& found_balises.top() == current_balise_name) {
+						found_balises.pop();
+					}
+				} else
+					found_balises.push(current_balise_name);
+				last_balise = current_balise_name;
+			}
+		} else {
+			final_text += text_to_convert[i];
+			last_balise = "";
+		}
+	}
+
+	final_text = format_string_as_plain_text(final_text);
+	return final_text;
+}
+;
+// Returns a unformatted text position in a plain text
+unsigned int __Balise_Container::plain_text_position_to_unformatted_text_position(
+		std::string text_to_convert, int position) {
+	int final_position = 0;
+	for (int i = 0;
+			i < static_cast<int>(text_to_convert.size()) && i < position; i++) {
+		if (text_to_convert[final_position] == '<') {
+			// Remove balises
+			while (text_to_convert[final_position] != '>'
+					&& final_position < static_cast<int>(text_to_convert.size()))
+				final_position++;
+		} else if (text_to_convert[final_position] == '&') {
+			// Check if a simple & must be added
+			if (final_position + 1 < static_cast<int>(text_to_convert.size())
+					&& text_to_convert[final_position + 1] == '&') {
+				final_position++;
+			} else {
+				// Remove special insertion
+				std::string part_content = "";
+				const int start_position = final_position;
+				while (text_to_convert[final_position] != ';'
+						&& final_position
+								< static_cast<int>(text_to_convert.size())) {
+					part_content += text_to_convert[final_position];
+					final_position++;
+				}
+				part_content = part_content.substr(1, part_content.size() - 1);
+
+				if (!(part_content == "lt" || part_content == "gt")
+						|| final_position
+								>= static_cast<int>(text_to_convert.size())) {
+					final_position = start_position;
+				}
+			}
+		}
+		final_position++;
+	}
+	return final_position;
+}
+;
+
+// Returns the balise of the block or a blank string if it is not
+std::string __Balise_Container::__block_balise(
+		std::vector<_Text_Balise_Part> &cutted) {
+	if (cutted.size() == 0)
+		return "";
+
+	// Check for the main balise of the block
+	std::string to_return = "";
+	if (cutted[0].content[0] == '<') {
+		std::string block_balise_name = balise_name(cutted[0].content);
+
+		// Check if the block is an entire balise
+		unsigned int level = 0;
+		for (int i = 0; i < static_cast<int>(cutted.size()) - 1; i++) {
+			if (cutted[i].content.size() > 2 && cutted[i].content[0] == '<'
+					&& cutted[i].content[cutted[i].content.size() - 1] == '>') {
+				std::string parsed_balise_name = balise_name(cutted[i].content);
+				if (parsed_balise_name == block_balise_name) {
+					if (cutted[i].content[1] == '/') {
+						level--;
+						if (level == 0)
+							break;
+					} else {
+						level++;
+					}
+				}
+			}
 		}
 
-		if (last_string.size() > 0 || !erase_last_if_blank) {
-            _Text_Balise_Part part_to_add;
-            part_to_add.content = last_string;
-            result.push_back(part_to_add);
-        } // Add the last non-cutted element
-		return result;
-	};
-
-	// Format a balise and return it
-    std::string formatted_balise(std::string str) {
-	    // Remove useless spaces
-	    while(str.size() > 0 && str[0] == ' ') {
-            str = str.substr(1, str.size() - 1);
-	    }
-	    while(str.size() > 0 && str[str.size() - 1] == ' ') {
-            str = str.substr(0, str.size() - 1);
-	    }
-
-	    if(str.size() < 2 || str[0] != '<' || str[str.size() - 1] != '>') return "";
-
-	    // Get the position of the / if there is one
-        int slash_position = 0;
-        bool slash_position_founded = false;
-        if(str[1] == '/') { slash_position = 1; slash_position_founded = true; }
-        else if(str[str.size() - 2] == '/') { slash_position = str.size() - 2; }
-
-        // Format the balise
-        std::string final_balise = "";
-        if(slash_position_founded) final_balise = std::string("<") + "/" + str.substr(slash_position + 1, str.size() - (2 + slash_position)) + std::string(">");
-        else final_balise = std::string("<") + str.substr(1, str.size() - 2) + std::string(">");
-
-        // Format the formatted balise (help)
-	    while(final_balise.size() > 0 && final_balise[0] == ' ') {
-            final_balise = final_balise.substr(1, final_balise.size() - 1);
-	    }
-	    while(final_balise.size() > 0 && final_balise[final_balise.size() - 1] == ' ') {
-            final_balise = final_balise.substr(0, final_balise.size() - 1);
-	    }
-
-        return final_balise;
-	};
-
-    // Cut a balise by its XML attributes out of a certain pattern
-    std::vector<XML_Attribute> cut_balise_by_xml_attributes_out_of(std::string str, std::string out) {
-	    // Cut the balise
-	    std::vector<std::string> result = cut_balise_by_attributes_out_of(str, out);
-	    std::vector<XML_Attribute> to_return = std::vector<XML_Attribute>();
-
-	    // Create the attributes
-	    for(int i = 0;i<static_cast<int>(result.size());i++) {
-            // Create the attribute
-            std::vector<std::string> cutted = cut_string_out_of(result[i], "=", "\"");
-            XML_Attribute current_attribute;
-            current_attribute.name = attribute_name(result[i]);
-            current_attribute.value = attribute_value(result[i]);
-
-            // Remove the quotes
-            if(current_attribute.value.size() > 1 && current_attribute.value[0] == '\"' && current_attribute.value[current_attribute.value.size() - 1] == '\"') {
-                current_attribute.value = current_attribute.value.substr(1, current_attribute.value.size() - 2);
-                current_attribute.value_use_quotes = true;
-            }
-
-            // Add the attribute
-            if(current_attribute.name != std::string("")){to_return.push_back(current_attribute);}
-	    }
-
-	    return to_return;
-	};
-
-	// Adds a sub-balise in the XML balise
-    void XML_Text_Base::add_sub_balise(std::shared_ptr<XML_Text_Base> content){content.get()->set_parent(a_this_object);a_sub_xml_texts.push_back(content);};
-    std::shared_ptr<XML_Text_Base> XML_Text_Base::add_sub_balise(std::string pure_text){std::shared_ptr<XML_Text_Base> needed_text = new_xml_text(a_balise_container, pure_text);needed_text.get()->set_parent(a_this_object);a_sub_xml_texts.push_back(needed_text);return needed_text;};
-
-    // Returns an attribute by its name
-    XML_Attribute XML_Text_Base::attribute_by_name(std::string attribute_name) {for(int i = 0;i<static_cast<int>(a_balise_attributes.size());i++){if(a_balise_attributes.at(i).name == attribute_name){return a_balise_attributes.at(i);}} return XML_Attribute();};
-
-	// Returns the first balise with the name
-	XML_Text_Base* XML_Text_Base::balise_by_name(std::string name){return balise_by_name_shared_ptr(name).get();}
-    std::shared_ptr<XML_Text_Base> XML_Text_Base::balise_by_name_shared_ptr(std::string name) {
-        for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
-            if(sub_texts().at(i).get()->xml_balise_name() == name) {return sub_texts().at(i);}
-            std::shared_ptr<XML_Text_Base> child = sub_texts().at(i).get()->balise_by_name_shared_ptr(name);
-            if(child.get() != 0){return child;}
-        }
-        return std::shared_ptr<XML_Text_Base>();
-    }
-
-    // Adds some text in the XML balise text
-    void XML_Text_Base::add_text(std::string text){a_xml_text+=text;};
-
-    // Returns if a balise is in the hierarchy
-    bool XML_Text_Base::balise_in_hierarchy(std::string balise_name){return a_balise_name == balise_name || (parent() != 0 && parent()->balise_in_hierarchy(a_balise_name));}
-
-	// Checks the include in the text
-    void XML_Text_Base::check_include(std::string path) {
-        // Analyse each balises
-        for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
-            std::shared_ptr<XML_Text_Base> current_text = sub_texts()[i];
-            std::string current_balise_name = current_text.get()->xml_balise_name();
-
-            // Add an include
-            if(current_balise_name == "include") {
-                // Include a part to the XML loading
-                std::string src = std::string("");
-                for(int j = 0;j<static_cast<int>(current_text.get()->xml_balise_attributes().size());j++) {
-                    std::string current_attribute_name = current_text.get()->xml_balise_attributes()[j].name;
-                    std::string current_attribute_value = current_text.get()->xml_balise_attributes()[j].value;
-                    if(current_attribute_value.size() > 0 && current_attribute_value[0] == '\"'){current_attribute_value = current_attribute_value.substr(1, current_attribute_value.size() - 1);}
-                    if(current_attribute_value.size() > 0 && current_attribute_value[current_attribute_value.size() - 1] == '\"'){current_attribute_value = current_attribute_value.substr(0, current_attribute_value.size() - 1);}
-                    if(current_attribute_name == "src") {
-                        // Get the src of the include
-                        src = current_attribute_value;
-                    }
-                }
-
-                // Include the part
-                std::string base_src = src;
-                if(!std::filesystem::exists(src)){std::filesystem::path p = path;src = p.parent_path().string() + "/" + src;}
-                if(std::filesystem::exists(src)) {
-                    unsigned int total_size = 0;
-                    char* binary_content = read_entire_file_binary(src, total_size);
-                    std::string content_to_parse = std::string();
-                    if(binary_content != 0) {
-                        for(unsigned int i = 0;i<total_size;i++){
-                            if(binary_content[i]!=static_cast<char>(10)&&binary_content[i]!=static_cast<char>(13)){content_to_parse += binary_content[i];}
-                            else if(i <= 0 || (binary_content[i - 1]!=static_cast<char>(10)&&binary_content[i - 1]!=static_cast<char>(13))){content_to_parse += ' ';}
-                        }
-                        delete[] binary_content; binary_content = 0;
-                    }
-
-                    // Add the new balises
-                    std::shared_ptr<XML_Text_Base> content = new_xml_text(balise_container_shared_ptr(), content_to_parse);
-                    content.get()->set_parent(a_this_object);content.get()->set_this_object(content);
-                    if(content.get()->sub_texts().size() > 0) {
-                        sub_texts()[i] = content.get()->sub_texts()[0];
-                        for(int j = 1;j<static_cast<int>(content.get()->sub_texts().size());j++){sub_texts().insert(sub_texts().begin() + i + 1, content.get()->sub_texts()[j]);i++;}
-                    }
-                }
-                else {print("Warning", "SCLS XML System", "The \"" + base_src + "\" path you want to include does not exist.");}
-            }
-            else{current_text.get()->check_include(path);}
-        }
-    }
-
-    // Clears the balise
-    void XML_Text_Base::clear(){a_sub_xml_texts.clear();a_balise_attributes.clear();a_xml_text = std::string();}
-
-    // Clones this XML base
-    std::shared_ptr<XML_Text_Base> XML_Text_Base::clone() {
-        std::shared_ptr<XML_Text_Base> created_balise = std::shared_ptr<XML_Text_Base>(new XML_Text_Base(a_balise_container));
-        created_balise.get()->set_this_object(created_balise);
-
-        // Clone the datas
-        created_balise.get()->a_balise_attributes = a_balise_attributes;
-        created_balise.get()->a_balise_datas = a_balise_datas;
-        created_balise.get()->a_balise_name = a_balise_name;
-        created_balise.get()->a_xml_text = a_xml_text;
-
-        // Clone the children
-        for(std::size_t i = 0;i<a_sub_xml_texts.size();i++) {
-            created_balise.get()->a_sub_xml_texts.push_back(a_sub_xml_texts.at(i).get()->clone());
-            created_balise.get()->a_sub_xml_texts.at(i).get()->set_parent(created_balise);
-        }
-
-        return created_balise;
-    }
-
-    // First text balise at left
-    XML_Text_Base* XML_Text_Base::first_balise_at_left() {
-        XML_Text_Base* current_child = this;
-        XML_Text_Base* current_parent = parent();
-        XML_Text_Base* to_return = 0;
-
-        // Get the needed parent
-        while(current_parent != 0) {
-            int i = 0;
-            for(;i<static_cast<int>(current_parent->sub_texts().size());i++) {if(current_parent->sub_texts().at(i).get() == current_child){i--;break;}}
-            if(current_child == this && i > 0){to_return = current_parent->sub_texts().at(i - 1).get();break;}
-            else if(current_child != this && i >= 0){to_return = current_parent->sub_texts().at(i).get();break;}
-            else{current_child = current_parent;current_parent = current_parent->parent();i=-1;}
-        }
-
-        // Get the needed children
-        while(to_return != 0 && !to_return->only_text()) {if(to_return->sub_texts().size() > 0){to_return=to_return->sub_texts().at(to_return->sub_texts().size()-1).get();}else{to_return=0;}}
-
-        return to_return;
-    }
-
-    // Returns the full text in the XML text
-    std::string XML_Text_Base::full_text(bool add_balise) const {
-        std::string to_return = std::string();
-        if(add_balise && a_balise_name != ""){to_return = xml_balise();}
-
-        // Set the good text
-        bool use_inner_blocks = (a_balise_datas.get() == 0 && static_cast<int>(a_sub_xml_texts.size()) > 0) || (a_balise_datas.get() != 0 && a_balise_datas.get()->has_content);
-        if(only_text()){to_return = to_return + text();}
-        else if(use_inner_blocks) {for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){to_return += a_sub_xml_texts[i].get()->full_text();}}
-
-        // Add the closing balise
-        if(add_balise && a_balise_name != "" && use_inner_blocks){to_return += xml_balise_end();}
-
-        return to_return;
-    }
-
-    // Returns the full text formatted in the XML text
-    std::string XML_Text_Base::full_text_formatted() const{return full_text_formatted(true, -1, 0);}
-    std::string XML_Text_Base::full_text_formatted(bool add_balise) const{return full_text_formatted(add_balise, -1, 0);}
-    std::string XML_Text_Base::full_text_formatted(bool add_balise, int level, std::string* parent_text) const{
-        bool break_line_in_between_final = !(!break_line_in_between() && only_text());
-        std::string level_diff = std::string();for(int i = 0;i<static_cast<int>(level * 4);i++){level_diff += std::string(" ");}
-        std::string level_diff_plus = std::string("    ") + level_diff;
-        if(a_balise_name == std::string()){level_diff_plus = level_diff;}std::string to_return = std::string();
-
-        // Add the opening balise
-        if(add_balise && a_balise_name != ""){
-            if(parent_text == 0 || parent_text->size() == 0 || parent_text->at(parent_text->size() - 1) == '\n'){to_return = level_diff + xml_balise();}
-            else{to_return = xml_balise();}
-        }
-
-        // Set the good text
-        bool use_inner_blocks = (a_balise_datas.get() == 0 && static_cast<int>(a_sub_xml_texts.size()) > 0) || (a_balise_datas.get() != 0 && a_balise_datas.get()->has_content);
-        if(only_text()){
-            if(text() != std::string("")){
-                if(break_line_in_between_final) {
-                    if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
-                    to_return += level_diff_plus + scls::replace(text(), std::string("\n"), std::string("\n") + level_diff_plus) + std::string("\n");
-                    if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
-                }
-                else{to_return += scls::replace(text(), std::string("\n"), std::string("\n") + level_diff_plus);}
-            }
-        }
-        else if(use_inner_blocks){
-            for(int i = 0;i<static_cast<int>(a_sub_xml_texts.size());i++){
-                if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
-                to_return += a_sub_xml_texts[i].get()->full_text_formatted(true, level + 1, &to_return);
-                if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
-            }
-        }
-
-        // Add the closing balise
-        if(add_balise && a_balise_name != "" && use_inner_blocks){
-            if(break_line_in_between_final){
-                if(to_return.size() > 0 && to_return.at(to_return.size() - 1) != '\n'){to_return += std::string("\n");}
-                to_return += level_diff;
-            }
-            to_return += xml_balise_end();
-        }
-
-        return to_return;
-    }
-
-    // Creates and return a new XML_Text_Base
-    std::shared_ptr<XML_Text_Base> XML_Text_Base::new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string text){return new_xml_text(balise_container, text, false);}
-    std::shared_ptr<XML_Text_Base> XML_Text_Base::new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes){return new_xml_text(balise_container, balise_name, balise_attributes, std::string());}
-    std::shared_ptr<XML_Text_Base> XML_Text_Base::new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string text, bool only_text){
-        std::shared_ptr<XML_Text_Base> created_balise = std::shared_ptr<XML_Text_Base>(new XML_Text_Base(balise_container));
-        created_balise.get()->set_this_object(created_balise);
-        created_balise.get()->a_xml_text = format_for_xml(format_string_break_line(text, "\n"));
-        if(!only_text) {created_balise.get()->parse_text(created_balise.get()->a_xml_text);}
-        while(created_balise.get()->a_sub_xml_texts.size() == 1 && created_balise.get()->xml_balise_name() == std::string_view()){created_balise = created_balise.get()->a_sub_xml_texts.at(0);}
-        created_balise.get()->a_parent.reset();
-        return created_balise;
-    }
-    std::shared_ptr<XML_Text_Base> XML_Text_Base::new_xml_text(std::shared_ptr<__Balise_Container> balise_container, std::string balise_name, std::vector<XML_Attribute> balise_attributes, std::string text) {
-        std::shared_ptr<XML_Text_Base> created_balise = std::shared_ptr<XML_Text_Base>(new XML_Text_Base(balise_container, balise_name, balise_attributes));
-        created_balise.get()->set_this_object(created_balise);
-        if(text != std::string()){
-            created_balise.get()->a_xml_text = format_for_xml(format_string_break_line(text, "\n"));
-            created_balise.get()->parse_text(created_balise.get()->a_xml_text);
-        }
-        while(created_balise.get()->a_sub_xml_texts.size() == 1 && created_balise.get()->xml_balise_name() == std::string_view()){created_balise = created_balise.get()->a_sub_xml_texts.at(0);}
-        created_balise.get()->a_parent.reset();
-        return created_balise;
-    }
-
-    // Inserts a sub-balise in the XML balise
-    std::shared_ptr<XML_Text_Base> XML_Text_Base::insert_sub_balise(int pos, std::string pure_text){std::shared_ptr<XML_Text_Base> needed_text = new_xml_text(a_balise_container, pure_text);needed_text.get()->set_parent(a_this_object);a_sub_xml_texts.insert(a_sub_xml_texts.begin() + pos, needed_text);return needed_text;};
-
-    // Parse the text
-    void XML_Text_Base::parse_text(std::string new_text) {
-        // Cut by balises
-        std::vector<_Text_Balise_Part> cutted = cut_string_by_balise(new_text, true);
-        a_sub_xml_texts.clear();
-
-        // Create each sub-text
-        for(int i = 0;i<static_cast<int>(cutted.size());i++) {
-            if(cutted[i].balise_content.size() > 0 && cutted[i].balise_content[0] == '<') {
-                // Create the balise
-                std::string needed_balise = formatted_balise(cutted[i].balise_content);
-                std::string needed_balise_name = balise_name(needed_balise);
-                std::vector<XML_Attribute> needed_balise_attributes = cut_balise_by_xml_attributes_out_of(needed_balise, "\"");
-                std::shared_ptr<Balise_Datas> datas = balise_container()->defined_balise_shared_ptr(needed_balise_name);
-                if(datas.get() != 0 && datas.get()->has_content) {
-                    // The part is the end of an opened balise
-
-                    // Get the content of the balise
-                    std::string balise_content = "";
-                    unsigned int current_level = 1; i++;
-                    while(i<static_cast<int>(cutted.size())) {
-                        if(cutted[i].balise_content.size() > 0 && cutted[i].balise_content[0] == '<') {
-                            std::string current_balise = formatted_balise(cutted[i].balise_content);
-                            std::string current_balise_name = balise_name(current_balise);
-                            if(current_balise_name == needed_balise_name) {
-                                if(closing_balise(current_balise)){current_level--;}
-                                else{current_level++;}
-
-                                if(current_level <= 0){break;}
-                                else{balise_content += cutted[i].total_content();}
-                            }
-                            else { balise_content += cutted[i].total_content(); }
-                        }
-                        else { balise_content += cutted[i].total_content(); }
-                        i++;
-                    }
-                    balise_content = format_for_xml(balise_content);
-
-                    // Create the balise
-                    std::shared_ptr<XML_Text_Base> to_add = XML_Text_Base::new_xml_text(a_balise_container, needed_balise_name, needed_balise_attributes, balise_content);
-                    to_add.get()->set_parent(a_this_object);
-                    if(datas.get() != 0){to_add.get()->set_xml_balise_datas(datas);}
-                    a_sub_xml_texts.push_back(to_add);
-                }
-                else {
-                    // The part is a single balise
-                    // Create the balise
-                    std::shared_ptr<XML_Text_Base> to_add = XML_Text_Base::new_xml_text(a_balise_container, needed_balise_name, needed_balise_attributes, cutted[i].content);
-                    to_add.get()->set_parent(a_this_object);
-                    if(datas.get() != 0){to_add.get()->set_xml_balise_datas(datas);}
-                    else{std::shared_ptr<Balise_Datas> current_data = std::make_shared<Balise_Datas>(false);to_add.get()->set_xml_balise_datas(current_data);}
-                    a_sub_xml_texts.push_back(to_add);
-                }
-            }
-            else {
-                std::string content = format_for_xml(cutted[i].total_content());
-                if(static_cast<int>(cutted.size()) <= 1) {a_xml_text = content;}
-                else {
-                    if(content != "") {
-                        // The part is not a balise
-                        std::shared_ptr<XML_Text_Base> to_add = new_xml_text(a_balise_container, content, true);
-                        to_add.get()->set_parent(a_this_object);a_sub_xml_texts.push_back(to_add);
-                    }
-                }
-            }
-        }
-    };
-
-    // Removes the first balise with a precise name and returns it
-    std::shared_ptr<XML_Text_Base> XML_Text_Base::remove_balise_by_name(std::string name) {
-        std::shared_ptr<XML_Text_Base> to_return;
-        for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
-            if(sub_texts().at(i).get()->xml_balise_name() == name) {
-                to_return = sub_texts().at(i);
-                sub_texts().erase(sub_texts().begin() + i);
-                break;
-            }
-        }
-        return to_return;
-    }
-
-    // Replace all balise with another balise
-    void XML_Text_Base::replace_balise_by_name(std::string name, std::string new_balise_name, std::vector<XML_Attribute>& new_balise_attributes) {
-        for(int i = 0;i<static_cast<int>(sub_texts().size());i++) {
-            if(sub_texts().at(i).get()->xml_balise_name() == name) {
-                sub_texts().at(i).get()->set_xml_balise_name(new_balise_name);
-                sub_texts().at(i).get()->xml_attributes() = new_balise_attributes;
-            }
-            sub_texts().at(i).get()->replace_balise_by_name(name, new_balise_name, new_balise_attributes);
-        }
-    }
-    void XML_Text_Base::replace_balise_by_name(std::string name, std::string new_name){std::vector<XML_Attribute> new_balise_attributes = cut_balise_by_xml_attributes_out_of(new_name, "\"");std::string new_balise_name = balise_name(new_name);replace_balise_by_name(name, new_balise_name, new_balise_attributes);}
-
-    // Sets new datas for the text
-    void XML_Text_Base::set_text(std::string new_text){a_xml_text = format_for_xml(format_string_break_line(new_text, "\n"));parse_text(a_xml_text);};
-
-    // Returns the text in the balise
-    std::string XML_Text_Base::xml_balise() const {
-        std::string attribute = "";
-        for(int i = 0;i<static_cast<int>(a_balise_attributes.size());i++){
-            attribute += a_balise_attributes.at(i).name + std::string("=");
-
-            // Add the value
-            bool contains_space = scls::contains_string(a_balise_attributes.at(i).value, std::string(" "));
-            if(contains_space){attribute += "\"";}
-            attribute += a_balise_attributes.at(i).value;
-            if(contains_space){attribute += "\"";}
-
-            if(i < static_cast<int>(a_balise_attributes.size()) - 1){attribute+=std::string(" ");}}
-            if(attribute.size()>0){attribute=std::string(" ")+attribute;
-        }
-        return std::string("<") + xml_balise_name() + attribute + std::string(">");
-    };
-
-    // Getters and setter
-    Balise_Datas* XML_Text_Base::balise_datas(){return a_balise_datas.get();};
-    __Balise_Container* XML_Text_Base::balise_container() const {return a_balise_container.get();};
-    std::shared_ptr<__Balise_Container> XML_Text_Base::balise_container_shared_ptr() const {return a_balise_container;};
-    bool XML_Text_Base::break_line_in_between() const {return a_balise_datas.get() != 0 && a_balise_datas.get()->break_line_in_between;};
-    bool XML_Text_Base::has_content() const {return a_balise_datas.get() != 0 && a_balise_datas.get()->has_content;};
-    bool XML_Text_Base::only_text() const {return a_sub_xml_texts.size() <= 0;};
-    XML_Text_Base* XML_Text_Base::parent()const{return a_parent.lock().get();};
-    void XML_Text_Base::set_this_object(std::weak_ptr<XML_Text_Base> new_this_object){a_this_object = new_this_object;};
-    void XML_Text_Base::set_xml_balise_datas(std::shared_ptr<Balise_Datas> new_xml_balise_datas){if(new_xml_balise_datas.get() == 0){a_balise_datas = std::make_shared<Balise_Datas>();}else{a_balise_datas = new_xml_balise_datas;}};
-    void XML_Text_Base::set_xml_balise_name(std::string new_xml_balise_name){a_balise_name = new_xml_balise_name;set_xml_balise_datas(balise_container()->defined_balise_shared_ptr(new_xml_balise_name));};
-    void XML_Text_Base::set_xml_text(std::string xml_text){a_xml_text = xml_text;};
-    XML_Text_Base* XML_Text_Base::sub_text(int index)const{if(index<static_cast<int>(a_sub_xml_texts.size())){return 0;}return a_sub_xml_texts[index].get();};
-    std::vector<std::shared_ptr<XML_Text_Base>>& XML_Text_Base::sub_texts() {return a_sub_xml_texts;};
-    std::string XML_Text_Base::text() const {if(a_sub_xml_texts.size() <= 0){return a_xml_text;}return full_text(false);};
-    bool XML_Text_Base::use_balise() const {return static_cast<int>(a_balise_name.size()) > 0;};
-    std::vector<XML_Attribute>& XML_Text_Base::xml_attributes() {return a_balise_attributes;};
-    std::vector<XML_Attribute>& XML_Text_Base::xml_balise_attributes() {return a_balise_attributes;};
-    std::string XML_Text_Base::xml_balise_name() const {return a_balise_name;};
-
-    // Returns the position of the first plain text character in a unformatted text from before a position
-    unsigned int __Balise_Container::first_plain_text_character_before_position_in_informatted_text(const std::string& text_to_convert, int position) {
-        if(text_to_convert[position] == '>') {
-            // Remove balises
-            while(text_to_convert[position] != '<' && position > 0) { position--; }
-        } else if(text_to_convert[position] == ';') {
-            // Remove special insertion
-            std::string part_content = "";
-            const unsigned int start_position = position;
-            while(position >= 0 && text_to_convert[position] != '&') {
-                part_content = text_to_convert[position] + part_content;
-                position--;
-            } part_content = part_content.substr(0, part_content.size() - 1);
-
-            if(!(part_content == "lt" || part_content == "gt") || position < 0) {
-                position = start_position;
-            }
-        } else if(text_to_convert[position] == '&') {
-            // Handle & character
-            position--;
-        } return position;
-    };
-    // Returns a html text in plain text
-    std::string __Balise_Container::to_plain_text(std::string text_to_convert) {
-        std::string final_text = "";
-        std::stack<std::string> found_balises = std::stack<std::string>();
-        std::string last_balise = "";
-        text_to_convert = replace(format_string(text_to_convert), "</br>", "\n");
-        for(int i = 0;i<static_cast<int>(text_to_convert.size());i++) {
-            if(text_to_convert[i] == '<') {
-                std::string balise = "";
-                unsigned int start = i;
-                while(text_to_convert[i] != '>' && i < static_cast<int>(text_to_convert.size())) {
-                    balise += text_to_convert[i];
-                    i++;
-                }
-                balise += ">";
-                balise = formatted_balise(balise);
-
-                if(start != 0) {
-                    // Check the balise
-                    std::string current_balise_name = balise_name(balise);
-
-                    if(contains_defined_balise(current_balise_name)) {
-                        if(defined_balise(current_balise_name)->is_paragraph &&
-                           final_text != "" &&
-                           i < static_cast<int>(text_to_convert.size()) - 1 &&
-                           (!contains_defined_balise(last_balise) ||
-                           !defined_balise(last_balise)->is_paragraph)) {
-                            final_text += "\n";
-                        }
-                        else if(defined_balise(current_balise_name)->is_break_line) {
-                            final_text += "\n";
-                        }
-                    }
-
-                    // Check in the balise stack
-                    if(balise[1] == '/') {
-                        if(found_balises.size() > 0 && found_balises.top() == current_balise_name) {
-                            found_balises.pop();
-                        }
-                    }
-                    else found_balises.push(current_balise_name);
-                    last_balise = current_balise_name;
-                }
-            }
-            else {
-                final_text += text_to_convert[i];
-                last_balise = "";
-            }
-        }
-
-        final_text = format_string_as_plain_text(final_text);
-        return final_text;
-    };
-    // Returns a unformatted text position in a plain text
-    unsigned int __Balise_Container::plain_text_position_to_unformatted_text_position(std::string text_to_convert, int position) {
-        int final_position = 0;
-        for(int i = 0;i<static_cast<int>(text_to_convert.size()) && i < position;i++) {
-            if(text_to_convert[final_position] == '<') {
-                // Remove balises
-                while(text_to_convert[final_position] != '>' && final_position < static_cast<int>(text_to_convert.size())) final_position++;
-            }
-            else if(text_to_convert[final_position] == '&') {
-                // Check if a simple & must be added
-                if(final_position + 1 < static_cast<int>(text_to_convert.size()) && text_to_convert[final_position + 1] == '&') {final_position++;}
-                else {
-                    // Remove special insertion
-                    std::string part_content = "";
-                    const int start_position = final_position;
-                    while(text_to_convert[final_position] != ';' && final_position < static_cast<int>(text_to_convert.size())) {
-                        part_content += text_to_convert[final_position];
-                        final_position++;
-                    } part_content = part_content.substr(1, part_content.size() - 1);
-
-                    if(!(part_content == "lt" || part_content == "gt") || final_position >= static_cast<int>(text_to_convert.size())) {
-                        final_position = start_position;
-                    }
-                }
-            } final_position++;
-        } return final_position;
-    };
-
-    // Returns the balise of the block or a blank string if it is not
-    std::string __Balise_Container::__block_balise(std::vector<_Text_Balise_Part>& cutted) {
-        if(cutted.size() == 0) return "";
-
-        // Check for the main balise of the block
-        std::string to_return = "";
-        if(cutted[0].content[0] == '<') {
-            std::string block_balise_name = balise_name(cutted[0].content);
-
-            // Check if the block is an entire balise
-            unsigned int level = 0;
-            for(int i = 0;i<static_cast<int>(cutted.size())-1;i++) {
-                if(cutted[i].content.size() > 2 && cutted[i].content[0] == '<' && cutted[i].content[cutted[i].content.size() - 1] == '>') {
-                    std::string parsed_balise_name = balise_name(cutted[i].content);
-                    if(parsed_balise_name == block_balise_name) {
-                        if(cutted[i].content[1] == '/') {
-                            level--;
-                            if(level == 0) break;
-                        }
-                        else {
-                            level++;
-                        }
-                    }
-                }
-            }
-
-            // If the block can be an entire balise
-            if(level == 1) {
-                if(contains_defined_balise(block_balise_name)) {
-                    to_return = block_balise_name;
-                }
-            }
-        }
-        return to_return;
-    };
-    // Cut a block by its sub_blocks and spaces
-    std::vector<_Text_Balise_Part> __Balise_Container::__cut_block(std::string block_text) {
-        std::vector<_Text_Balise_Part> first_cutted = cut_string_by_balise(block_text, false, true);
-        std::vector<_Text_Balise_Part> cutted = std::vector<_Text_Balise_Part>();
-        for(int i = 0;i<static_cast<int>(first_cutted.size());i++) {
-            if(first_cutted[i].balise_content.size() > 0 && first_cutted[i].balise_content[0] == '<') {
-                // This part is a balise
-                std::string needed_balise_name = balise_name(formatted_balise(first_cutted[i].balise_content));
-                _Text_Balise_Part to_add = first_cutted[i];
-                if(contains_defined_balise(needed_balise_name)) {
-                    Balise_Datas* datas = defined_balise(needed_balise_name);
-                    if(datas->has_content) {
-                        // The balise contains a content
-                        i++; int level = 1;
-                        while(i<static_cast<int>(first_cutted.size())) {
-                            if(first_cutted[i].balise_content.size() > 0 && first_cutted[i].balise_content[0] == '<') {
-                                std::string formated = formatted_balise(first_cutted[i].balise_content);
-                                std::string current_balise_name = balise_name(formated);
-                                if(current_balise_name == needed_balise_name) {
-                                    if(closing_balise(formated)) {level--;} else {level++;}
-                                    if(level <= 0){to_add.balise_end_content = first_cutted[i].total_content();break;}
-                                } to_add.content += first_cutted[i].total_content();
-                            } else {
-                                to_add.content += first_cutted[i].total_content();
-                            } i++;
-                        }
-                    }
-                } cutted.push_back(to_add);
-            }
-            else if(first_cutted[i].content == "") {
-                _Text_Balise_Part part_to_add; cutted.push_back(part_to_add);
-            }
-            else {
-                std::vector<std::string> space_cutted = cut_string(first_cutted[i].content, " ", false, true);
-                for(int j = 0;j<static_cast<int>(space_cutted.size());j++) {
-                    _Text_Balise_Part part_to_add;
-                    part_to_add.content = space_cutted[j];
-                    cutted.push_back(part_to_add);
-
-                    if(j < static_cast<int>(space_cutted.size()) - 1 || first_cutted[i].content[first_cutted[i].content.size() - 1] == ' ') {
-                        _Text_Balise_Part part_to_add;
-                        part_to_add.content = " ";
-                        cutted.push_back(part_to_add);
-                    }
-                }
-            }
-        }
-        return cutted;
-    };
-    // Cut a multi-block by sub-blocks
-    std::vector<std::string> __Balise_Container::__cut_multi_block(std::string block_text) {
-        std::vector<_Text_Balise_Part> first_cutted = cut_string_by_balise(block_text, false, true);
-        std::string last_text = "";
-        std::vector<std::string> to_return = std::vector<std::string>();
-        for(int i = 0;i<static_cast<int>(first_cutted.size());i++) {
-            if(first_cutted[i].balise_content.size() > 0 && first_cutted[i].balise_content[0] == '<') {
-                // A sub-block is here
-                std::string current_balise_name = balise_name(formatted_balise(first_cutted[i].balise_content));
-                if(contains_defined_balise(current_balise_name) && defined_balise(current_balise_name)->is_paragraph) {
-                    // Save the last empty paragraph
-                    to_return.push_back(last_text); last_text = "";
-
-                    i++;
-                    unsigned int level = 1;
-                    std::string total_text = "";
-                    while(i<static_cast<int>(first_cutted.size())) {
-                        if(first_cutted[i].balise_content.size() > 0 && first_cutted[i].balise_content[0] == '<') {
-                            first_cutted[i].balise_content = formatted_balise(first_cutted[i].balise_content);
-                            std::string next_balise_name = balise_name(first_cutted[i].balise_content);
-                            if(next_balise_name == current_balise_name) {
-                                if(closing_balise(first_cutted[i].balise_content)) {level--;}else {level++;}
-                                if(level <= 0) break;
-                            }
-                        }
-                        total_text += first_cutted[i].total_content();
-                        i++;
-                    }
-
-                    // Create the block datas
-                    to_return.push_back(total_text);
-                }
-                else {
-                    last_text += first_cutted[i].total_content();
-                }
-            }
-            else {
-                last_text += first_cutted[i].content;
-            }
-        }
-        // Save the last paragraph if necessary
-        if(last_text != "") { to_return.push_back(last_text); last_text = ""; }
-        return to_return;
-    };
-
-    // Load the built-ins balises for the GUI loading
-    void __Balise_Container::__load_built_in_balises_gui() {
-        std::shared_ptr<Balise_Datas> current_balise;
-        // Create the <choice> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("choice", current_balise);
-        // Create the <content> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("content", current_balise);
-        // Create the <gui_object> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("gui_object", current_balise);
-        // Create the <sub_choice> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("sub_choice", current_balise);
-        // Create the <when> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("when", current_balise);
-    }
-
-    // Load the built-ins balises for the HTML loading
-    void __Balise_Container::__load_built_in_balises_html() {
-        std::shared_ptr<Balise_Datas> current_balise;
-
-        // Create the <html> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("html", current_balise);
-        // Create the <head> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("head", current_balise);
-        // Create the <body> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("body", current_balise);
-
-        // Create the <title> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("title", current_balise);
-
-        // Create the <a> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->break_line_in_between = false;
-        current_balise.get()->has_content = true;
-        set_defined_balise("a", current_balise);
-        // Create the <div> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("div", current_balise);
-        // Create the <p> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("p", current_balise);
-        // Create the <span> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->break_line_in_between = false;
-        current_balise.get()->has_content = true;
-        set_defined_balise("span", current_balise);
-
-        // Style
-        // Create the <i> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->break_line_in_between = false;
-        current_balise.get()->has_content = true;
-        set_defined_balise("i", current_balise);
-
-        // Create the <math> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("math", current_balise);
-        // Create the <mfrac> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("mfrac", current_balise);
-        // Create the <mi> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("mi", current_balise);
-        // Create the <mo> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->break_line_in_between = false;
-        current_balise.get()->has_content = true;
-        set_defined_balise("mo", current_balise);
-        // Create the <mrow> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("mrow", current_balise);
-        // Create the <msub> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("msub", current_balise);
-        // Create the <msup> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("msup", current_balise);
-        // Create the <munder> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("munder", current_balise);
-        // Create the <munderover> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("munderover", current_balise);
-        // Create the <sub> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("sub", current_balise);
-        // Create the <sup> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("sup", current_balise);
-
-        // Create the <script> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("script", current_balise);
-    }
-
-    // Load the built-ins balises for the window loading
-    void __Balise_Container::__load_built_in_balises_window() {
-        std::shared_ptr<Balise_Datas> current_balise;
-        // Create the <page_2d> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("page_2d", current_balise);
-        // Create the <page_3d> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("page_3d", current_balise);
-    }
-
-    // Load the built-ins balises for the 3D loading
-    void __Balise_Container::__load_built_in_balises_3d() {
-        std::shared_ptr<Balise_Datas> current_balise;
-        // Create the <object_3d> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("object_3d", current_balise);
-        // Create the <repeat> style
-        current_balise = std::make_shared<Balise_Datas>();
-        current_balise.get()->has_content = true;
-        set_defined_balise("repeat", current_balise);
-    }
-
-    // Handle utilities balises
-    Utility_Balise utilities_balise(std::shared_ptr<scls::XML_Text_Base> xml) {
-        Utility_Balise to_return;
-
-        // Handle the balise
-        std::string balise_content = xml.get()->xml_balise();
-        std::string current_balise_name = xml.get()->xml_balise_name();
-        std::vector<scls::XML_Attribute>& attributes = xml.get()->xml_balise_attributes();
-        if(current_balise_name == std::string("if")) {
-            // If instructions
-            to_return.type = SCLS_BALISE_IF;
-            for(int i = 0;i<static_cast<int>(attributes.size());i++) {
-                if(attributes[i].name == "condition") {to_return.content = attributes.at(i).value;}
-            }
-        }
-        else if(current_balise_name == std::string("repeat")) {
-            // Repeat instructions
-            to_return.type = SCLS_BALISE_REPEAT;
-            for(int i = 0;i<static_cast<int>(attributes.size());i++) {
-                if(attributes[i].name == "times") {to_return.times = std::stoi(attributes.at(i).value);}
-            }
-        }
-
-        // Return the result
-        return to_return;
-    }
-
-    // Create an XML simply from a text (the returned XML is not a balise itself, but has balises children)
-	std::shared_ptr<XML_Text_Base> xml(std::shared_ptr<__Balise_Container> balises, std::string content) {std::shared_ptr<XML_Text_Base> to_return = XML_Text_Base::new_xml_text(balises, content);return to_return;}
-
-    //*********
-	//
-	// The String class
-	//
-	//*********
-
-    // Flux output operator of String
-    std::ostream& operator<<(std::ostream& strm, const String& str) {const char* to_out = str.to_char_array();strm << to_out;return strm;}
-    // Operator == overload with std::string
-    bool operator==(std::string second, const String& s) { return s == second; };
+		// If the block can be an entire balise
+		if (level == 1) {
+			if (contains_defined_balise(block_balise_name)) {
+				to_return = block_balise_name;
+			}
+		}
+	}
+	return to_return;
+}
+;
+// Cut a block by its sub_blocks and spaces
+std::vector<_Text_Balise_Part> __Balise_Container::__cut_block(
+		std::string block_text) {
+	std::vector<_Text_Balise_Part> first_cutted = cut_string_by_balise(
+			block_text, false, true);
+	std::vector<_Text_Balise_Part> cutted = std::vector<_Text_Balise_Part>();
+	for (int i = 0; i < static_cast<int>(first_cutted.size()); i++) {
+		if (first_cutted[i].balise_content.size() > 0
+				&& first_cutted[i].balise_content[0] == '<') {
+			// This part is a balise
+			std::string needed_balise_name = balise_name(
+					formatted_balise(first_cutted[i].balise_content));
+			_Text_Balise_Part to_add = first_cutted[i];
+			if (contains_defined_balise(needed_balise_name)) {
+				Balise_Datas *datas = defined_balise(needed_balise_name);
+				if (datas->has_content) {
+					// The balise contains a content
+					i++;
+					int level = 1;
+					while (i < static_cast<int>(first_cutted.size())) {
+						if (first_cutted[i].balise_content.size() > 0
+								&& first_cutted[i].balise_content[0] == '<') {
+							std::string formated = formatted_balise(
+									first_cutted[i].balise_content);
+							std::string current_balise_name = balise_name(
+									formated);
+							if (current_balise_name == needed_balise_name) {
+								if (closing_balise(formated)) {
+									level--;
+								} else {
+									level++;
+								}
+								if (level <= 0) {
+									to_add.balise_end_content =
+											first_cutted[i].total_content();
+									break;
+								}
+							}
+							to_add.content += first_cutted[i].total_content();
+						} else {
+							to_add.content += first_cutted[i].total_content();
+						}
+						i++;
+					}
+				}
+			}
+			cutted.push_back(to_add);
+		} else if (first_cutted[i].content == "") {
+			_Text_Balise_Part part_to_add;
+			cutted.push_back(part_to_add);
+		} else {
+			std::vector<std::string> space_cutted = cut_string(
+					first_cutted[i].content, " ", false, true);
+			for (int j = 0; j < static_cast<int>(space_cutted.size()); j++) {
+				_Text_Balise_Part part_to_add;
+				part_to_add.content = space_cutted[j];
+				cutted.push_back(part_to_add);
+
+				if (j < static_cast<int>(space_cutted.size()) - 1
+						|| first_cutted[i].content[first_cutted[i].content.size()
+								- 1] == ' ') {
+					_Text_Balise_Part part_to_add;
+					part_to_add.content = " ";
+					cutted.push_back(part_to_add);
+				}
+			}
+		}
+	}
+	return cutted;
+}
+;
+// Cut a multi-block by sub-blocks
+std::vector<std::string> __Balise_Container::__cut_multi_block(
+		std::string block_text) {
+	std::vector<_Text_Balise_Part> first_cutted = cut_string_by_balise(
+			block_text, false, true);
+	std::string last_text = "";
+	std::vector<std::string> to_return = std::vector<std::string>();
+	for (int i = 0; i < static_cast<int>(first_cutted.size()); i++) {
+		if (first_cutted[i].balise_content.size() > 0
+				&& first_cutted[i].balise_content[0] == '<') {
+			// A sub-block is here
+			std::string current_balise_name = balise_name(
+					formatted_balise(first_cutted[i].balise_content));
+			if (contains_defined_balise(current_balise_name)
+					&& defined_balise(current_balise_name)->is_paragraph) {
+				// Save the last empty paragraph
+				to_return.push_back(last_text);
+				last_text = "";
+
+				i++;
+				unsigned int level = 1;
+				std::string total_text = "";
+				while (i < static_cast<int>(first_cutted.size())) {
+					if (first_cutted[i].balise_content.size() > 0
+							&& first_cutted[i].balise_content[0] == '<') {
+						first_cutted[i].balise_content = formatted_balise(
+								first_cutted[i].balise_content);
+						std::string next_balise_name = balise_name(
+								first_cutted[i].balise_content);
+						if (next_balise_name == current_balise_name) {
+							if (closing_balise(
+									first_cutted[i].balise_content)) {
+								level--;
+							} else {
+								level++;
+							}
+							if (level <= 0)
+								break;
+						}
+					}
+					total_text += first_cutted[i].total_content();
+					i++;
+				}
+
+				// Create the block datas
+				to_return.push_back(total_text);
+			} else {
+				last_text += first_cutted[i].total_content();
+			}
+		} else {
+			last_text += first_cutted[i].content;
+		}
+	}
+	// Save the last paragraph if necessary
+	if (last_text != "") {
+		to_return.push_back(last_text);
+		last_text = "";
+	}
+	return to_return;
+}
+;
+
+// Load the built-ins balises for the GUI loading
+void __Balise_Container::__load_built_in_balises_gui() {
+	std::shared_ptr<Balise_Datas> current_balise;
+	// Create the <choice> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("choice", current_balise);
+	// Create the <content> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("content", current_balise);
+	// Create the <gui_object> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("gui_object", current_balise);
+	// Create the <sub_choice> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("sub_choice", current_balise);
+	// Create the <when> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("when", current_balise);
+}
+
+// Load the built-ins balises for the HTML loading
+void __Balise_Container::__load_built_in_balises_html() {
+	std::shared_ptr<Balise_Datas> current_balise;
+
+	// Create the <html> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("html", current_balise);
+	// Create the <head> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("head", current_balise);
+	// Create the <body> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("body", current_balise);
+
+	// Create the <title> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("title", current_balise);
+
+	// Create the <a> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->break_line_in_between = false;
+	current_balise.get()->has_content = true;
+	set_defined_balise("a", current_balise);
+	// Create the <div> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("div", current_balise);
+	// Create the <p> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("p", current_balise);
+	// Create the <span> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->break_line_in_between = false;
+	current_balise.get()->has_content = true;
+	set_defined_balise("span", current_balise);
+
+	// Style
+	// Create the <i> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->break_line_in_between = false;
+	current_balise.get()->has_content = true;
+	set_defined_balise("i", current_balise);
+
+	// Create the <math> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("math", current_balise);
+	// Create the <mfrac> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("mfrac", current_balise);
+	// Create the <mi> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("mi", current_balise);
+	// Create the <mo> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->break_line_in_between = false;
+	current_balise.get()->has_content = true;
+	set_defined_balise("mo", current_balise);
+	// Create the <mrow> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("mrow", current_balise);
+	// Create the <msub> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("msub", current_balise);
+	// Create the <msup> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("msup", current_balise);
+	// Create the <munder> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("munder", current_balise);
+	// Create the <munderover> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("munderover", current_balise);
+	// Create the <sub> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("sub", current_balise);
+	// Create the <sup> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("sup", current_balise);
+
+	// Create the <script> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("script", current_balise);
+}
+
+// Load the built-ins balises for the window loading
+void __Balise_Container::__load_built_in_balises_window() {
+	std::shared_ptr<Balise_Datas> current_balise;
+	// Create the <page_2d> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("page_2d", current_balise);
+	// Create the <page_3d> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("page_3d", current_balise);
+}
+
+// Load the built-ins balises for the 3D loading
+void __Balise_Container::__load_built_in_balises_3d() {
+	std::shared_ptr<Balise_Datas> current_balise;
+	// Create the <object_3d> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("object_3d", current_balise);
+	// Create the <repeat> style
+	current_balise = std::make_shared<Balise_Datas>();
+	current_balise.get()->has_content = true;
+	set_defined_balise("repeat", current_balise);
+}
+
+// Handle utilities balises
+Utility_Balise utilities_balise(std::shared_ptr<scls::XML_Text_Base> xml) {
+	return utilities_balise(xml, 0);
+}
+Utility_Balise utilities_balise(std::shared_ptr<scls::XML_Text_Base> xml,
+		double (*needed_function)(std::string)) {
+	Utility_Balise to_return;
+
+	// Handle the balise
+	std::string balise_content = xml.get()->xml_balise();
+	std::string current_balise_name = xml.get()->xml_balise_name();
+	std::vector<scls::XML_Attribute> &attributes =
+			xml.get()->xml_balise_attributes();
+	if (current_balise_name == std::string("if")) {
+		// If instructions
+		to_return.type = SCLS_BALISE_IF;
+		for (int i = 0; i < static_cast<int>(attributes.size()); i++) {
+			if (attributes[i].name == "condition") {
+				to_return.content = attributes.at(i).value;
+			}
+		}
+	} else if (current_balise_name == std::string("repeat")) {
+		// Repeat instructions
+		to_return.type = SCLS_BALISE_REPEAT;
+		for (int i = 0; i < static_cast<int>(attributes.size()); i++) {
+			if (attributes[i].name == "times") {
+				if (needed_function == 0) {
+					to_return.times = std::stoi(attributes.at(i).value);
+				} else {
+					to_return.times = needed_function(attributes.at(i).value);
+				}
+			}
+		}
+	}
+
+	// Return the result
+	return to_return;
+}
+
+// Create an XML simply from a text (the returned XML is not a balise itself, but has balises children)
+std::shared_ptr<XML_Text_Base> xml(std::shared_ptr<__Balise_Container> balises,
+		std::string content) {
+	std::shared_ptr<XML_Text_Base> to_return = XML_Text_Base::new_xml_text(
+			balises, content);
+	return to_return;
+}
+
+//*********
+//
+// The String class
+//
+//*********
+
+// Flux output operator of String
+std::ostream& operator<<(std::ostream &strm, const String &str) {
+	const char *to_out = str.to_char_array();
+	strm << to_out;
+	return strm;
+}
+// Operator == overload with std::string
+bool operator==(std::string second, const String &s) {
+	return s == second;
+}
+;
 }

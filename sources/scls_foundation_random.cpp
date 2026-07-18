@@ -35,6 +35,9 @@ namespace scls {
     std::default_random_engine gen(r());
     std::uniform_real_distribution<double> dis(0.0, 1.0);
 
+    // Generator
+    std::default_random_engine& generator(){return gen;};
+
     // Returns a random int between two included numbers
     int random_int_between_included(int min_number, int max_number){double d = dis(gen);if(d == 1){return max_number;}return min_number + std::floor(static_cast<double>((max_number - min_number) + 1) * d);}
 
