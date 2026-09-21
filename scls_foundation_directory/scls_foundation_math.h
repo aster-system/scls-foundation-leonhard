@@ -33,7 +33,7 @@
 #define SCLS_PI 3.1415926535
 #endif // SCLS_PI
 #ifndef SCLS_HALP_PI
-#define SCLS_HALF_PI 1.5707963267948966
+#define SCLS_HALF_PI 1.5707963267948966L
 #endif // SCLS_HALP_PI
 
 // The namespace "scls" is used to simplify the all.

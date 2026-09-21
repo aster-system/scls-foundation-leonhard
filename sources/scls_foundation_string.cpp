@@ -974,15 +974,18 @@ namespace scls {
 			error = SCLS_FUNCTION_CALLED_TEXT_NOT_FUNCTION;
 			return to_return;
 		}
-		for (int i = opening; i < static_cast<int>(base.size()); i++) {
-			if (base.at(i) == ')') {
-				closing = i;
-				break;
+
+		// Parenthesis
+		int parenthesis_level = 0;
+		for (int i = opening + 1; i < static_cast<int>(base.size()); i++) {
+            if(base.at(i) == '('){parenthesis_level++;}
+			else if (base.at(i) == ')') {
+                if(parenthesis_level == 0){closing = i;break;}
+                else{parenthesis_level--;}
 			}
 		}
-		if (closing == -1) {
-			return Function_Called_Text();
-		}
+
+		if (closing == -1) {return Function_Called_Text();}
 
 		// Get the datas
 		to_return.name = base.substr(0, opening);
