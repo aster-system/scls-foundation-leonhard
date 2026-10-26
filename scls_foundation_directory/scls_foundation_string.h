@@ -40,6 +40,9 @@ namespace scls {
 	// Convert a char array to a string and return it
     std::string char_array_to_string(const char* c_a, unsigned int c_a_size);
 
+    // Return if the first and last character of the string are in the same level
+    bool limits_at_same_leveling(std::string str, char first, char last);
+
 	// Returns if a string contains an another string out of 2 (or 1, or 0) different string
 	bool contains_string(std::string str, std::string part, std::string out_of_start, std::string out_of_end);
 	bool contains_string(std::string str, std::string part, std::string out_of);
@@ -69,6 +72,7 @@ namespace scls {
     // Returns if a string is a number or not
     bool string_is_number(char to_test);
     bool string_is_number(std::string to_test);
+    bool string_is_number(std::string to_test, std::vector<char> ignored_characters);
     // Convert a string to a double
     double string_to_double(std::string str);
 

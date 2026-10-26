@@ -44,6 +44,31 @@
 namespace scls {
     //*********
 	//
+	// The Time class
+	//
+	//*********
+
+    class Time {
+    public:
+        // Time constructor
+        Time();
+        Time(long long minute, long long second);
+        Time(long long hour, long long minut, long long second);
+
+        // Add time
+        void add_time(const Time& t);
+        Time added_time(const Time& t);
+
+        // Returns the date to an std::string
+        std::string to_std_string();
+
+    private:
+        // Nanoseconds since 1970
+        long long a_time = 0;
+    };
+
+    //*********
+	//
 	// The Date class
 	//
 	//*********
@@ -72,7 +97,7 @@ namespace scls {
         // Adds days to the date
         void add_days(long long days);
 
-        // Hour, minut, second of the time
+        // Hour, minute, second of the time
         int hour();
         int minut();
         int second();
@@ -96,7 +121,7 @@ namespace scls {
         inline long long seconds_since_1970() const {return a_time;};
         inline void set_time(long long new_time){a_time = new_time;};
     private:
-        // Nanosecondes since 1970
+        // Nanoseconds since 1970
         long long a_time;
     };
 

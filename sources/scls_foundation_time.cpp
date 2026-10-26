@@ -28,6 +28,35 @@
 
 // The namespace "scls" is used to simplify the all.
 namespace scls {
+    // Time constructor
+    Time::Time(){};
+    Time::Time(long long minute, long long second):a_time(minute * 60000000000 + second * 1000000000){};
+    Time::Time(long long hour, long long minute, long long second):a_time(hour * 3600000000000 + minute * 60000000000 + second * 1000000000){};
+
+    // Add time
+    void Time::add_time(const Time& t){a_time += t.a_time;};
+    Time Time::added_time(const Time& t){Time tr;tr.a_time = a_time + t.a_time;return tr;};
+
+    // Returns the date to an std::string
+    std::string Time::to_std_string() {
+        long long current_time = a_time / 1000000000;
+        long long hour = current_time / 3600;current_time = current_time % 3600;
+        long long minute = current_time / 60;current_time = current_time % 60;
+        long long second = current_time;
+
+        // Datas
+        bool use_minute = true;
+
+        // String
+        std::string to_return = std::string();bool hour_used = false;
+        if(hour != 0){to_return += std::to_string(hour) + std::string(":");hour_used = true;}
+        if(minute != 0 || hour_used || use_minute){std::string sm = std::to_string(minute);while(sm.size() < 2){sm = std::string("0") + sm;}to_return += sm + std::string(":");}
+        std::string st = std::to_string(second);while(st.size() < 2){st = std::string("0") + st;} to_return += st;
+
+        // Result
+        return to_return;
+    }
+
     //*********
 	//
 	// The Date class
