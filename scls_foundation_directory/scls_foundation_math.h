@@ -29,13 +29,6 @@
 
 #include "scls_foundation_core.h"
 
-#ifndef SCLS_PI
-#define SCLS_PI 3.1415926535
-#endif // SCLS_PI
-#ifndef SCLS_HALP_PI
-#define SCLS_HALF_PI 1.5707963267948966L
-#endif // SCLS_HALP_PI
-
 // The namespace "scls" is used to simplify the all.
 namespace scls {
     //*********
@@ -55,6 +48,11 @@ namespace scls {
 	// Get mathematicals datas
 	//
 	//*********
+
+	// Convert degrees to radians
+    inline constexpr long double half_pi = 1.5707963267948966192313216916398L;
+    inline constexpr long double pi = 3.141592653589793238462643383279L;
+    inline long double degrees_to_radians(long double degrees) {return (degrees / 180.0L) * pi;};
 
 	// Normalize a value between "min" and "max" included
 	inline double normalize_value(double number, double min, double max) { if(max == min) return 0; else if(max < min) std::swap(min, max); double t = max - min; while (number < min) number += t; while (number > max) number -= t; return number; }
